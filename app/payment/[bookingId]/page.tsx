@@ -47,9 +47,6 @@ async function getBookingForPayment(
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const cookie = (await headers()).get("cookie") ?? "";
 
-  // Backend endpoint you should create:
-  // GET /api/bookings/:bookingId/payment
-  // Return booking + service (name, price, deposit_amount) + staff (full_name)
   try {
     const res = await fetch(`${apiUrl}/api/bookings/${bookingId}/payment`, {
       method: "GET",

@@ -1,10 +1,12 @@
 import { redirect, notFound } from "next/navigation";
 import { headers } from "next/headers";
-import type { CSSProperties } from "react";
+import React from "react";
+import Link from "next/link";
 import { Playfair_Display } from "next/font/google";
 import { BookingForm } from "@/components/booking/booking-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { cn } from "@/lib/utils";
+import { ChevronLeft, Clock, DollarSign, Tag, Users } from "lucide-react";
 
 const displayFont = Playfair_Display({
   subsets: ["latin"],
@@ -100,9 +102,23 @@ async function getServiceStaff(serviceId: string): Promise<StaffOption[]> {
   }
 }
 
-const themeStyle: CSSProperties = {
-  "--booking-bg": "oklch(0.08 0.02 240)",
-  "--booking-accent": "oklch(0.5 0.22 200)",
+const themeStyle = {
+  "--booking-bg": "oklch(0.07 0.02 240)",
+  "--booking-accent": "oklch(0.52 0.22 200)",
+} as React.CSSProperties;
+
+const formatPrice = (amount: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+
+const formatDuration = (minutes: number) => {
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
 };
 
 export default async function BookServicePage({
@@ -113,9 +129,7 @@ export default async function BookServicePage({
   searchParams?: Promise<{ source?: string }> | { source?: string };
 }) {
   const resolvedParams = await params;
-  const resolvedSearchParams = searchParams
-    ? await searchParams
-    : undefined;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const { serviceId } = resolvedParams;
   const source = resolvedSearchParams?.source === "social" ? "social" : "web";
 
@@ -142,13 +156,23 @@ export default async function BookServicePage({
 
   return (
     <div
-      className="min-h-screen bg-[var(--booking-bg)] text-slate-100"
+      className="min-h-screen bg-(--booking-bg) text-slate-100"
       style={themeStyle}
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
+        {/* Back navigation */}
+        <Link
+          href="/services"
+          className="mb-8 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-slate-200"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          All Services
+        </Link>
+
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)]">
-          <div className="space-y-8 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-6 scrollbar-thin">
-            <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl">
+          <div className="space-y-8 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-6">
+            {/* Hero image with gradient overlay */}
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
               {images.length > 0 ? (
                 <ImageCarousel
                   images={images}
@@ -159,12 +183,16 @@ export default async function BookServicePage({
               ) : (
                 <div className="h-80 w-full bg-white/5" />
               )}
+              {/* Bottom gradient for text legibility */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/60 to-transparent" />
+              {service.category && (
+                <span className="absolute left-4 top-4 rounded-full border border-white/20 bg-black/50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+                  {service.category}
+                </span>
+              )}
             </div>
 
             <div className="space-y-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                Service Details
-              </p>
               <h1
                 className={cn(
                   "text-3xl font-semibold tracking-tight text-white sm:text-4xl",
@@ -180,26 +208,26 @@ export default async function BookServicePage({
               ) : null}
             </div>
 
-              <div className="flex flex-wrap gap-3 text-xs">
-              {service.category ? (
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200">
-                  {service.category}
-                </span>
-              ) : null}
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200">
-                {service.duration_minutes} mins
+            {/* Meta pills with icons */}
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-slate-200">
+                <Clock className="h-3 w-3 text-slate-400" />
+                {formatDuration(service.duration_minutes)}
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200">
-                ${service.price}
+              <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-slate-200">
+                <DollarSign className="h-3 w-3 text-slate-400" />
+                {formatPrice(service.price)}
               </span>
               {service.deposit_amount > 0 ? (
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200">
-                  ${service.deposit_amount} deposit
+                <span className="flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-amber-200">
+                  <Tag className="h-3 w-3" />
+                  {formatPrice(service.deposit_amount)} deposit
                 </span>
               ) : null}
               {service.max_capacity > 1 ? (
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200">
-                  Group booking up to {service.max_capacity}
+                <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-slate-200">
+                  <Users className="h-3 w-3 text-slate-400" />
+                  Group Â· up to {service.max_capacity}
                 </span>
               ) : null}
             </div>
@@ -213,7 +241,7 @@ export default async function BookServicePage({
                   <ul className="mt-3 space-y-2 text-sm text-slate-300">
                     {inclusionItems.map((item) => (
                       <li key={item} className="flex items-start gap-2">
-                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[var(--booking-accent)]" />
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-(--booking-accent)" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -222,7 +250,9 @@ export default async function BookServicePage({
               ) : null}
               {service.prep_notes ? (
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                  <h2 className="text-sm font-semibold text-white">Prep Notes</h2>
+                  <h2 className="text-sm font-semibold text-white">
+                    Prep Notes
+                  </h2>
                   <p className="mt-3 text-sm leading-relaxed text-slate-300">
                     {service.prep_notes}
                   </p>
@@ -231,28 +261,33 @@ export default async function BookServicePage({
             </div>
           </div>
 
-          <div className="lg:sticky lg:top-8">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-6 shadow-[0_30px_120px_rgba(0,0,0,0.35)] backdrop-blur">
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                  Book your day
+          <div className="lg:sticky lg:top-8 lg:self-start">
+            <div className="rounded-3xl border border-white/10 bg-black/50 p-6 shadow-[0_30px_120px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+              {/* Booking form header */}
+              <div className="mb-6 space-y-1 border-b border-white/8 pb-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
+                  Step-by-step booking
                 </p>
-                <h2 className="text-lg font-semibold text-white">
-                  Secure your preferred time
+                <h2 className="text-lg font-bold text-white">
+                  {service.public_name || service.name}
                 </h2>
-                <p className="text-sm text-slate-400">
-                  Select staff, date, and time. We&apos;ll confirm instantly and
-                  handle payment at the appointment.
-                </p>
+                <div className="flex items-center gap-3 text-xs text-slate-400">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {formatDuration(service.duration_minutes)}
+                  </span>
+                  <span className="text-slate-600">Â·</span>
+                  <span className="font-semibold text-slate-300">
+                    {formatPrice(service.price)}
+                  </span>
+                </div>
               </div>
-              <div className="mt-6">
-                <BookingForm
-                  service={service}
-                  staff={staff}
-                  customer={me}
-                  bookingSource={source}
-                />
-              </div>
+              <BookingForm
+                service={service}
+                staff={staff}
+                customer={me}
+                bookingSource={source}
+              />
             </div>
           </div>
         </div>

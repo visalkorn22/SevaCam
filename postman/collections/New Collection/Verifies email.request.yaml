@@ -1,0 +1,16 @@
+$kind: http-request
+name: Verifies email
+url: http://localhost:8000/api/auth/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"user@example.com\",\r
+
+    \  \"password\": \"ChangeMe123!\"\r
+
+    }"
+settings:
+  disabledSystemHeaders: []
+order: 696148081171828

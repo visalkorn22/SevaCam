@@ -1,10 +1,15 @@
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, Calendar, Clock, User } from "lucide-react";
-import { format } from "date-fns";
+import {
+  CheckCircle2,
+  Calendar,
+  Clock,
+  User,
+  ArrowRight,
+  CalendarDays,
+} from "lucide-react";
+import { addMinutes, format } from "date-fns";
 
 type BookingConfirmedRow = {
   id: string;
@@ -77,101 +82,140 @@ export default async function BookingConfirmedPage({
   if (!booking || !booking.services) notFound();
 
   const staffName = booking.staff?.full_name || "Staff Member";
+  const startDate = new Date(booking.start_time_utc);
+  const endDate = addMinutes(startDate, booking.services.duration_minutes);
+  const formatPrice = (amount: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(amount);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container motion-page py-12">
-        <div className="mx-auto max-w-2xl">
-          <Card className="border border-border bg-card shadow-[var(--shadow-card)]">
-            <CardHeader className="text-center pb-6">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-50 border-2 border-green-200">
-                <CheckCircle2 className="h-10 w-10 text-green-600" />
-              </div>
-              <CardTitle className="text-3xl font-bold mb-2">
-                Booking Confirmed!
-              </CardTitle>
-              <p className="text-base text-muted-foreground">
-                Your appointment has been successfully booked
+    <div className="min-h-screen bg-linear-to-b from-emerald-950/30 via-background to-background">
+      <div className="container py-16 sm:py-24">
+        <div className="mx-auto max-w-lg">
+          {/* Success hero */}
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/15 ring-2 ring-emerald-500/30">
+              <CheckCircle2 className="h-10 w-10 text-emerald-400" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              You&apos;re all set!
+            </h1>
+            <p className="mt-2 text-base text-muted-foreground">
+              Your appointment has been confirmed. See you soon.
+            </p>
+          </div>
+
+          {/* Booking card */}
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            {/* Header strip */}
+            <div className="bg-emerald-500/10 px-6 py-4 border-b border-border">
+              <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                Booking Confirmed
               </p>
-            </CardHeader>
+              <p className="mt-0.5 text-xl font-bold text-foreground">
+                {booking.services.name}
+              </p>
+            </div>
 
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-5">
-                <div className="flex items-start gap-3">
-                  <User className="mt-0.5 h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">{booking.services.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      with {staffName}
-                    </p>
-                  </div>
+            <div className="divide-y divide-border">
+              {/* Staff */}
+              <div className="flex items-center gap-4 px-6 py-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                  <User className="h-5 w-5 text-muted-foreground" />
                 </div>
-
-                <div className="flex items-start gap-3">
-                  <Calendar className="mt-0.5 h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">
-                      {format(
-                        new Date(booking.start_time_utc),
-                        "EEEE, MMMM d, yyyy",
-                      )}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {format(new Date(booking.start_time_utc), "h:mm a")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Clock className="mt-0.5 h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">
-                      {booking.services.duration_minutes} minutes
-                    </p>
-                  </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Provider
+                  </p>
+                  <p className="font-semibold">{staffName}</p>
                 </div>
               </div>
 
-              <div className="rounded-lg border border-primary/20 bg-primary/5 p-5">
-                <p className="font-semibold text-foreground mb-2">
-                  What&apos;s Next?
+              {/* Date */}
+              <div className="flex items-center gap-4 px-6 py-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Date
+                  </p>
+                  <p className="font-semibold">
+                    {format(startDate, "EEEE, MMMM d, yyyy")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Time */}
+              <div className="flex items-center gap-4 px-6 py-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Time
+                  </p>
+                  <p className="font-semibold">
+                    {format(startDate, "h:mm a")} &rarr;{" "}
+                    {format(endDate, "h:mm a")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {booking.services.duration_minutes} min session
+                  </p>
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="flex items-center justify-between px-6 py-4">
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-lg font-bold text-foreground">
+                  {formatPrice(booking.services.price)}
                 </p>
-                <ul className="space-y-1.5 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>
-                      You&apos;ll receive a confirmation email shortly
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>
-                      We&apos;ll send you a reminder before your appointment
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>
-                      Return to services if you want to book another appointment
-                    </span>
-                  </li>
-                </ul>
               </div>
+            </div>
+          </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row pt-2">
-                <Button asChild size="lg" className="flex-1">
-                  <Link href="/#services">View Services</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="flex-1">
-                  <Link href="/#services">Book Another</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {/* What's next */}
+          <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-5">
+            <p className="mb-3 text-sm font-semibold">What&apos;s next?</p>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                You&apos;ll receive a confirmation email shortly.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                We&apos;ll send a reminder before your appointment.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                Manage your booking anytime from your dashboard.
+              </li>
+            </ul>
+          </div>
+
+          {/* CTAs */}
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/bookings"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold transition hover:bg-muted"
+            >
+              <CalendarDays className="h-4 w-4" />
+              My Bookings
+            </Link>
+            <Link
+              href="/services"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+            >
+              Book Another
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-

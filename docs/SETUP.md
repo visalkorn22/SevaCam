@@ -15,10 +15,10 @@
    - Run scripts in order:
      - `scripts/001_create_tables.sql`
      - `scripts/002_enable_rls.sql`
-    - `scripts/003_create_profile_trigger.sql`
-    - `scripts/004_seed_data.sql` (optional - adds sample data)
-    - `scripts/005_add_email_verification.sql` (required for existing databases)
-     - `scripts/006_add_magic_link.sql` (required for passwordless login)
+   - `scripts/003_create_profile_trigger.sql`
+   - `scripts/004_seed_data.sql` (optional - adds sample data)
+   - `scripts/005_add_email_verification.sql` (required for existing databases)
+   - `scripts/006_add_magic_link.sql` (required for passwordless login)
 
 3. **Configure Authentication**
    - Go to Authentication > Settings
@@ -29,6 +29,7 @@
 ### 2. Environment Setup
 
 **Frontend (.env.local):**
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
@@ -38,6 +39,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 **Backend (backend/.env):**
+
 ```env
 DATABASE_URL=postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres
 SUPABASE_URL=https://your-project.supabase.co
@@ -48,16 +50,24 @@ CORS_ORIGINS=["http://localhost:3000"]
 APP_URL=http://localhost:3000
 ABA_PAYWAY_MERCHANT_ID=your-merchant-id
 ABA_PAYWAY_API_KEY=your-api-key
+ABA_PAYWAY_API_URL=https://checkout-sandbox.payway.com.kh/api
+ABA_PAYWAY_CHECKOUT_PATH=/payments/purchase
+ABA_PAYWAY_WEBHOOK_PATH=/api/payments/webhook/payway
+ABA_PAYWAY_WEBHOOK_SECRET=your-webhook-signing-secret
+ABA_PAYWAY_RETURN_URL=http://localhost:3000/payments
+ABA_PAYWAY_CANCEL_URL=http://localhost:3000/payments
 ```
 
 ### 3. Install Dependencies
 
 **Frontend:**
+
 ```bash
 npm install
 ```
 
 **Backend:**
+
 ```bash
 cd backend
 python -m venv venv
@@ -68,11 +78,13 @@ pip install -r requirements.txt
 ### 4. Run the Application
 
 **Start Frontend:**
+
 ```bash
 npm run dev
 ```
 
 **Start Backend:**
+
 ```bash
 cd backend
 uvicorn app.main:app --reload --port 8000
@@ -89,6 +101,7 @@ uvicorn app.main:app --reload --port 8000
 ### 6. Seed Data (Optional)
 
 Run the seed data script to populate with sample services:
+
 ```sql
 -- scripts/004_seed_data.sql
 ```
@@ -124,18 +137,21 @@ The backend supports passwordless login via magic link emails. To enable it:
 ### 9. Production Deployment
 
 **Frontend (Vercel):**
+
 1. Push code to GitHub
 2. Import project in Vercel
 3. Add environment variables
 4. Deploy
 
 **Backend (Railway/Render):**
+
 1. Create new service
 2. Connect GitHub repository
 3. Set environment variables
 4. Deploy
 
 **Database:**
+
 - Supabase is already hosted
 - Upgrade to paid plan for production
 - Configure custom domain (optional)
@@ -143,21 +159,25 @@ The backend supports passwordless login via magic link emails. To enable it:
 ## Troubleshooting
 
 ### Database Connection Issues
+
 - Check DATABASE_URL is correct
 - Ensure Supabase project is not paused
 - Verify firewall/network settings
 
 ### Authentication Errors
+
 - Verify Supabase keys are correct
 - Check email confirmation settings
 - Review RLS policies
 
 ### API Connection Issues
+
 - Ensure backend is running on port 8000
 - Check CORS configuration
 - Verify NEXT_PUBLIC_API_URL is correct
 
 ### Payment Processing Issues
+
 - Check ABA Payway credentials
 - Review payment API logs
 - Verify webhook configuration
@@ -165,6 +185,7 @@ The backend supports passwordless login via magic link emails. To enable it:
 ## Next Steps
 
 After setup:
+
 1. Customize the design to match your brand
 2. Add your actual services
 3. Configure staff availability

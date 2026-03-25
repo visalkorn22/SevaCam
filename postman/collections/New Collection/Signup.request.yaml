@@ -1,0 +1,23 @@
+$kind: http-request
+name: Signup
+url: http://localhost:8000/api/auth/signup
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"user@example.com\",\r
+
+    \  \"password\": \"ChangeMe123!\",\r
+
+    \  \"full_name\": \"John Doe\",\r
+
+    \  \"phone\": \"+1234567890\",\r
+
+    \  \"timezone\": \"Asia/Phnom_Penh\"\r
+
+    }"
+settings:
+  disabledSystemHeaders:
+    - content-length
+order: 1773221624432
