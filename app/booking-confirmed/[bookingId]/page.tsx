@@ -13,6 +13,8 @@ import { addMinutes, format } from "date-fns";
 
 type BookingConfirmedRow = {
   id: string;
+  status: string;
+  payment_status: string;
   start_time_utc: string;
   services: {
     name: string;
@@ -80,6 +82,9 @@ export default async function BookingConfirmedPage({
 
   const booking = await getBookingConfirmed(bookingId);
   if (!booking || !booking.services) notFound();
+  if (booking.payment_status !== "paid") {
+    redirect(`/payment/${bookingId}`);
+  }
 
   const staffName = booking.staff?.full_name || "Staff Member";
   const startDate = new Date(booking.start_time_utc);

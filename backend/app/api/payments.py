@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user, is_admin
 from app.core.config import settings
+from app.core.notify import (
+    build_booking_email,
+    get_booking_email_context,
+    send_email_notification,
+)
 from app.models.schemas import PaymentCreate, PaymentResponse, PaymentIntent
 import uuid
 import hashlib
@@ -13,17 +19,23 @@ import hmac
 import json
 import httpx
 import base64
-from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
+import logging
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from html import escape
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 PAYWAY_STATUS_MAP = {
     "success": "completed",
     "successful": "completed",
     "completed": "completed",
     "paid": "completed",
+    "approved": "completed",
     "ok": "completed",
+    "00": "completed",
+    "0": "completed",
     "failed": "failed",
     "fail": "failed",
     "error": "failed",
@@ -33,11 +45,48 @@ PAYWAY_STATUS_MAP = {
     "refunded": "refunded",
 }
 
+STRIPE_STATUS_MAP = {
+    "paid": "completed",
+    "no_payment_required": "completed",
+    "expired": "failed",
+}
+
 
 def _map_provider_status(raw_status: str | None) -> str:
     if not raw_status:
         return "failed"
     return PAYWAY_STATUS_MAP.get(raw_status.strip().lower(), "failed")
+
+
+def _split_name(full_name: str | None) -> tuple[str, str]:
+    parts = (full_name or "").strip().split(None, 1)
+    if not parts:
+        return "Customer", ""
+    if len(parts) == 1:
+        return parts[0], ""
+    return parts[0], parts[1]
+
+
+def _encode_base64(value: str) -> str:
+    return base64.b64encode(value.encode("utf-8")).decode("utf-8")
+
+
+def _encode_base64_json(value: object) -> str:
+    return _encode_base64(json.dumps(value, separators=(",", ":"), ensure_ascii=False))
+
+
+def _encode_base64_json_ascii(value: object) -> str:
+    return _encode_base64(json.dumps(value, separators=(",", ":"), ensure_ascii=True))
+
+
+def _build_payway_hash(values: list[object], key: str) -> str:
+    hash_input = "".join("" if value is None else str(value) for value in values)
+    digest = hmac.new(
+        key.encode("utf-8"),
+        hash_input.encode("utf-8"),
+        hashlib.sha512,
+    ).digest()
+    return base64.b64encode(digest).decode("utf-8")
 
 
 def _extract_payway_redirect_url(payload: dict) -> str | None:
@@ -89,6 +138,47 @@ def _verify_signature(raw_body: bytes, provided_signature: str | None) -> bool:
     return hmac.compare_digest(expected, candidate)
 
 
+def _verify_stripe_signature(raw_body: bytes, provided_signature: str | None) -> bool:
+    secret = settings.STRIPE_WEBHOOK_SECRET
+    if not secret:
+        return bool(settings.DEBUG)
+
+    if not provided_signature:
+        return False
+
+    timestamp: str | None = None
+    signatures: list[str] = []
+    for part in provided_signature.split(","):
+        key, _, value = part.partition("=")
+        if key == "t":
+            timestamp = value
+        elif key == "v1" and value:
+            signatures.append(value)
+
+    if not timestamp or not signatures:
+        return False
+
+    try:
+        signed_at = int(timestamp)
+    except ValueError:
+        return False
+
+    if abs(int(time.time()) - signed_at) > 300:
+        return False
+
+    try:
+        payload = f"{timestamp}.{raw_body.decode('utf-8')}"
+    except UnicodeDecodeError:
+        return False
+
+    expected = hmac.new(
+        secret.encode("utf-8"),
+        payload.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    return any(hmac.compare_digest(expected, candidate) for candidate in signatures)
+
+
 def _to_decimal(value: object | None) -> Decimal | None:
     if value is None:
         return None
@@ -98,138 +188,757 @@ def _to_decimal(value: object | None) -> Decimal | None:
         return None
 
 
+def _send_booking_emails(db: Session, booking_id: str, notification_type: str) -> None:
+    context = get_booking_email_context(db, booking_id)
+    if not context:
+        return
+
+    for role, key in (("customer", "customer_email"), ("staff", "staff_email")):
+        recipient = context.get(key)
+        if not recipient:
+            continue
+        email_payload = build_booking_email(context, notification_type, role)
+        send_email_notification(
+            db=db,
+            booking_id=booking_id,
+            notification_type=notification_type,
+            recipient=recipient,
+            subject=email_payload["subject"],
+            body=email_payload["body"],
+        )
+
+
+def _to_stripe_minor_units(amount: Decimal) -> int:
+    return int((amount * Decimal("100")).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+
+def _map_stripe_status(session_payload: dict) -> str:
+    payment_status = str(session_payload.get("payment_status") or "").strip().lower()
+    session_status = str(session_payload.get("status") or "").strip().lower()
+
+    if payment_status in STRIPE_STATUS_MAP:
+        return STRIPE_STATUS_MAP[payment_status]
+    if session_status in STRIPE_STATUS_MAP:
+        return STRIPE_STATUS_MAP[session_status]
+    return "pending"
+
+
+def _load_payment_record(db: Session, payment_id: str):
+    return db.execute(
+        text("SELECT * FROM payments WHERE id = :id"),
+        {"id": payment_id},
+    ).mappings().first()
+
+
+def _resolve_payment_record(
+    db: Session,
+    *,
+    payment_id: str | None = None,
+    provider_reference: str | None = None,
+):
+    if payment_id:
+        payment = db.execute(
+            text(
+                "SELECT * FROM payments WHERE id = :id ORDER BY created_at DESC LIMIT 1"
+            ),
+            {"id": payment_id},
+        ).mappings().first()
+        if payment:
+            return payment
+
+    if provider_reference:
+        return db.execute(
+            text(
+                """
+                SELECT * FROM payments
+                WHERE provider_reference = :provider_reference
+                ORDER BY created_at DESC
+                LIMIT 1
+                """
+            ),
+            {"provider_reference": provider_reference},
+        ).mappings().first()
+
+    return None
+
+
+def _coerce_metadata(value: object) -> dict:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str) and value.strip():
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+    return {}
+
+
+def _resolve_payway_checkout_endpoint() -> str:
+    api_url = settings.ABA_PAYWAY_API_URL.strip()
+    checkout_path = settings.ABA_PAYWAY_CHECKOUT_PATH.strip()
+
+    if not api_url:
+        raise HTTPException(status_code=500, detail="ABA PayWay API URL is not configured")
+
+    normalized_api_url = api_url.rstrip("/")
+    normalized_checkout_path = checkout_path.strip("/")
+
+    if normalized_checkout_path and normalized_api_url.endswith(f"/{normalized_checkout_path}"):
+        return normalized_api_url
+
+    if normalized_checkout_path:
+        return f"{normalized_api_url}/{normalized_checkout_path}"
+
+    return normalized_api_url
+
+
+def _resolve_payway_qr_callback_url() -> str:
+    configured = (settings.ABA_PAYWAY_CALLBACK_URL or "").strip()
+    if configured:
+        if not configured.lower().startswith("https://"):
+            raise HTTPException(
+                status_code=500,
+                detail="ABA_PAYWAY_CALLBACK_URL must start with https:// for PayWay QR",
+            )
+        return configured
+
+    app_url = settings.APP_URL.strip()
+    if "localhost" in app_url or "127.0.0.1" in app_url:
+        # Sandbox QR generation still needs a syntactically valid HTTPS callback value
+        # even when local development cannot receive real webhooks.
+        return "https://api.callback.com/notify"
+
+    resolved = f"{app_url.rstrip('/')}{settings.ABA_PAYWAY_WEBHOOK_PATH}"
+    if not resolved.lower().startswith("https://"):
+        # Use a safe fallback for non-HTTPS app URLs. PayWay may reject QR requests
+        # when callback_url is not syntactically valid HTTPS.
+        return "https://api.callback.com/notify"
+
+    return resolved
+
+
+def _render_checkout_form_html(action: str, fields: dict[str, str], booking_id: str) -> str:
+    inputs = "\n".join(
+        f'<input type="hidden" name="{escape(name, quote=True)}" value="{escape(str(value), quote=True)}" />'
+        for name, value in fields.items()
+    )
+    return f"""<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecting to ABA PayWay</title>
+    <style>
+      body {{
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0b1220;
+        color: #e5e7eb;
+      }}
+      .wrap {{
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }}
+      .card {{
+        width: min(480px, 100%);
+        background: #111827;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      }}
+      h1 {{
+        margin: 0 0 12px;
+        font-size: 1.5rem;
+      }}
+      p {{
+        margin: 0 0 16px;
+        color: #cbd5e1;
+        line-height: 1.5;
+      }}
+      .actions {{
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }}
+      .button {{
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+      }}
+      .button-primary {{
+        background: #fbbf24;
+        color: #111827;
+      }}
+      .button-secondary {{
+        background: transparent;
+        color: #e5e7eb;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>Redirecting to ABA PayWay</h1>
+        <p>
+          Your payment session is ready. We are opening ABA PayWay checkout in a secure form post.
+        </p>
+        <p>
+          If the redirect does not start automatically, continue manually.
+        </p>
+        <form id="payway-checkout-form" method="POST" action="{escape(action, quote=True)}">
+          {inputs}
+          <div class="actions">
+            <button class="button button-primary" type="submit">Continue to ABA PayWay</button>
+            <a class="button button-secondary" href="/payment/{escape(booking_id, quote=True)}">Back to payment</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+      window.addEventListener("load", function () {{
+        const form = document.getElementById("payway-checkout-form");
+        if (form) {{
+          form.submit();
+        }}
+      }});
+    </script>
+  </body>
+</html>"""
+
+
+def _apply_payment_status(
+    db: Session,
+    *,
+    payment: dict,
+    normalized_status: str,
+    provider_reference: str | None = None,
+    metadata_patch: dict | None = None,
+) -> str:
+    current_status = str(payment["status"])
+    if current_status == normalized_status:
+        return current_status
+
+    if current_status in ("completed", "refunded") and normalized_status == "failed":
+        return current_status
+
+    db.execute(
+        text(
+            """
+            UPDATE payments
+            SET status = :status,
+                provider_reference = COALESCE(:provider_reference, provider_reference),
+                metadata = COALESCE(metadata, '{}'::jsonb) || CAST(:metadata_patch AS JSONB)
+            WHERE id = :id
+            """
+        ),
+        {
+            "id": payment["id"],
+            "status": normalized_status,
+            "provider_reference": provider_reference,
+            "metadata_patch": json.dumps(metadata_patch or {}),
+        },
+    )
+
+    if normalized_status == "completed":
+        db.execute(
+            text(
+                """
+                UPDATE bookings
+                SET payment_status = 'paid', status = 'confirmed'
+                WHERE id = :booking_id
+                """
+            ),
+            {"booking_id": payment["booking_id"]},
+        )
+    elif normalized_status == "failed":
+        db.execute(
+            text(
+                """
+                UPDATE bookings
+                SET payment_status = 'failed'
+                WHERE id = :booking_id
+                """
+            ),
+            {"booking_id": payment["booking_id"]},
+        )
+    elif normalized_status == "refunded":
+        db.execute(
+            text(
+                """
+                UPDATE bookings
+                SET payment_status = 'refunded', status = 'cancelled'
+                WHERE id = :booking_id
+                """
+            ),
+            {"booking_id": payment["booking_id"]},
+        )
+
+    return normalized_status
+
+
 async def _create_payway_checkout(
     payment_id: str,
     transaction_id: str,
     payment: PaymentCreate,
     db: Session,
-) -> tuple[str, str]:
-    api_url = settings.ABA_PAYWAY_API_URL.rstrip("/")
-    checkout_path = settings.ABA_PAYWAY_CHECKOUT_PATH
-    endpoint = f"{api_url}{checkout_path}"
+) -> dict:
+    endpoint = _resolve_payway_checkout_endpoint()
 
     booking = db.execute(
-        text("SELECT id FROM bookings WHERE id = :id"),
+        text(
+            """
+            SELECT b.id,
+                   s.name AS service_name,
+                   c.full_name AS customer_name,
+                   c.email AS customer_email,
+                   c.phone AS customer_phone
+            FROM bookings b
+            LEFT JOIN services s ON s.id = b.service_id
+            LEFT JOIN customers c ON c.id = b.customer_id
+            WHERE b.id = :id
+            """
+        ),
         {"id": payment.booking_id},
-    ).fetchone()
+    ).mappings().first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
 
-    callback_url = f"{settings.APP_URL.rstrip('/')}{settings.ABA_PAYWAY_WEBHOOK_PATH}"
-    return_url = settings.ABA_PAYWAY_RETURN_URL or f"{settings.APP_URL.rstrip('/')}/payments"
-    cancel_url = settings.ABA_PAYWAY_CANCEL_URL or f"{settings.APP_URL.rstrip('/')}/payments"
-
-    req_time = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    req_time = str(int(time.time()))
     amount_str = f"{Decimal(str(payment.amount)):.2f}"
+    first_name, last_name = _split_name(booking.get("customer_name"))
+    email = (booking.get("customer_email") or "").strip()
+    phone = (booking.get("customer_phone") or "").strip()
+    return_params = payment_id
 
-    # PayWay purchase hash order must match documentation exactly.
-    hash_fields = {
-        "req_time": req_time,
-        "merchant_id": settings.ABA_PAYWAY_MERCHANT_ID,
-        "tran_id": transaction_id,
-        "amount": amount_str,
-        "items": "",
-        "shipping": "",
-        "firstname": "",
-        "lastname": "",
-        "email": "",
-        "phone": "",
-        "type": "purchase",
-        "payment_option": "",
-        "return_url": return_url,
-        "cancel_url": cancel_url,
-        "continue_success_url": "",
-        "return_deeplink": "",
-        "currency": payment.currency.upper(),
-        "custom_fields": "",
-        "return_params": payment_id,
-        "payout": "",
-        "lifetime": "",
-        "additional_params": "",
-        "google_pay_token": "",
-        "skip_success_page": "",
-    }
-
-    hash_input = "".join(hash_fields.values())
-    signing_key = (settings.ABA_PAYWAY_PUBLIC_KEY or settings.ABA_PAYWAY_API_KEY).strip()
-    hash_bytes = hmac.new(
-        signing_key.encode("utf-8"),
-        hash_input.encode("utf-8"),
-        hashlib.sha512,
-    ).digest()
-    payway_hash = base64.b64encode(hash_bytes).decode("utf-8")
-
-    # Use multipart form fields expected by PayWay purchase endpoint.
+    # This follows the sample form post provided by PayWay support.
     payload = {
         "req_time": req_time,
         "merchant_id": settings.ABA_PAYWAY_MERCHANT_ID,
         "tran_id": transaction_id,
         "amount": amount_str,
-        "currency": payment.currency.upper(),
-        "type": "purchase",
-        "return_url": return_url,
-        "cancel_url": cancel_url,
-        "return_params": payment_id,
-        "hash": payway_hash,
-        # Keep callback reference in custom fields for easier tracing.
-        "custom_fields": base64.b64encode(
-            json.dumps(
-                {
-                    "payment_id": payment_id,
-                    "booking_id": payment.booking_id,
-                    "callback_url": callback_url,
-                }
-            ).encode("utf-8")
-        ).decode("utf-8"),
+        "firstname": first_name,
+        "lastname": last_name,
+        "phone": phone,
+        "email": email,
+        "return_params": return_params,
     }
+    payload["hash"] = _build_payway_hash(
+        [
+            req_time,
+            settings.ABA_PAYWAY_MERCHANT_ID,
+            transaction_id,
+            amount_str,
+            first_name,
+            last_name,
+            email,
+            phone,
+            return_params,
+        ],
+        settings.ABA_PAYWAY_API_KEY,
+    )
+
+    return {
+        "payment_url": f"/api/payments/{payment_id}/checkout",
+        "provider_reference": transaction_id,
+        "checkout_action": endpoint,
+        "checkout_fields": payload,
+    }
+
+
+async def _create_payway_qr(
+    payment_id: str,
+    transaction_id: str,
+    payment: PaymentCreate,
+    db: Session,
+) -> dict:
+    booking = db.execute(
+        text(
+            """
+            SELECT b.id,
+                   s.name AS service_name,
+                   c.full_name AS customer_name,
+                   c.email AS customer_email,
+                   c.phone AS customer_phone
+            FROM bookings b
+            LEFT JOIN services s ON s.id = b.service_id
+            LEFT JOIN customers c ON c.id = b.customer_id
+            WHERE b.id = :id
+            """
+        ),
+        {"id": payment.booking_id},
+    ).mappings().first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    api_url = settings.ABA_PAYWAY_API_URL.rstrip("/")
+    endpoint = f"{api_url}{settings.ABA_PAYWAY_QR_PATH}"
+    callback_url = _resolve_payway_qr_callback_url()
+
+    now_utc = datetime.now(timezone.utc)
+    req_time = now_utc.strftime("%Y%m%d%H%M%S")
+    amount_decimal = Decimal(str(payment.amount)).quantize(Decimal("0.01"))
+    amount_value = float(amount_decimal)
+    # Keep the QR hash input deterministic and ASCII-only. PayWay is sensitive to
+    # payload differences here, and the standalone sample that succeeded used
+    # fixed ASCII contact values rather than booking-derived customer fields.
+    first_name = "ABA"
+    last_name = "Bank"
+    email = "aba.bank@gmail.com"
+    phone = "012345678"
+    item_name = f"Booking {str(booking.get('id') or payment.booking_id)[:12]}"
+    items_value = _encode_base64_json_ascii(
+        [
+            {
+                "name": item_name,
+                "quantity": 1,
+                "price": float(amount_decimal),
+            }
+        ]
+    )
+    callback_value = _encode_base64(callback_url)
+
+    payload = {
+        "req_time": req_time,
+        "merchant_id": settings.ABA_PAYWAY_MERCHANT_ID,
+        "tran_id": transaction_id,
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email,
+        "phone": phone,
+        "amount": amount_value,
+        "purchase_type": "purchase",
+        "payment_option": "abapay_khqr",
+        "items": items_value,
+        "currency": payment.currency.upper(),
+        "callback_url": callback_value,
+        "return_deeplink": None,
+        "custom_fields": None,
+        "return_params": None,
+        "payout": None,
+        "lifetime": settings.ABA_PAYWAY_QR_LIFETIME_MINUTES,
+        "qr_image_template": settings.ABA_PAYWAY_QR_IMAGE_TEMPLATE,
+    }
+    amount_hash_value = str(payload["amount"])
+    hash_values = [
+        req_time,
+        settings.ABA_PAYWAY_MERCHANT_ID,
+        transaction_id,
+        amount_hash_value,
+        items_value,
+        first_name,
+        last_name,
+        email,
+        phone,
+        "purchase",
+        "abapay_khqr",
+        callback_value,
+        "",
+        payment.currency.upper(),
+        "",
+        "",
+        "",
+        settings.ABA_PAYWAY_QR_LIFETIME_MINUTES,
+        settings.ABA_PAYWAY_QR_IMAGE_TEMPLATE,
+    ]
+    payload["hash"] = _build_payway_hash(hash_values, settings.ABA_PAYWAY_API_KEY)
+
+    if settings.DEBUG:
+        logger.warning(
+            "PayWay QR request prepared",
+            extra={
+                "payment_id": payment_id,
+                "transaction_id": transaction_id,
+                "endpoint": endpoint,
+                "payload_preview": {
+                    "req_time": req_time,
+                    "merchant_id": settings.ABA_PAYWAY_MERCHANT_ID,
+                    "tran_id": transaction_id,
+                    "amount": amount_hash_value,
+                    "currency": payment.currency.upper(),
+                    "callback_url": callback_url,
+                    "item_name": item_name,
+                },
+                "hash_input": "".join(str(value) for value in hash_values),
+            },
+        )
 
     timeout = httpx.Timeout(settings.ABA_PAYWAY_TIMEOUT_SECONDS)
     try:
-        # Do not follow redirects; PayWay often returns checkout URL in Location header.
-        async with httpx.AsyncClient(timeout=timeout, follow_redirects=False) as client:
-            response = await client.post(
-                endpoint,
-                files={k: (None, str(v)) for k, v in payload.items()},
-            )
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(endpoint, json=payload)
     except httpx.HTTPError as exc:
-        raise HTTPException(status_code=502, detail=f"Payway request failed: {exc}") from exc
-
-    if 300 <= response.status_code < 400:
-        location = response.headers.get("location")
-        if location and "/checkout/" in location:
-            return location, transaction_id
+        raise HTTPException(status_code=502, detail=f"Payway QR request failed: {exc}") from exc
 
     if response.status_code < 200 or response.status_code >= 300:
-        location = response.headers.get("location")
-        location_info = f" redirect={location}" if location else ""
+        raise HTTPException(
+            status_code=502,
+            detail=f"Payway QR rejected request ({response.status_code}): {response.text[:300]}",
+        )
+
+    try:
+        response_payload = response.json()
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Payway QR returned non-JSON response: {response.text[:300]}",
+        ) from exc
+
+    status = response_payload.get("status") or {}
+    status_code = str(status.get("code") or "").strip()
+    if status_code not in {"0", "00"}:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Payway QR rejected request: {json.dumps(response_payload)[:300]}",
+        )
+
+    qr_image = response_payload.get("qrImage")
+    qr_string = response_payload.get("qrString")
+    if not isinstance(qr_image, str) or not qr_image.strip():
+        raise HTTPException(status_code=502, detail="Payway QR response missing qrImage")
+    if not isinstance(qr_string, str) or not qr_string.strip():
+        raise HTTPException(status_code=502, detail="Payway QR response missing qrString")
+
+    return {
+        "provider": "aba_payway",
+        "payment_url": None,
+        "payment_id": payment_id,
+        "transaction_id": transaction_id,
+        "qr_image": qr_image,
+        "qr_string": qr_string,
+        "deeplink": response_payload.get("abapay_deeplink"),
+        "app_store": response_payload.get("app_store"),
+        "play_store": response_payload.get("play_store"),
+        "payment_status": "pending",
+        "expires_at": now_utc + timedelta(minutes=settings.ABA_PAYWAY_QR_LIFETIME_MINUTES),
+    }
+
+
+async def _fetch_payway_transaction_detail(provider_transaction_id: str) -> dict:
+    api_url = settings.ABA_PAYWAY_API_URL.rstrip("/")
+    endpoint = f"{api_url}{settings.ABA_PAYWAY_TRANSACTION_DETAIL_PATH}"
+    req_time = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    payload = {
+        "req_time": req_time,
+        "merchant_id": settings.ABA_PAYWAY_MERCHANT_ID,
+        "tran_id": provider_transaction_id,
+    }
+    payload["hash"] = _build_payway_hash(
+        [payload["req_time"], payload["merchant_id"], payload["tran_id"]],
+        settings.ABA_PAYWAY_API_KEY,
+    )
+
+    timeout = httpx.Timeout(settings.ABA_PAYWAY_TIMEOUT_SECONDS)
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(endpoint, json=payload)
+    except httpx.HTTPError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Payway transaction detail request failed: {exc}",
+        ) from exc
+
+    if response.status_code < 200 or response.status_code >= 300:
         raise HTTPException(
             status_code=502,
             detail=(
-                f"Payway rejected request ({response.status_code})"
-                f"{location_info}: {response.text[:300]}"
+                "Payway transaction detail rejected request "
+                f"({response.status_code}): {response.text[:300]}"
             ),
         )
 
     try:
         response_payload = response.json()
     except ValueError as exc:
-        # Some upstream failures return HTML/plain text; surface a safe snippet.
-        location = response.headers.get("location")
-        location_hint = f" location={location[:220]}" if location else ""
         raise HTTPException(
             status_code=502,
-            detail=(
-                "Payway returned non-JSON response "
-                f"({response.status_code}): {response.text[:300]}{location_hint}"
-            ),
+            detail=f"Payway transaction detail returned non-JSON response: {response.text[:300]}",
         ) from exc
 
-    payment_url = _extract_payway_redirect_url(response_payload)
-    if not payment_url:
-        raise HTTPException(status_code=502, detail="Payway response missing redirect URL")
+    status = response_payload.get("status") or {}
+    status_code = str(status.get("code") or "").strip()
+    if status_code not in {"0", "00"}:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Payway transaction detail failed: {json.dumps(response_payload)[:300]}",
+        )
 
-    provider_reference = _extract_provider_reference(response_payload) or transaction_id
-    return payment_url, provider_reference
+    return response_payload
+
+
+async def _create_stripe_checkout(
+    payment_id: str,
+    payment: PaymentCreate,
+    db: Session,
+) -> tuple[str, str]:
+    if not settings.STRIPE_API_KEY:
+        raise HTTPException(status_code=503, detail="Stripe is not configured")
+
+    booking = db.execute(
+        text(
+            """
+            SELECT b.id, s.name AS service_name
+            FROM bookings b
+            LEFT JOIN services s ON s.id = b.service_id
+            WHERE b.id = :id
+            """
+        ),
+        {"id": payment.booking_id},
+    ).mappings().first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    amount_decimal = Decimal(str(payment.amount))
+    if amount_decimal <= 0:
+        raise HTTPException(status_code=400, detail="Stripe amount must be greater than zero")
+
+    endpoint = f"{settings.STRIPE_API_URL.rstrip('/')}/checkout/sessions"
+    success_url = settings.STRIPE_RETURN_URL or (
+        f"{settings.APP_URL.rstrip('/')}/payments"
+        f"?payment_id={payment_id}&stripe_session_id={{CHECKOUT_SESSION_ID}}"
+    )
+    cancel_url = settings.STRIPE_CANCEL_URL or (
+        f"{settings.APP_URL.rstrip('/')}/payment/{payment.booking_id}"
+    )
+
+    data = {
+        "mode": "payment",
+        "payment_method_types[0]": "card",
+        "success_url": success_url,
+        "cancel_url": cancel_url,
+        "client_reference_id": payment_id,
+        "metadata[payment_id]": payment_id,
+        "metadata[booking_id]": payment.booking_id,
+        "line_items[0][quantity]": "1",
+        "line_items[0][price_data][currency]": payment.currency.lower(),
+        "line_items[0][price_data][unit_amount]": str(
+            _to_stripe_minor_units(amount_decimal)
+        ),
+        "line_items[0][price_data][product_data][name]": (
+            booking.get("service_name") or "Booking payment"
+        ),
+    }
+
+    timeout = httpx.Timeout(settings.STRIPE_TIMEOUT_SECONDS)
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(
+                endpoint,
+                data=data,
+                headers={"Authorization": f"Bearer {settings.STRIPE_API_KEY}"},
+            )
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail=f"Stripe request failed: {exc}") from exc
+
+    if response.status_code < 200 or response.status_code >= 300:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Stripe rejected request ({response.status_code}): {response.text[:300]}",
+        )
+
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Stripe returned non-JSON response: {response.text[:300]}",
+        ) from exc
+
+    payment_url = payload.get("url")
+    session_id = payload.get("id")
+    if not isinstance(payment_url, str) or not payment_url.strip():
+        raise HTTPException(status_code=502, detail="Stripe response missing checkout URL")
+    if not isinstance(session_id, str) or not session_id.strip():
+        raise HTTPException(status_code=502, detail="Stripe response missing session ID")
+
+    return payment_url, session_id
+
+
+async def _fetch_stripe_session(session_id: str) -> dict:
+    if not settings.STRIPE_API_KEY:
+        raise HTTPException(status_code=503, detail="Stripe is not configured")
+
+    endpoint = f"{settings.STRIPE_API_URL.rstrip('/')}/checkout/sessions/{session_id}"
+    timeout = httpx.Timeout(settings.STRIPE_TIMEOUT_SECONDS)
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.get(
+                endpoint,
+                params={"expand[]": "payment_intent"},
+                headers={"Authorization": f"Bearer {settings.STRIPE_API_KEY}"},
+            )
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail=f"Stripe lookup failed: {exc}") from exc
+
+    if response.status_code < 200 or response.status_code >= 300:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Stripe session lookup failed ({response.status_code}): {response.text[:300]}",
+        )
+
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Stripe returned non-JSON session data: {response.text[:300]}",
+        ) from exc
+
+
+async def _sync_stripe_payment_status(
+    db: Session,
+    *,
+    payment: dict,
+    stripe_session_id: str | None,
+) -> dict:
+    session_id = (stripe_session_id or payment.get("provider_reference") or "").strip()
+    if not session_id:
+        return payment
+    previous_status = str(payment["status"])
+
+    if payment.get("provider_reference") and payment["provider_reference"] != session_id:
+        raise HTTPException(status_code=400, detail="Stripe session mismatch")
+
+    session = await _fetch_stripe_session(session_id)
+    normalized_status = _map_stripe_status(session)
+
+    amount_total = session.get("amount_total")
+    if amount_total is not None:
+        expected = _to_stripe_minor_units(Decimal(str(payment["amount"])))
+        if int(amount_total) != expected:
+            raise HTTPException(status_code=400, detail="Stripe amount mismatch")
+
+    payload_currency = session.get("currency")
+    if isinstance(payload_currency, str) and payload_currency.strip():
+        if payload_currency.strip().upper() != str(payment["currency"]).upper():
+            raise HTTPException(status_code=400, detail="Stripe currency mismatch")
+
+    _apply_payment_status(
+        db,
+        payment=payment,
+        normalized_status=normalized_status,
+        provider_reference=session.get("id"),
+        metadata_patch={
+            "stripe_session_status": session.get("status"),
+            "stripe_payment_status": session.get("payment_status"),
+            "stripe_payment_intent": session.get("payment_intent"),
+            "stripe_checked_at": int(time.time()),
+        },
+    )
+    db.commit()
+    updated_payment = _load_payment_record(db, payment["id"])
+    if previous_status != "completed" and updated_payment and updated_payment["status"] == "completed":
+        _send_booking_emails(db, updated_payment["booking_id"], "confirmation")
+    return updated_payment
 
 def _get_customer_id(db: Session, user_id: str) -> str | None:
     record = db.execute(
@@ -270,24 +979,44 @@ async def create_payment_intent(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Create a payment intent with ABA Payway sandbox."""
+    """Create a payment intent with the selected provider."""
     _ensure_booking_access(db, payment.booking_id, current_user)
     payment_id = str(uuid.uuid4())
-    # PayWay tran_id supports up to 20 chars.
-    transaction_id = f"pw{uuid.uuid4().hex[:18]}"
+    provider = (payment.provider or "aba_payway").strip().lower()
 
-    payment_url, provider_reference = await _create_payway_checkout(
-        payment_id=payment_id,
-        transaction_id=transaction_id,
-        payment=payment,
-        db=db,
-    )
+    if provider == "aba_payway":
+        transaction_id = f"{int(time.time())}{uuid.uuid4().int % 1000000:06d}"
+        payway_intent = await _create_payway_qr(
+            payment_id=payment_id,
+            transaction_id=transaction_id,
+            payment=payment,
+            db=db,
+        )
+        provider_reference = transaction_id
+    elif provider == "stripe":
+        transaction_id = f"st{uuid.uuid4().hex[:18]}"
+        payment_url, provider_reference = await _create_stripe_checkout(
+            payment_id=payment_id,
+            payment=payment,
+            db=db,
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported payment provider")
 
     metadata = {
-        "provider": payment.provider,
+        "provider": provider,
         "checkout_created_at": int(time.time()),
-        "sandbox": "sandbox" in settings.ABA_PAYWAY_API_URL.lower(),
     }
+    if provider == "aba_payway":
+        metadata["sandbox"] = "sandbox" in settings.ABA_PAYWAY_API_URL.lower()
+        metadata["qr_mode"] = True
+    if provider == "stripe":
+        metadata["mode"] = (
+            "test"
+            if settings.STRIPE_API_KEY and settings.STRIPE_API_KEY.startswith("sk_test_")
+            else "live"
+        )
+        metadata["stripe_session_id"] = provider_reference
 
     db.execute(
         text(
@@ -301,7 +1030,7 @@ async def create_payment_intent(
         {
             "id": payment_id,
             "booking_id": payment.booking_id,
-            "provider": payment.provider,
+            "provider": provider,
             "provider_reference": provider_reference,
             "amount": payment.amount,
             "currency": payment.currency,
@@ -310,11 +1039,51 @@ async def create_payment_intent(
     )
     db.commit()
 
+    if provider == "aba_payway":
+        return payway_intent
+
     return {
+        "provider": provider,
         "payment_url": payment_url,
         "payment_id": payment_id,
         "transaction_id": transaction_id,
     }
+
+
+@router.get("/{payment_id}/checkout", response_class=HTMLResponse)
+async def render_payway_checkout(
+    payment_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    payment = _load_payment_record(db, payment_id)
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    if payment["provider"] != "aba_payway":
+        raise HTTPException(status_code=400, detail="Checkout provider mismatch")
+
+    _ensure_booking_access(db, payment["booking_id"], current_user)
+    metadata = _coerce_metadata(payment.get("metadata"))
+    action = metadata.get("payway_checkout_action")
+    fields = metadata.get("payway_checkout_fields")
+
+    if not isinstance(action, str) or not action.strip():
+        raise HTTPException(status_code=409, detail="Missing PayWay checkout action")
+    if not isinstance(fields, dict) or not fields:
+        raise HTTPException(status_code=409, detail="Missing PayWay checkout form fields")
+
+    normalized_fields = {
+        str(key): "" if value is None else str(value)
+        for key, value in fields.items()
+    }
+    return HTMLResponse(
+        content=_render_checkout_form_html(
+            action=action,
+            fields=normalized_fields,
+            booking_id=str(payment["booking_id"]),
+        ),
+        headers={"Cache-Control": "no-store"},
+    )
 
 @router.post("/{payment_id}/confirm")
 async def confirm_payment(
@@ -327,32 +1096,26 @@ async def confirm_payment(
     if not settings.DEBUG and not is_admin(current_user):
         raise HTTPException(status_code=403, detail="Manual confirmation is disabled")
 
-    payment = db.execute(
-        "SELECT booking_id FROM payments WHERE id = :id",
-        {"id": payment_id},
-    ).fetchone()
+    payment = _load_payment_record(db, payment_id)
     if not payment:
         raise HTTPException(status_code=404, detail="Payment not found")
-    _ensure_booking_access(db, payment.booking_id, current_user)
+    _ensure_booking_access(db, payment["booking_id"], current_user)
     status = "completed" if transaction_status == "success" else "failed"
-    
-    db.execute(
-        "UPDATE payments SET status = :status WHERE id = :id",
-        {"status": status, "id": payment_id}
+    previous_status = str(payment["status"])
+
+    _apply_payment_status(
+        db,
+        payment=payment,
+        normalized_status=status,
+        metadata_patch={
+            "manual_confirmation_at": int(time.time()),
+            "manual_confirmation_by": current_user.get("id"),
+        },
     )
-    
-    # Update booking payment status
-    if status == "completed":
-        db.execute(
-            """
-            UPDATE bookings SET payment_status = 'paid', status = 'confirmed'
-            WHERE id = (SELECT booking_id FROM payments WHERE id = :payment_id)
-            """,
-            {"payment_id": payment_id}
-        )
-    
     db.commit()
-    
+    if previous_status != "completed" and status == "completed":
+        _send_booking_emails(db, payment["booking_id"], "confirmation")
+
     return {"message": "Payment status updated", "status": status}
 
 
@@ -365,18 +1128,25 @@ async def payway_webhook(
 ):
     """Process Payway payment webhook and update payment idempotently."""
     raw_body = await request.body()
-    signature = x_signature or x_payway_signature
-    if not _verify_signature(raw_body, signature):
-        raise HTTPException(status_code=401, detail="Invalid webhook signature")
-
     try:
-        payload = await request.json()
-    except Exception as exc:
+        payload = json.loads(raw_body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise HTTPException(status_code=400, detail="Invalid JSON payload") from exc
 
+    signature = x_signature or x_payway_signature
+    is_qr_callback = bool(payload.get("merchant_ref_no") and payload.get("tran_id"))
+    if signature:
+        if not _verify_signature(raw_body, signature):
+            raise HTTPException(status_code=401, detail="Invalid webhook signature")
+    elif settings.ABA_PAYWAY_WEBHOOK_SECRET and not settings.DEBUG and not is_qr_callback:
+        raise HTTPException(status_code=401, detail="Missing webhook signature")
+
     payment_id = payload.get("order_id") or payload.get("payment_id")
+    merchant_ref_no = payload.get("merchant_ref_no")
+    provider_transaction_id = payload.get("tran_id") or payload.get("transaction_id")
     provider_reference = (
-        payload.get("transaction_id")
+        merchant_ref_no
+        or payload.get("transaction_id")
         or payload.get("provider_reference")
         or payload.get("reference")
     )
@@ -384,129 +1154,158 @@ async def payway_webhook(
     if not payment_id and not provider_reference:
         raise HTTPException(status_code=400, detail="Missing payment reference")
 
-    if payment_id:
-        payment = db.execute(
-            text(
-                "SELECT id, booking_id, status, amount, currency, provider "
-                "FROM payments WHERE id = :id"
-            ),
-            {"id": payment_id},
-        ).fetchone()
-    else:
-        payment = db.execute(
-            text(
-                "SELECT id, booking_id, status, amount, currency, provider FROM payments "
-                "WHERE provider_reference = :provider_reference "
-                "ORDER BY created_at DESC LIMIT 1"
-            ),
-            {"provider_reference": provider_reference},
-        ).fetchone()
-
+    payment = _resolve_payment_record(
+        db,
+        payment_id=payment_id,
+        provider_reference=provider_reference,
+    )
     if not payment:
         raise HTTPException(status_code=404, detail="Payment not found")
 
-    if payment[5] != "aba_payway":
+    if payment["provider"] != "aba_payway":
         raise HTTPException(status_code=400, detail="Webhook provider mismatch")
 
-    payload_amount = _to_decimal(payload.get("amount") or payload.get("total_amount"))
+    verified_payload = payload
+    provider_status = payload.get("status") or payload.get("transaction_status")
+    if is_qr_callback and provider_transaction_id:
+        verified_payload = await _fetch_payway_transaction_detail(provider_transaction_id)
+        detail_data = verified_payload.get("data") or {}
+        provider_status = (
+            detail_data.get("payment_status")
+            or (detail_data.get("transaction_operations") or [{}])[-1].get("status")
+            or provider_status
+        )
+        payload_amount = _to_decimal(
+            detail_data.get("total_amount")
+            or detail_data.get("payment_amount")
+            or detail_data.get("original_amount")
+        )
+        payload_currency = (
+            detail_data.get("payment_currency")
+            or detail_data.get("original_currency")
+            or payload.get("currency")
+        )
+    else:
+        payload_amount = _to_decimal(payload.get("amount") or payload.get("total_amount"))
+        payload_currency = payload.get("currency")
+
     if payload_amount is not None:
-        expected_amount = _to_decimal(payment[3])
+        expected_amount = _to_decimal(payment["amount"])
         if expected_amount is not None and payload_amount != expected_amount:
             raise HTTPException(status_code=400, detail="Webhook amount mismatch")
 
-    payload_currency = payload.get("currency")
     if isinstance(payload_currency, str) and payload_currency.strip():
-        if payload_currency.strip().upper() != str(payment[4]).upper():
+        if payload_currency.strip().upper() != str(payment["currency"]).upper():
             raise HTTPException(status_code=400, detail="Webhook currency mismatch")
 
-    normalized_status = _map_provider_status(payload.get("status") or payload.get("transaction_status"))
-    current_status = payment[2]
-    if current_status == normalized_status:
-        return {"message": "Already processed", "status": current_status}
-
-    # Ignore regressive transitions for idempotent processing.
-    if current_status in ("completed", "refunded") and normalized_status == "failed":
-        return {"message": "Ignored regressive status", "status": current_status}
-
-    db.execute(
-        text(
-            """
-            UPDATE payments
-            SET status = :status,
-                provider_reference = COALESCE(:provider_reference, provider_reference),
-                metadata = COALESCE(metadata, '{}'::jsonb) || CAST(:metadata_patch AS JSONB)
-            WHERE id = :id
-            """
-        ),
-        {
-            "id": payment[0],
-            "status": normalized_status,
+    previous_status = str(payment["status"])
+    normalized_status = _map_provider_status(provider_status)
+    final_status = _apply_payment_status(
+        db,
+        payment=payment,
+        normalized_status=normalized_status,
+        provider_reference=provider_reference,
+        metadata_patch={
+            "webhook_received_at": int(time.time()),
+            "provider_status": provider_status,
             "provider_reference": provider_reference,
-            "metadata_patch": json.dumps(
-                {
-                    "webhook_received_at": int(time.time()),
-                    "provider_status": payload.get("status") or payload.get("transaction_status"),
-                    "provider_reference": provider_reference,
-                }
-            ),
+            "provider_transaction_id": provider_transaction_id,
+            "merchant_ref_no": merchant_ref_no,
+            "verified_transaction": verified_payload.get("data") if isinstance(verified_payload, dict) else None,
         },
     )
-
-    if normalized_status == "completed":
-        db.execute(
-            text(
-                """
-                UPDATE bookings
-                SET payment_status = 'paid', status = 'confirmed'
-                WHERE id = :booking_id
-                """
-            ),
-            {"booking_id": payment[1]},
-        )
-    elif normalized_status == "failed":
-        db.execute(
-            text(
-                """
-                UPDATE bookings
-                SET payment_status = 'failed'
-                WHERE id = :booking_id
-                """
-            ),
-            {"booking_id": payment[1]},
-        )
-    elif normalized_status == "refunded":
-        db.execute(
-            text(
-                """
-                UPDATE bookings
-                SET payment_status = 'refunded', status = 'cancelled'
-                WHERE id = :booking_id
-                """
-            ),
-            {"booking_id": payment[1]},
-        )
-
     db.commit()
-    return {"message": "Webhook processed", "status": normalized_status}
+    if previous_status != "completed" and final_status == "completed":
+        _send_booking_emails(db, payment["booking_id"], "confirmation")
+    return {"message": "Webhook processed", "status": final_status}
+
+
+@router.post("/webhook/stripe")
+async def stripe_webhook(
+    request: Request,
+    stripe_signature: str | None = Header(default=None, alias="Stripe-Signature"),
+    db: Session = Depends(get_db),
+):
+    raw_body = await request.body()
+    if not _verify_stripe_signature(raw_body, stripe_signature):
+        raise HTTPException(status_code=401, detail="Invalid webhook signature")
+
+    try:
+        payload = json.loads(raw_body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid JSON payload") from exc
+
+    event_type = payload.get("type")
+    data = payload.get("data") or {}
+    session = data.get("object") or {}
+
+    session_id = session.get("id")
+    metadata = session.get("metadata") or {}
+    payment_id = session.get("client_reference_id") or metadata.get("payment_id")
+    payment = _resolve_payment_record(
+        db,
+        payment_id=payment_id,
+        provider_reference=session_id,
+    )
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    if payment["provider"] != "stripe":
+        raise HTTPException(status_code=400, detail="Webhook provider mismatch")
+
+    amount_total = session.get("amount_total")
+    if amount_total is not None:
+        expected = _to_stripe_minor_units(Decimal(str(payment["amount"])))
+        if int(amount_total) != expected:
+            raise HTTPException(status_code=400, detail="Stripe amount mismatch")
+
+    payload_currency = session.get("currency")
+    if isinstance(payload_currency, str) and payload_currency.strip():
+        if payload_currency.strip().upper() != str(payment["currency"]).upper():
+            raise HTTPException(status_code=400, detail="Stripe currency mismatch")
+
+    previous_status = str(payment["status"])
+    normalized_status = _map_stripe_status(session)
+    if event_type in {"checkout.session.expired", "checkout.session.async_payment_failed"}:
+        normalized_status = "failed"
+
+    final_status = _apply_payment_status(
+        db,
+        payment=payment,
+        normalized_status=normalized_status,
+        provider_reference=session_id,
+        metadata_patch={
+            "stripe_event_type": event_type,
+            "stripe_session_status": session.get("status"),
+            "stripe_payment_status": session.get("payment_status"),
+            "stripe_payment_intent": session.get("payment_intent"),
+            "stripe_webhook_received_at": int(time.time()),
+        },
+    )
+    db.commit()
+    if previous_status != "completed" and final_status == "completed":
+        _send_booking_emails(db, payment["booking_id"], "confirmation")
+    return {"message": "Stripe webhook processed", "status": final_status}
 
 @router.get("/{payment_id}", response_model=PaymentResponse)
 async def get_payment(
     payment_id: str,
+    stripe_session_id: str | None = None,
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Get payment by ID"""
-    result = db.execute(
-        "SELECT * FROM payments WHERE id = :id",
-        {"id": payment_id}
-    )
-    
-    payment = result.fetchone()
+    payment = _load_payment_record(db, payment_id)
     if not payment:
         raise HTTPException(status_code=404, detail="Payment not found")
-    
-    _ensure_booking_access(db, payment.booking_id, current_user)
-    return dict(payment._mapping)
+
+    _ensure_booking_access(db, payment["booking_id"], current_user)
+    if payment["provider"] == "stripe" and payment["status"] == "pending":
+        payment = await _sync_stripe_payment_status(
+            db,
+            payment=payment,
+            stripe_session_id=stripe_session_id,
+        )
+    return dict(payment)
 
 @router.get("/booking/{booking_id}", response_model=List[PaymentResponse])
 async def get_booking_payments(

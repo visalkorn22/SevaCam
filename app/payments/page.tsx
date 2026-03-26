@@ -66,12 +66,16 @@ const usd = new Intl.NumberFormat("en-US", {
 
 async function getPaymentById(
   paymentId: string,
+  stripeSessionId?: string,
 ): Promise<PaymentRecord | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const cookie = (await headers()).get("cookie") ?? "";
+  const query = stripeSessionId
+    ? `?stripe_session_id=${encodeURIComponent(stripeSessionId)}`
+    : "";
 
   try {
-    const res = await fetch(`${apiUrl}/api/payments/${paymentId}`, {
+    const res = await fetch(`${apiUrl}/api/payments/${paymentId}${query}`, {
       method: "GET",
       headers: { Cookie: cookie },
       cache: "no-store",
@@ -146,6 +150,7 @@ export default async function PaymentsPage({
     return_params?: string;
     payment_id?: string;
     paymentId?: string;
+    stripe_session_id?: string;
   }>;
 }) {
   const me = await getMe();
@@ -154,17 +159,19 @@ export default async function PaymentsPage({
   const resolved = await searchParams;
   const paymentId =
     resolved.return_params || resolved.payment_id || resolved.paymentId || "";
+  const stripeSessionId = resolved.stripe_session_id || "";
   const history =
     me.role === "customer" ? await getCustomerPaymentHistory() : [];
 
   if (me.role === "customer" && paymentId) {
-    const initialPayment = await getPaymentById(paymentId);
+    const initialPayment = await getPaymentById(paymentId, stripeSessionId);
     return (
       <div className="min-h-screen bg-background">
         <div className="container space-y-6 py-10 sm:py-14">
           <PaymentReturnStatus
             paymentId={paymentId}
             initialPayment={initialPayment}
+            stripeSessionId={stripeSessionId}
           />
 
           {history.length > 0 && (

@@ -45,7 +45,10 @@ async function forward(request: NextRequest, method: string) {
     }
 
     const text = await res.text().catch(() => "");
-    return new NextResponse(text, { status: res.status });
+    return new NextResponse(text, {
+      status: res.status,
+      headers: contentType ? { "content-type": contentType } : undefined,
+    });
   } catch (error) {
     console.error("Payments proxy error:", error);
     return NextResponse.json(

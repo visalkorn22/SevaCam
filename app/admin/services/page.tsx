@@ -30,14 +30,18 @@ async function getMe(): Promise<MeUser | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const cookie = (await headers()).get("cookie") ?? "";
 
-  const res = await fetch(`${apiUrl}/api/auth/me`, {
-    method: "GET",
-    headers: { Cookie: cookie },
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`${apiUrl}/api/auth/me`, {
+      method: "GET",
+      headers: { Cookie: cookie },
+      cache: "no-store",
+    });
 
-  if (!res.ok) return null;
-  return (await res.json()) as MeUser;
+    if (!res.ok) return null;
+    return (await res.json()) as MeUser;
+  } catch {
+    return null;
+  }
 }
 
 async function getServices(): Promise<ServiceRow[]> {

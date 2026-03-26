@@ -501,9 +501,17 @@ class PaymentResponse(BaseModel):
     created_at: datetime
 
 class PaymentIntent(BaseModel):
-    payment_url: str
+    provider: str
+    payment_url: Optional[str] = None
     payment_id: str
     transaction_id: str
+    qr_image: Optional[str] = None
+    qr_string: Optional[str] = None
+    deeplink: Optional[str] = None
+    app_store: Optional[str] = None
+    play_store: Optional[str] = None
+    payment_status: Optional[str] = None
+    expires_at: Optional[datetime] = None
 
 # Review Schemas
 class ReviewCreate(BaseModel):

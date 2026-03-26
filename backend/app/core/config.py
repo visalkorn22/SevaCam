@@ -50,13 +50,29 @@ class Settings(BaseSettings):
     ABA_PAYWAY_MERCHANT_ID: str = "mock_merchant_id"
     ABA_PAYWAY_API_KEY: str = "mock_api_key"
     ABA_PAYWAY_PUBLIC_KEY: Optional[str] = None
-    ABA_PAYWAY_API_URL: str = "https://checkout-sandbox.payway.com.kh/api"
+    ABA_PAYWAY_API_URL: str = "https://checkout-sandbox.payway.com.kh/api/payment-gateway/v1"
     ABA_PAYWAY_CHECKOUT_PATH: str = "/payments/purchase"
+    ABA_PAYWAY_QR_PATH: str = "/payments/generate-qr"
+    ABA_PAYWAY_TRANSACTION_DETAIL_PATH: str = "/payments/transaction-detail"
     ABA_PAYWAY_WEBHOOK_PATH: str = "/api/payments/webhook/payway"
     ABA_PAYWAY_WEBHOOK_SECRET: Optional[str] = None
+    ABA_PAYWAY_CALLBACK_URL: Optional[str] = None
     ABA_PAYWAY_RETURN_URL: Optional[str] = None
     ABA_PAYWAY_CANCEL_URL: Optional[str] = None
+    ABA_PAYWAY_QR_LIFETIME_MINUTES: int = 6
+    ABA_PAYWAY_QR_IMAGE_TEMPLATE: str = "template3_color"
     ABA_PAYWAY_TIMEOUT_SECONDS: int = 20
+
+    # =========================
+    # Stripe
+    # =========================
+    STRIPE_API_KEY: Optional[str] = None
+    STRIPE_API_URL: str = "https://api.stripe.com/v1"
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    STRIPE_WEBHOOK_PATH: str = "/api/payments/webhook/stripe"
+    STRIPE_RETURN_URL: Optional[str] = None
+    STRIPE_CANCEL_URL: Optional[str] = None
+    STRIPE_TIMEOUT_SECONDS: int = 20
 
     # =========================
     # Booking Policies

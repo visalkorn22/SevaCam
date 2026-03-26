@@ -532,6 +532,10 @@ export function BookingForm({
     return base;
   }, [service.max_capacity, selectedStaff]);
 
+  const amountDueNow = useMemo(() => {
+    return effectiveDeposit > 0 ? effectiveDeposit : effectivePrice;
+  }, [effectiveDeposit, effectivePrice]);
+
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(calendarMonth);
     const monthEnd = endOfMonth(calendarMonth);
@@ -748,6 +752,12 @@ export function BookingForm({
       const booking = await res.json();
       if (!res.ok)
         throw new Error(booking?.detail || "Failed to create booking");
+
+      if (amountDueNow > 0) {
+        router.push(`/payment/${booking.id}`);
+        return;
+      }
+
       router.push(`/booking-confirmed/${booking.id}`);
     } catch (err) {
       setBookingError(
@@ -1237,7 +1247,10 @@ export function BookingForm({
             </>
           ) : (
             <>
-              <Check className="h-4 w-4" /> Confirm Booking
+              <Check className="h-4 w-4" />{" "}
+              {amountDueNow > 0
+                ? "Confirm and Continue to Payment"
+                : "Confirm Booking"}
             </>
           )}
         </button>

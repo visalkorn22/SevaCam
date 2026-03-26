@@ -29,6 +29,7 @@ type PaymentRecord = {
 interface PaymentReturnStatusProps {
   paymentId: string;
   initialPayment: PaymentRecord | null;
+  stripeSessionId?: string | null;
 }
 
 const usd = new Intl.NumberFormat("en-US", {
@@ -40,6 +41,7 @@ const usd = new Intl.NumberFormat("en-US", {
 export function PaymentReturnStatus({
   paymentId,
   initialPayment,
+  stripeSessionId,
 }: PaymentReturnStatusProps) {
   const [payment, setPayment] = useState<PaymentRecord | null>(initialPayment);
   const [isLoading, setIsLoading] = useState(!initialPayment);
@@ -55,7 +57,10 @@ export function PaymentReturnStatus({
     setError(null);
 
     try {
-      const res = await fetch(`/api/payments/${paymentId}`, {
+      const query = stripeSessionId
+        ? `?stripe_session_id=${encodeURIComponent(stripeSessionId)}`
+        : "";
+      const res = await fetch(`/api/payments/${paymentId}${query}`, {
         method: "GET",
         cache: "no-store",
       });
@@ -131,7 +136,8 @@ export function PaymentReturnStatus({
     }
     return {
       title: "Waiting for confirmation",
-      description: "We are checking payment status from PayWay sandbox.",
+      description:
+        "We are checking the latest payment status with the selected provider.",
       icon: Clock3,
       tone: "text-blue-600",
       box: "border-blue-500/30 bg-blue-500/10",

@@ -11,20 +11,24 @@ export async function GET() {
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  const res = await fetch(`${apiUrl}/api/auth/me`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`${apiUrl}/api/auth/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
-    const response = NextResponse.json({ user: null });
-    response.cookies.set("auth_token", "", { maxAge: 0, path: "/" });
-    return response;
+    if (!res.ok) {
+      const response = NextResponse.json({ user: null });
+      response.cookies.set("auth_token", "", { maxAge: 0, path: "/" });
+      return response;
+    }
+
+    const user = await res.json();
+    return NextResponse.json({ user });
+  } catch {
+    return NextResponse.json({ user: null });
   }
-
-  const user = await res.json();
-  return NextResponse.json({ user });
 }

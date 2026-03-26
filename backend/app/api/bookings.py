@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple, Dict
 from datetime import datetime, timedelta, time, date, timezone as dt_timezone
 import calendar
 import json
+from decimal import Decimal
 from zoneinfo import ZoneInfo
 from app.core.database import get_db
 from app.core.auth import get_current_user, is_admin
@@ -196,13 +197,15 @@ def _get_service_staff_config(
     staff_id: str,
     service_id: str,
     current_user: dict,
-) -> Dict[str, int]:
+) -> Dict[str, object]:
     row = db.execute(
         """
         SELECT s.duration_minutes, s.buffer_minutes, s.max_capacity,
+               s.price, s.deposit_amount,
                s.is_active, s.is_archived, s.paused_from, s.paused_until,
                ss.staff_id as assigned_staff_id,
                ss.duration_override, ss.buffer_override, ss.capacity_override,
+               ss.price_override, ss.deposit_override,
                ss.is_bookable, ss.is_temporarily_unavailable, ss.admin_only
         FROM services s
         LEFT JOIN staff_services ss
@@ -241,6 +244,12 @@ def _get_service_staff_config(
     capacity = row_map.get("capacity_override")
     if capacity is None:
         capacity = row_map.get("max_capacity") or 1
+    price = row_map.get("price_override")
+    if price is None:
+        price = row_map.get("price") or 0
+    deposit = row_map.get("deposit_override")
+    if deposit is None:
+        deposit = row_map.get("deposit_amount") or 0
 
     duration_val = int(duration or 0)
     buffer_val = int(buffer_minutes or 0)
@@ -250,6 +259,8 @@ def _get_service_staff_config(
         "duration": duration_val,
         "buffer": buffer_val,
         "capacity": capacity_val,
+        "price": Decimal(str(price or 0)),
+        "deposit": Decimal(str(deposit or 0)),
     }
 
 def _validate_booking_source(booking_source: str, current_user: dict) -> None:
@@ -546,6 +557,11 @@ async def create_booking(
     duration_minutes = service_config["duration"]
     buffer_minutes = service_config["buffer"]
     capacity = service_config["capacity"]
+    price_amount = Decimal(str(service_config["price"]))
+    deposit_amount = Decimal(str(service_config["deposit"]))
+    amount_due_now = deposit_amount if deposit_amount > 0 else price_amount
+    booking_status = "pending" if amount_due_now > 0 else "confirmed"
+    payment_status = "pending" if amount_due_now > 0 else "paid"
 
     end_time_utc = booking.start_time_utc + timedelta(minutes=duration_minutes + buffer_minutes)
 
@@ -673,7 +689,7 @@ async def create_booking(
         INSERT INTO bookings (id, service_id, staff_id, customer_id, start_time_utc,
                             end_time_utc, booking_source, customer_timezone, status, payment_status)
         VALUES (:id, :service_id, :staff_id, :customer_id, :start_time_utc,
-                :end_time_utc, :booking_source, :customer_timezone, 'pending', 'pending')
+                :end_time_utc, :booking_source, :customer_timezone, :status, :payment_status)
         """,
         {
             "id": booking_id,
@@ -684,6 +700,8 @@ async def create_booking(
             "end_time_utc": end_time_utc,
             "booking_source": booking.booking_source,
             "customer_timezone": booking.customer_timezone,
+            "status": booking_status,
+            "payment_status": payment_status,
         }
     )
     db.commit()
@@ -731,7 +749,8 @@ async def create_booking(
     )
     db.commit()
 
-    _send_booking_emails(db, booking_id, "confirmation")
+    if amount_due_now <= 0:
+        _send_booking_emails(db, booking_id, "confirmation")
     
     result = db.execute(
         "SELECT * FROM bookings WHERE id = :id",
@@ -914,7 +933,7 @@ async def get_booking_confirmed(
     _ensure_booking_access(db, booking_id, current_user)
     result = db.execute(
         """
-        SELECT b.id, b.start_time_utc,
+        SELECT b.id, b.status, b.payment_status, b.start_time_utc,
                s.name as service_name, s.price, s.duration_minutes,
                u.full_name as staff_name, u.phone as staff_phone
         FROM bookings b
@@ -930,13 +949,15 @@ async def get_booking_confirmed(
 
     return {
         "id": result[0],
-        "start_time_utc": result[1],
+        "status": result[1],
+        "payment_status": result[2],
+        "start_time_utc": result[3],
         "services": {
-            "name": result[2],
-            "price": result[3],
-            "duration_minutes": result[4],
+            "name": result[4],
+            "price": result[5],
+            "duration_minutes": result[6],
         },
-        "staff": {"full_name": result[5], "phone": result[6]},
+        "staff": {"full_name": result[7], "phone": result[8]},
     }
 
 @router.get("/", response_model=List[BookingWithDetails])

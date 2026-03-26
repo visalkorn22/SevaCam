@@ -18,7 +18,8 @@ type PaymentBookingRow = {
     name: string;
     price: number;
     deposit_amount: number;
-  } | null;
+    duration_minutes: number;
+  };
 
   staff: {
     full_name?: string | null;
