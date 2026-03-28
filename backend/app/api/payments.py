@@ -54,8 +54,25 @@ STRIPE_STATUS_MAP = {
 
 def _map_provider_status(raw_status: str | None) -> str:
     if not raw_status:
-        return "failed"
-    return PAYWAY_STATUS_MAP.get(raw_status.strip().lower(), "failed")
+        return "pending"
+
+    normalized = raw_status.strip().lower()
+    if normalized in PAYWAY_STATUS_MAP:
+        return PAYWAY_STATUS_MAP[normalized]
+
+    if normalized in {
+        "pending",
+        "processing",
+        "in_progress",
+        "in progress",
+        "created",
+        "initiated",
+        "waiting",
+        "awaiting",
+    }:
+        return "pending"
+
+    return "failed"
 
 
 def _split_name(full_name: str | None) -> tuple[str, str]:
@@ -272,6 +289,16 @@ def _coerce_metadata(value: object) -> dict:
             return {}
         return parsed if isinstance(parsed, dict) else {}
     return {}
+
+
+def _serialize_payment_response(payment: dict) -> dict:
+    serialized = dict(payment)
+    # FastAPI response_model expects string IDs; DB driver can return UUID objects.
+    for key in ("id", "booking_id", "provider_reference"):
+        value = serialized.get(key)
+        if value is not None:
+            serialized[key] = str(value)
+    return serialized
 
 
 def _resolve_payway_checkout_endpoint() -> str:
@@ -628,7 +655,7 @@ async def _create_payway_qr(
         "lifetime": settings.ABA_PAYWAY_QR_LIFETIME_MINUTES,
         "qr_image_template": settings.ABA_PAYWAY_QR_IMAGE_TEMPLATE,
     }
-    amount_hash_value = str(payload["amount"])
+    amount_hash_value = format(amount_decimal, "f")
     hash_values = [
         req_time,
         settings.ABA_PAYWAY_MERCHANT_ID,
@@ -713,6 +740,16 @@ async def _create_payway_qr(
         "payment_url": None,
         "payment_id": payment_id,
         "transaction_id": transaction_id,
+        "merchant_id": settings.ABA_PAYWAY_MERCHANT_ID,
+        "gateway_mode": (
+            "sandbox"
+            if "sandbox" in settings.ABA_PAYWAY_API_URL.lower()
+            else "production"
+        ),
+        "settlement_destination": (
+            "Funds are routed to the settlement account configured under "
+            f"PayWay merchant profile '{settings.ABA_PAYWAY_MERCHANT_ID}'"
+        ),
         "qr_image": qr_image,
         "qr_string": qr_string,
         "deeplink": response_payload.get("abapay_deeplink"),
@@ -932,6 +969,75 @@ async def _sync_stripe_payment_status(
             "stripe_payment_status": session.get("payment_status"),
             "stripe_payment_intent": session.get("payment_intent"),
             "stripe_checked_at": int(time.time()),
+        },
+    )
+    db.commit()
+    updated_payment = _load_payment_record(db, payment["id"])
+    if previous_status != "completed" and updated_payment and updated_payment["status"] == "completed":
+        _send_booking_emails(db, updated_payment["booking_id"], "confirmation")
+    return updated_payment
+
+
+async def _sync_payway_payment_status(db: Session, *, payment: dict) -> dict:
+    provider_transaction_id = str(payment.get("provider_reference") or "").strip()
+    if not provider_transaction_id:
+        return payment
+
+    previous_status = str(payment["status"])
+
+    try:
+        detail_payload = await _fetch_payway_transaction_detail(provider_transaction_id)
+    except HTTPException as exc:
+        # In local development callback URLs are often non-routable; keep pending
+        # and allow frontend polling to retry instead of surfacing a hard error.
+        logger.warning(
+            "PayWay status sync skipped",
+            extra={
+                "payment_id": str(payment.get("id")),
+                "provider_reference": provider_transaction_id,
+                "error": str(exc.detail),
+            },
+        )
+        return payment
+
+    data = detail_payload.get("data") if isinstance(detail_payload.get("data"), dict) else {}
+    operations = data.get("transaction_operations") if isinstance(data.get("transaction_operations"), list) else []
+    latest_operation = operations[-1] if operations and isinstance(operations[-1], dict) else {}
+
+    raw_status = (
+        latest_operation.get("status")
+        or data.get("payment_status")
+        or data.get("status")
+    )
+    normalized_status = _map_provider_status(raw_status)
+
+    payload_amount = _to_decimal(
+        data.get("total_amount")
+        or data.get("payment_amount")
+        or data.get("original_amount")
+    )
+    if payload_amount is not None:
+        expected_amount = _to_decimal(payment.get("amount"))
+        if expected_amount is not None and payload_amount != expected_amount:
+            raise HTTPException(status_code=400, detail="PayWay amount mismatch")
+
+    payload_currency = (
+        data.get("payment_currency")
+        or data.get("original_currency")
+        or data.get("currency")
+    )
+    if isinstance(payload_currency, str) and payload_currency.strip():
+        if payload_currency.strip().upper() != str(payment["currency"]).upper():
+            raise HTTPException(status_code=400, detail="PayWay currency mismatch")
+
+    _apply_payment_status(
+        db,
+        payment=payment,
+        normalized_status=normalized_status,
+        provider_reference=provider_transaction_id,
+        metadata_patch={
+            "payway_checked_at": int(time.time()),
+            "payway_provider_status": raw_status,
         },
     )
     db.commit()
@@ -1305,7 +1411,9 @@ async def get_payment(
             payment=payment,
             stripe_session_id=stripe_session_id,
         )
-    return dict(payment)
+    if payment["provider"] == "aba_payway" and payment["status"] == "pending":
+        payment = await _sync_payway_payment_status(db, payment=payment)
+    return _serialize_payment_response(payment)
 
 @router.get("/booking/{booking_id}", response_model=List[PaymentResponse])
 async def get_booking_payments(
@@ -1321,7 +1429,7 @@ async def get_booking_payments(
     )
     
     payments = result.fetchall()
-    return [dict(row._mapping) for row in payments]
+    return [_serialize_payment_response(dict(row._mapping)) for row in payments]
 
 @router.post("/{payment_id}/refund")
 async def refund_payment(

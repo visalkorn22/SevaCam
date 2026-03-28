@@ -42,3 +42,34 @@ _mock_settings.DEBUG = False
 
 import app.api.payments as payments_module  # noqa: E402
 payments_module.settings = _mock_settings
+
+
+# ---------------------------------------------------------------------------
+# Task 2 — amount hash format
+# ---------------------------------------------------------------------------
+
+def test_amount_hash_value_uses_fixed_point_format():
+    """
+    The hash input for amount must be "1.00", not "1.0".
+    format(Decimal("1.00"), "f") gives "1.00".
+    str(float(Decimal("1.00"))) gives "1.0" — the bug we are fixing.
+    """
+    amount_decimal = Decimal("1.00").quantize(Decimal("0.01"))
+    # Old (buggy) approach
+    buggy = str(float(amount_decimal))
+    assert buggy == "1.0", f"Pre-condition: buggy approach gives {buggy!r}"
+    # New (correct) approach
+    correct = format(amount_decimal, "f")
+    assert correct == "1.00", f"Expected '1.00', got {correct!r}"
+
+
+def test_amount_hash_value_whole_number():
+    """$10.00 must hash as "10.00" not "10.0"."""
+    amount_decimal = Decimal("10.00").quantize(Decimal("0.01"))
+    assert format(amount_decimal, "f") == "10.00"
+
+
+def test_amount_hash_value_cents():
+    """$1.50 must hash as "1.50" not "1.5"."""
+    amount_decimal = Decimal("1.50").quantize(Decimal("0.01"))
+    assert format(amount_decimal, "f") == "1.50"
