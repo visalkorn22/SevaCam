@@ -730,10 +730,15 @@ async def _create_payway_qr(
 
     qr_image = response_payload.get("qrImage")
     qr_string = response_payload.get("qrString")
-    if not isinstance(qr_image, str) or not qr_image.strip():
-        raise HTTPException(status_code=502, detail="Payway QR response missing qrImage")
-    if not isinstance(qr_string, str) or not qr_string.strip():
-        raise HTTPException(status_code=502, detail="Payway QR response missing qrString")
+    has_qr_image = isinstance(qr_image, str) and bool(qr_image.strip())
+    has_qr_string = isinstance(qr_string, str) and bool(qr_string.strip())
+    if not has_qr_image and not has_qr_string:
+        raise HTTPException(
+            status_code=502,
+            detail="PayWay QR response missing both qrImage and qrString",
+        )
+    qr_image = qr_image if has_qr_image else None
+    qr_string = qr_string if has_qr_string else None
 
     return {
         "provider": "aba_payway",
