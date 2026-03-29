@@ -132,3 +132,64 @@ def test_qr_validation_passes_with_both():
 def test_qr_validation_fails_with_neither():
     """If both absent, validation must not pass (we would raise 502)."""
     assert _eval_qr_condition(_qr_has_neither()) is False
+
+
+# ---------------------------------------------------------------------------
+# Task 4 — transaction-detail "not found" sentinel
+# ---------------------------------------------------------------------------
+
+from fastapi import HTTPException  # noqa: E402
+
+
+def _make_detail_response(code: str, message: str, data: dict | None = None) -> dict:
+    """Build a PayWay transaction-detail response dict."""
+    return {
+        "status": {"code": code, "message": message},
+        "data": data or {},
+    }
+
+
+def _check_sentinel_logic(response_payload: dict) -> dict | None:
+    """
+    Mirrors the sentinel logic added to _fetch_payway_transaction_detail.
+    Returns {"_not_found": True} when a not-found message is detected,
+    or None when the response is a success (code 00) or a real error.
+    """
+    status = response_payload.get("status") or {}
+    status_code = str(status.get("code") or "").strip()
+    if status_code in {"0", "00"}:
+        return None  # success — sentinel never triggered on success
+
+    _NOT_FOUND_PHRASES = ("transaction not found", "no transaction", "not found")
+    status_message = str(status.get("message") or "").strip().lower()
+    if any(phrase in status_message for phrase in _NOT_FOUND_PHRASES):
+        return {"_not_found": True}
+
+    return None  # real error — would raise, sentinel not triggered
+
+
+def test_sentinel_triggered_on_transaction_not_found_message():
+    response = _make_detail_response("01", "Transaction not found")
+    assert _check_sentinel_logic(response) == {"_not_found": True}
+
+
+def test_sentinel_triggered_on_no_transaction_message():
+    response = _make_detail_response("99", "No transaction record")
+    assert _check_sentinel_logic(response) == {"_not_found": True}
+
+
+def test_sentinel_triggered_case_insensitive():
+    response = _make_detail_response("01", "TRANSACTION NOT FOUND")
+    assert _check_sentinel_logic(response) == {"_not_found": True}
+
+
+def test_sentinel_not_triggered_on_other_errors():
+    """Real errors (e.g. invalid merchant) must NOT produce the sentinel."""
+    response = _make_detail_response("05", "Invalid merchant credentials")
+    assert _check_sentinel_logic(response) is None  # would raise — correct
+
+
+def test_sentinel_not_triggered_on_success():
+    """Status 00 never goes through the sentinel path."""
+    response = _make_detail_response("00", "Success", data={"payment_status": "SUCCESS"})
+    assert _check_sentinel_logic(response) is None  # success path

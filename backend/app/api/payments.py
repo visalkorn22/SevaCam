@@ -809,6 +809,10 @@ async def _fetch_payway_transaction_detail(provider_transaction_id: str) -> dict
     status = response_payload.get("status") or {}
     status_code = str(status.get("code") or "").strip()
     if status_code not in {"0", "00"}:
+        _NOT_FOUND_PHRASES = ("transaction not found", "no transaction", "not found")
+        status_message = str(status.get("message") or "").strip().lower()
+        if any(phrase in status_message for phrase in _NOT_FOUND_PHRASES):
+            return {"_not_found": True}
         raise HTTPException(
             status_code=502,
             detail=f"Payway transaction detail failed: {json.dumps(response_payload)[:300]}",
