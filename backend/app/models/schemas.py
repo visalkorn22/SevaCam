@@ -505,6 +505,9 @@ class PaymentIntent(BaseModel):
     payment_url: Optional[str] = None
     payment_id: str
     transaction_id: str
+    merchant_id: Optional[str] = None
+    gateway_mode: Optional[str] = None
+    settlement_destination: Optional[str] = None
     qr_image: Optional[str] = None
     qr_string: Optional[str] = None
     deeplink: Optional[str] = None

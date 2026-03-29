@@ -9,7 +9,7 @@ from app.core.config import settings
 
 ADMIN_EMAIL = "kornvisal222@gmail.com"
 ADMIN_ROLE = "admin"
-PASSWORD_LENGTH = "Cristiano@777"
+PASSWORD_LENGTH = 16
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
