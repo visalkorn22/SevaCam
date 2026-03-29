@@ -992,19 +992,54 @@ async def _sync_payway_payment_status(db: Session, *, payment: dict) -> dict:
     if not provider_transaction_id:
         return payment
 
+    # -----------------------------------------------------------------------
+    # Grace window: skip PayWay status lookup for newly created payments.
+    # PayWay sandbox is not reliably queryable immediately after QR creation,
+    # so we avoid hammering the API and producing "transaction not found" noise.
+    # -----------------------------------------------------------------------
+    created_at = payment.get("created_at")
+    if created_at is not None:
+        if created_at.tzinfo is None:
+            created_at_utc = created_at.replace(tzinfo=timezone.utc)
+        else:
+            created_at_utc = created_at.astimezone(timezone.utc)
+        age_seconds = (datetime.now(timezone.utc) - created_at_utc).total_seconds()
+        if age_seconds < settings.ABA_PAYWAY_SYNC_GRACE_SECONDS:
+            logger.debug(
+                "PayWay sync skipped — within grace window",
+                extra={
+                    "payment_id": str(payment.get("id")),
+                    "age_seconds": round(age_seconds, 1),
+                },
+            )
+            return payment
+
     previous_status = str(payment["status"])
 
     try:
         detail_payload = await _fetch_payway_transaction_detail(provider_transaction_id)
     except HTTPException as exc:
-        # In local development callback URLs are often non-routable; keep pending
-        # and allow frontend polling to retry instead of surfacing a hard error.
+        # Network/server errors: keep pending, allow frontend to retry.
         logger.warning(
-            "PayWay status sync skipped",
+            "PayWay status sync skipped — provider error",
             extra={
                 "payment_id": str(payment.get("id")),
                 "provider_reference": provider_transaction_id,
                 "error": str(exc.detail),
+            },
+        )
+        return payment
+
+    # -----------------------------------------------------------------------
+    # Sentinel: PayWay returned "transaction not found" — not a hard failure.
+    # After the grace window this is logged as a warning so it stays visible.
+    # -----------------------------------------------------------------------
+    if detail_payload.get("_not_found"):
+        logger.warning(
+            "PayWay transaction not found after grace window — staying pending",
+            extra={
+                "payment_id": str(payment.get("id")),
+                "provider_reference": provider_transaction_id,
             },
         )
         return payment

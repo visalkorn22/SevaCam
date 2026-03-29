@@ -193,3 +193,137 @@ def test_sentinel_not_triggered_on_success():
     """Status 00 never goes through the sentinel path."""
     response = _make_detail_response("00", "Success", data={"payment_status": "SUCCESS"})
     assert _check_sentinel_logic(response) is None  # success path
+
+
+# ---------------------------------------------------------------------------
+# Task 6 — grace window + sentinel handling in _sync_payway_payment_status
+# ---------------------------------------------------------------------------
+
+import asyncio  # noqa: E402 (already available but explicit for clarity)
+
+
+def _make_payment(age_seconds: float, status: str = "pending") -> dict:
+    """
+    Build a minimal fake payment dict.
+    age_seconds: how old the payment is (positive = created that many seconds ago).
+    """
+    created_at = datetime.now(timezone.utc) - timedelta(seconds=age_seconds)
+    return {
+        "id": "pay_test_001",
+        "booking_id": "book_test_001",
+        "provider": "aba_payway",
+        "provider_reference": "txn_123456",
+        "amount": Decimal("10.00"),
+        "currency": "USD",
+        "status": status,
+        "created_at": created_at,
+    }
+
+
+@pytest.mark.asyncio
+async def test_grace_window_skips_payway_call_for_fresh_payment():
+    """
+    Payment created 10 seconds ago (within default 60s grace window).
+    _fetch_payway_transaction_detail must NOT be called.
+    """
+    payment = _make_payment(age_seconds=10)
+
+    with patch.object(
+        payments_module,
+        "_fetch_payway_transaction_detail",
+        new_callable=AsyncMock,
+    ) as mock_fetch:
+        result = await payments_module._sync_payway_payment_status(
+            db=MagicMock(), payment=payment
+        )
+
+    mock_fetch.assert_not_called()
+    assert result["status"] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_grace_window_allows_payway_call_for_old_payment():
+    """
+    Payment created 90 seconds ago (outside default 60s grace window).
+    _fetch_payway_transaction_detail IS called.
+    """
+    payment = _make_payment(age_seconds=90)
+
+    with patch.object(
+        payments_module,
+        "_fetch_payway_transaction_detail",
+        new_callable=AsyncMock,
+        return_value={"_not_found": True},
+    ) as mock_fetch:
+        result = await payments_module._sync_payway_payment_status(
+            db=MagicMock(), payment=payment
+        )
+
+    mock_fetch.assert_called_once_with("txn_123456")
+    assert result["status"] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_sentinel_not_found_after_grace_window_stays_pending():
+    """
+    After the grace window, if PayWay returns the _not_found sentinel,
+    the payment stays pending — no 502 surfaced to the caller.
+    """
+    payment = _make_payment(age_seconds=120)
+
+    with patch.object(
+        payments_module,
+        "_fetch_payway_transaction_detail",
+        new_callable=AsyncMock,
+        return_value={"_not_found": True},
+    ):
+        result = await payments_module._sync_payway_payment_status(
+            db=MagicMock(), payment=payment
+        )
+
+    assert result["status"] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_grace_window_with_naive_datetime():
+    """
+    created_at with no tzinfo (naive UTC, as returned by some DB drivers)
+    must be handled safely — must not raise TypeError.
+    """
+    payment = _make_payment(age_seconds=5)
+    # Strip timezone info to simulate naive datetime from DB
+    payment["created_at"] = payment["created_at"].replace(tzinfo=None)
+
+    with patch.object(
+        payments_module,
+        "_fetch_payway_transaction_detail",
+        new_callable=AsyncMock,
+    ) as mock_fetch:
+        result = await payments_module._sync_payway_payment_status(
+            db=MagicMock(), payment=payment
+        )
+
+    mock_fetch.assert_not_called()  # still within grace window
+    assert result["status"] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_real_payway_error_after_grace_window_stays_pending():
+    """
+    A real PayWay error (HTTPException, not the sentinel) after the grace
+    window must still be caught and return the payment as pending.
+    This preserves the existing behaviour for network/server errors.
+    """
+    payment = _make_payment(age_seconds=120)
+
+    with patch.object(
+        payments_module,
+        "_fetch_payway_transaction_detail",
+        new_callable=AsyncMock,
+        side_effect=HTTPException(status_code=502, detail="PayWay server error"),
+    ):
+        result = await payments_module._sync_payway_payment_status(
+            db=MagicMock(), payment=payment
+        )
+
+    assert result["status"] == "pending"
