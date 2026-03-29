@@ -243,7 +243,7 @@ export default async function BookServicePage({
                   <h2 className="text-sm font-semibold text-foreground">
                     Prep Notes
                   </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {service.prep_notes}
                   </p>
                 </div>
