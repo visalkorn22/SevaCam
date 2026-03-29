@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -47,12 +48,23 @@ export function PaymentReturnStatus({
   autoRefresh = true,
   deferInitialFetch = false,
 }: PaymentReturnStatusProps) {
+  const router = useRouter();
+  const hasNavigatedRef = useRef(false);
   const [payment, setPayment] = useState<PaymentRecord | null>(initialPayment);
   const [isLoading, setIsLoading] = useState(!initialPayment && !deferInitialFetch);
   const [error, setError] = useState<string | null>(null);
 
   const status = payment?.status || "pending";
   const isTerminal = ["completed", "failed", "refunded"].includes(status);
+
+  // Auto-navigate to the payment page (no params) when status becomes completed.
+  // The server will fetch the updated booking and render the confirmed view.
+  useEffect(() => {
+    if (status === "completed" && payment?.booking_id && !hasNavigatedRef.current) {
+      hasNavigatedRef.current = true;
+      router.push(`/payment/${payment.booking_id}`);
+    }
+  }, [status, payment?.booking_id, router]);
 
   const fetchPayment = async (silent = false) => {
     if (!silent) {
@@ -214,8 +226,8 @@ export function PaymentReturnStatus({
             )}
             {payment?.booking_id && status === "completed" && (
               <Button asChild>
-                <Link href={`/booking-confirmed/${payment.booking_id}`}>
-                  Go to Booking Confirmation
+                <Link href={`/payment/${payment.booking_id}`}>
+                  View Confirmation
                 </Link>
               </Button>
             )}

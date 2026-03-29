@@ -753,12 +753,7 @@ export function BookingForm({
       if (!res.ok)
         throw new Error(booking?.detail || "Failed to create booking");
 
-      if (amountDueNow > 0) {
-        router.push(`/payment/${booking.id}`);
-        return;
-      }
-
-      router.push(`/booking-confirmed/${booking.id}`);
+      router.push(`/payment/${booking.id}`);
     } catch (err) {
       setBookingError(
         err instanceof Error ? err.message : "Failed to create booking.",

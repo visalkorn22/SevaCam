@@ -849,7 +849,7 @@ async def _create_stripe_checkout(
 
     endpoint = f"{settings.STRIPE_API_URL.rstrip('/')}/checkout/sessions"
     success_url = settings.STRIPE_RETURN_URL or (
-        f"{settings.APP_URL.rstrip('/')}/payments"
+        f"{settings.APP_URL.rstrip('/')}/payment/{payment.booking_id}"
         f"?payment_id={payment_id}&stripe_session_id={{CHECKOUT_SESSION_ID}}"
     )
     cancel_url = settings.STRIPE_CANCEL_URL or (
@@ -874,13 +874,17 @@ async def _create_stripe_checkout(
         ),
     }
 
+    _stripe_headers = {
+        "Authorization": f"Bearer {settings.STRIPE_API_KEY}",
+        "Stripe-Version": "2026-02-25.clover",
+    }
     timeout = httpx.Timeout(settings.STRIPE_TIMEOUT_SECONDS)
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
                 endpoint,
                 data=data,
-                headers={"Authorization": f"Bearer {settings.STRIPE_API_KEY}"},
+                headers=_stripe_headers,
             )
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"Stripe request failed: {exc}") from exc
@@ -920,7 +924,10 @@ async def _fetch_stripe_session(session_id: str) -> dict:
             response = await client.get(
                 endpoint,
                 params={"expand[]": "payment_intent"},
-                headers={"Authorization": f"Bearer {settings.STRIPE_API_KEY}"},
+                headers={
+                    "Authorization": f"Bearer {settings.STRIPE_API_KEY}",
+                    "Stripe-Version": "2026-02-25.clover",
+                },
             )
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"Stripe lookup failed: {exc}") from exc
