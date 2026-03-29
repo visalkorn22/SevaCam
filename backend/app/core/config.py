@@ -62,6 +62,7 @@ class Settings(BaseSettings):
     ABA_PAYWAY_QR_LIFETIME_MINUTES: int = 6
     ABA_PAYWAY_QR_IMAGE_TEMPLATE: str = "template3_color"
     ABA_PAYWAY_TIMEOUT_SECONDS: int = 20
+    ABA_PAYWAY_SYNC_GRACE_SECONDS: int = 60
 
     # =========================
     # Stripe
