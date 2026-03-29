@@ -36,23 +36,23 @@ interface BookingCardProps {
 const statusConfig = {
   pending: {
     label: "Pending",
-    className: "bg-amber-50 text-amber-700 border-amber-200/60",
+    className: "bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
   },
   confirmed: {
     label: "Confirmed",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200/60",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
   },
   completed: {
     label: "Completed",
-    className: "bg-blue-50 text-blue-700 border-blue-200/60",
+    className: "bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
   },
   cancelled: {
     label: "Cancelled",
-    className: "bg-gray-50 text-gray-600 border-gray-200/60",
+    className: "bg-muted text-muted-foreground border-border/60",
   },
   "no-show": {
     label: "No Show",
-    className: "bg-rose-50 text-rose-700 border-rose-200/60",
+    className: "bg-rose-50 text-rose-700 border-rose-200/60 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
   },
 };
 
@@ -74,7 +74,7 @@ export function BookingCard({
   const config = statusConfig[status];
 
   return (
-    <div className="group overflow-hidden rounded-3xl border border-border/60 bg-card/80 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-border hover:bg-card/90 hover:shadow-[0_18px_45px_rgba(6,10,22,0.12)]">
+    <div className="group overflow-hidden rounded-3xl border border-border/60 bg-card/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-border hover:bg-card/90 hover:shadow-md">
       <div className="flex flex-col sm:flex-row">
         {/* Image Section */}
         {serviceImage && (
@@ -193,7 +193,7 @@ export function BookingCard({
               <Button
                 onClick={onBook}
                 size="lg"
-                className="rounded-full bg-primary shadow-[0_12px_30px_rgba(91,90,247,0.35)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(91,90,247,0.4)]"
+                className="rounded-full bg-primary shadow-lg shadow-primary/30 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40"
               >
                 Confirm Booking
               </Button>

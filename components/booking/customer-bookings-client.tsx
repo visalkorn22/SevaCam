@@ -439,7 +439,7 @@ export default function CustomerBookingsClient({
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border/60 bg-card/50 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-8">
+        <div className="mx-auto max-w-6xl px-4 py-8">
           <h1 className="text-3xl font-semibold">Your Bookings</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Manage upcoming appointments, reschedule, or join waitlists.
@@ -447,7 +447,7 @@ export default function CustomerBookingsClient({
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-10">
         {error ? (
           <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
