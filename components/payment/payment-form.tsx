@@ -40,6 +40,9 @@ type PaymentIntentResponse = {
   payment_url?: string | null;
   payment_id?: string | null;
   transaction_id?: string | null;
+  merchant_id?: string | null;
+  gateway_mode?: string | null;
+  settlement_destination?: string | null;
   qr_image?: string | null;
   qr_string?: string | null;
   deeplink?: string | null;
@@ -62,6 +65,9 @@ type AbaQrIntent = {
   provider: string;
   paymentId: string | null;
   transactionId: string | null;
+  merchantId: string | null;
+  gatewayMode: string | null;
+  settlementDestination: string | null;
   providerReference: string | null;
   sessionReference: string | null;
   paymentUrl: string | null;
@@ -88,7 +94,8 @@ function pickString(record: ApiRecord, keys: string[]): string | null {
   for (const key of keys) {
     const value = record[key];
     if (typeof value === "string" && value.trim()) return value.trim();
-    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+    if (typeof value === "number" && Number.isFinite(value))
+      return String(value);
   }
   return null;
 }
@@ -146,6 +153,12 @@ function normalizeAbaIntent(payload: unknown): AbaQrIntent | null {
     "checkout_session_id",
     "checkoutSessionId",
   ]);
+  const merchantId = pickString(record, ["merchant_id", "merchantId"]);
+  const gatewayMode = pickString(record, ["gateway_mode", "gatewayMode"]);
+  const settlementDestination = pickString(record, [
+    "settlement_destination",
+    "settlementDestination",
+  ]);
   const paymentUrl = pickString(record, [
     "payment_url",
     "paymentUrl",
@@ -200,6 +213,7 @@ function normalizeAbaIntent(payload: unknown): AbaQrIntent | null {
   const references = [
     paymentId ? { label: "Payment ID", value: paymentId } : null,
     transactionId ? { label: "Transaction ID", value: transactionId } : null,
+    merchantId ? { label: "PayWay Merchant", value: merchantId } : null,
     providerReference
       ? { label: "Provider Ref", value: providerReference }
       : null,
@@ -208,13 +222,14 @@ function normalizeAbaIntent(payload: unknown): AbaQrIntent | null {
 
   const hasAnyAbaData = Boolean(
     paymentId ||
-      transactionId ||
-      providerReference ||
-      sessionReference ||
-      paymentUrl ||
-      qrImageUrl ||
-      qrRaw ||
-      deeplink,
+    transactionId ||
+    providerReference ||
+    sessionReference ||
+    merchantId ||
+    paymentUrl ||
+    qrImageUrl ||
+    qrRaw ||
+    deeplink,
   );
 
   if (!hasAnyAbaData) return null;
@@ -223,6 +238,9 @@ function normalizeAbaIntent(payload: unknown): AbaQrIntent | null {
     provider,
     paymentId,
     transactionId,
+    merchantId,
+    gatewayMode,
+    settlementDestination,
     providerReference,
     sessionReference,
     paymentUrl,
@@ -248,7 +266,11 @@ function paymentBadgeVariant(
   status: string | null,
 ): "default" | "destructive" | "outline" | "secondary" {
   const normalized = (status || "").toLowerCase();
-  if (normalized === "completed" || normalized === "paid" || normalized === "success") {
+  if (
+    normalized === "completed" ||
+    normalized === "paid" ||
+    normalized === "success"
+  ) {
     return "default";
   }
   if (normalized === "failed" || normalized === "error") {
@@ -440,13 +462,17 @@ export function PaymentForm({ booking }: PaymentFormProps) {
       };
       if (!res.ok) {
         throw new Error(
-          payload.detail || payload.error || "Failed to mark sandbox payment paid",
+          payload.detail ||
+            payload.error ||
+            "Failed to mark sandbox payment paid",
         );
       }
       router.push(`/payments?payment_id=${abaIntent.paymentId}`);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Sandbox payment confirmation failed",
+        error instanceof Error
+          ? error.message
+          : "Sandbox payment confirmation failed",
       );
       setIsProcessing(false);
     }
@@ -457,7 +483,8 @@ export function PaymentForm({ booking }: PaymentFormProps) {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Payment</h1>
         <p className="mt-2 text-muted-foreground">
-          Choose a payment method and complete checkout using QR or hosted payment.
+          Choose a payment method and complete checkout using QR or hosted
+          payment.
         </p>
       </div>
 
@@ -615,7 +642,8 @@ export function PaymentForm({ booking }: PaymentFormProps) {
           )}
 
           <p className="text-center text-xs text-muted-foreground">
-            Use test credentials only. ABA generates a QR on this page. Stripe opens hosted checkout.
+            Use test credentials only. ABA generates a QR on this page. Stripe
+            opens hosted checkout.
           </p>
         </CardContent>
       </Card>
@@ -630,8 +658,8 @@ export function PaymentForm({ booking }: PaymentFormProps) {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              We are requesting a fresh ABA PayWay QR from the backend. Keep this
-              page open.
+              We are requesting a fresh ABA PayWay QR from the backend. Keep
+              this page open.
             </p>
           </CardContent>
         </Card>
@@ -663,12 +691,13 @@ export function PaymentForm({ booking }: PaymentFormProps) {
                   ) : (
                     <div className="space-y-2 text-center text-sm text-slate-600">
                       <p className="font-medium text-slate-800">
-                        QR payment created, but no renderable QR image was returned.
+                        QR payment created, but no renderable QR image was
+                        returned.
                       </p>
                       <p>
                         Use the ABA deeplink below if available, or refresh the
-                        payment status while the backend/payment provider response is
-                        being checked.
+                        payment status while the backend/payment provider
+                        response is being checked.
                       </p>
                     </div>
                   )}
@@ -676,20 +705,34 @@ export function PaymentForm({ booking }: PaymentFormProps) {
               </div>
 
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
-                Scan this QR with ABA Mobile from another device, or open the ABA
-                app directly from this page. Keep this screen open while we wait for
-                payment confirmation.
+                Scan this QR with ABA Mobile from another device, or open the
+                ABA app directly from this page. Keep this screen open while we
+                wait for payment confirmation.
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary">ABA PayWay</Badge>
+                {abaIntent.gatewayMode && (
+                  <Badge variant="outline">{abaIntent.gatewayMode}</Badge>
+                )}
                 {abaIntent.paymentStatus && (
                   <Badge variant={paymentBadgeVariant(abaIntent.paymentStatus)}>
                     {abaIntent.paymentStatus}
                   </Badge>
                 )}
-                {abaExpiresAt && <Badge variant="outline">Expires {abaExpiresAt}</Badge>}
+                {abaExpiresAt && (
+                  <Badge variant="outline">Expires {abaExpiresAt}</Badge>
+                )}
               </div>
+
+              {abaIntent.gatewayMode?.toLowerCase() === "sandbox" && (
+                <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-700 dark:text-blue-300">
+                  Sandbox mode is active. QR generation is working, but the real
+                  ABA production app may still show "transaction not found" for
+                  sandbox transactions. Complete the sandbox flow first, then
+                  refresh status manually.
+                </div>
+              )}
 
               {abaIntent.references.length > 0 && (
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -709,6 +752,12 @@ export function PaymentForm({ booking }: PaymentFormProps) {
                 </div>
               )}
 
+              {abaIntent.settlementDestination && (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">
+                  {abaIntent.settlementDestination}
+                </div>
+              )}
+
               {qrRenderError && (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                   {qrRenderError}
@@ -717,16 +766,20 @@ export function PaymentForm({ booking }: PaymentFormProps) {
 
               {!hasAbaQrPayload && !qrRenderError && (
                 <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-700 dark:text-blue-300">
-                  The payment request succeeded, but the backend did not include a QR
-                  image or QR payload. If this was expected to be a QR flow, the
-                  backend response shape still needs alignment.
+                  The payment request succeeded, but the backend did not include
+                  a QR image or QR payload. If this was expected to be a QR
+                  flow, the backend response shape still needs alignment.
                 </div>
               )}
 
               <div className="flex flex-wrap gap-2">
                 {abaIntent.deeplink && (
                   <Button asChild>
-                    <a href={abaIntent.deeplink} target="_blank" rel="noreferrer">
+                    <a
+                      href={abaIntent.deeplink}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       Open ABA App
                       <ArrowUpRight className="ml-2 h-4 w-4" />
                     </a>
@@ -734,7 +787,11 @@ export function PaymentForm({ booking }: PaymentFormProps) {
                 )}
                 {abaIntent.paymentUrl && (
                   <Button asChild variant="secondary">
-                    <a href={abaIntent.paymentUrl} target="_blank" rel="noreferrer">
+                    <a
+                      href={abaIntent.paymentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       Open PayWay Checkout
                       <ArrowUpRight className="ml-2 h-4 w-4" />
                     </a>
@@ -793,6 +850,8 @@ export function PaymentForm({ booking }: PaymentFormProps) {
             <PaymentReturnStatus
               paymentId={abaIntent.paymentId}
               initialPayment={null}
+              autoRefresh={false}
+              deferInitialFetch
             />
           )}
         </>

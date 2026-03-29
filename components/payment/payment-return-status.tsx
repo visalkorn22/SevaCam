@@ -30,6 +30,8 @@ interface PaymentReturnStatusProps {
   paymentId: string;
   initialPayment: PaymentRecord | null;
   stripeSessionId?: string | null;
+  autoRefresh?: boolean;
+  deferInitialFetch?: boolean;
 }
 
 const usd = new Intl.NumberFormat("en-US", {
@@ -42,9 +44,11 @@ export function PaymentReturnStatus({
   paymentId,
   initialPayment,
   stripeSessionId,
+  autoRefresh = true,
+  deferInitialFetch = false,
 }: PaymentReturnStatusProps) {
   const [payment, setPayment] = useState<PaymentRecord | null>(initialPayment);
-  const [isLoading, setIsLoading] = useState(!initialPayment);
+  const [isLoading, setIsLoading] = useState(!initialPayment && !deferInitialFetch);
   const [error, setError] = useState<string | null>(null);
 
   const status = payment?.status || "pending";
@@ -87,14 +91,14 @@ export function PaymentReturnStatus({
   };
 
   useEffect(() => {
-    if (!payment) {
+    if (!payment && !deferInitialFetch) {
       fetchPayment();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paymentId]);
+  }, [paymentId, deferInitialFetch]);
 
   useEffect(() => {
-    if (isTerminal) return;
+    if (!autoRefresh || isTerminal) return;
 
     const timer = window.setInterval(() => {
       fetchPayment(true);
@@ -102,7 +106,7 @@ export function PaymentReturnStatus({
 
     return () => window.clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paymentId, isTerminal]);
+  }, [paymentId, isTerminal, autoRefresh]);
 
   const statusMeta = useMemo(() => {
     if (status === "completed") {
@@ -137,12 +141,14 @@ export function PaymentReturnStatus({
     return {
       title: "Waiting for confirmation",
       description:
-        "We are checking the latest payment status with the selected provider.",
+        autoRefresh
+          ? "We are checking the latest payment status with the selected provider."
+          : "QR created. Complete payment first, then refresh status manually.",
       icon: Clock3,
       tone: "text-blue-600",
       box: "border-blue-500/30 bg-blue-500/10",
     };
-  }, [status]);
+  }, [autoRefresh, status]);
 
   const StatusIcon = statusMeta.icon;
 
