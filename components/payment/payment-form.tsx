@@ -13,6 +13,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePaymentPoller } from "@/hooks/use-payment-poller";
+import { PaymentSuccessModal } from "@/components/payment/payment-success-modal";
 
 type PaymentBooking = {
   id: string;
@@ -266,6 +268,8 @@ export function PaymentForm({ booking }: PaymentFormProps) {
   const [qrRenderError, setQrRenderError] = useState<string | null>(null);
   const [isGeneratingQrImage, setIsGeneratingQrImage] = useState(false);
   const [isLocalDev, setIsLocalDev] = useState(false);
+  const [committedProvider, setCommittedProvider] = useState<PaymentProvider | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const router = useRouter();
 
   const amount = useMemo(() => {
@@ -329,6 +333,21 @@ export function PaymentForm({ booking }: PaymentFormProps) {
     };
   }, [abaIntent]);
 
+  const { payment: polledPayment } = usePaymentPoller(
+    abaIntent?.paymentId ?? null,
+    {
+      enabled: committedProvider === "bakong_khqr" && Boolean(abaIntent?.paymentId),
+    },
+  );
+
+  useEffect(() => {
+    if (polledPayment?.status !== "completed") return;
+    const key = `payment_success_shown_${abaIntent?.paymentId}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    setShowSuccess(true);
+  }, [polledPayment?.status, abaIntent?.paymentId]);
+
   const abaQrImageSrc = abaIntent?.qrImageUrl || generatedQrImage;
   const abaExpiresAt = formatExpiresAt(abaIntent?.expiresAt || null);
   const hasAbaQrPayload = Boolean(abaIntent?.qrImageUrl || abaIntent?.qrRaw);
@@ -362,6 +381,7 @@ export function PaymentForm({ booking }: PaymentFormProps) {
     if (provider === "aba_payway" || provider === "bakong_khqr") {
       setAbaIntent(null);
       setGeneratedQrImage(null);
+      setCommittedProvider(null);
     }
     try {
       const res = await fetch("/api/payments/create-intent", {
@@ -398,6 +418,7 @@ export function PaymentForm({ booking }: PaymentFormProps) {
         }
 
         setAbaIntent(normalizedIntent);
+        setCommittedProvider(provider);
         setIsProcessing(false);
 
         const shouldRedirect =
@@ -763,6 +784,13 @@ export function PaymentForm({ booking }: PaymentFormProps) {
           </div>
         </div>
       )}
+
+      <PaymentSuccessModal
+        open={showSuccess}
+        bookingId={booking.id}
+        amount={amount}
+        onConfirm={() => router.refresh()}
+      />
     </div>
   );
 }
