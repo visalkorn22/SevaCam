@@ -113,6 +113,22 @@ class Settings(BaseSettings):
     AZURE_CONTENT_SAFETY_KEY: Optional[str] = None
 
     # =========================
+    # Bakong KHQR
+    # =========================
+    KHQR_JWT_TOKEN: Optional[str] = None
+    KHQR_CHECK_ENDPOINT: str = "https://api-bakong.nbc.gov.kh/v1/check_transaction_by_md5"
+    KHQR_BAKONG_ACCOUNT_ID: str = ""          # e.g. "yourname@yourbank"
+    KHQR_ACCOUNT_INFORMATION: str = ""        # phone number or merchant account number
+    KHQR_ACQUIRING_BANK: str = ""             # bank name shown in Bakong app
+    KHQR_MERCHANT_NAME: str = ""              # max 25 chars
+    KHQR_MERCHANT_CITY: str = ""              # max 15 chars
+    KHQR_STORE_LABEL: str = ""                # optional, max 25 chars
+    KHQR_TERMINAL_LABEL: str = ""             # optional, max 25 chars
+    KHQR_MERCHANT_CATEGORY_CODE: int = 5999   # ISO 18245 MCC (5999 = misc retail)
+    KHQR_DEFAULT_CURRENCY: str = "USD"        # "USD" or "KHR"
+    KHQR_QR_LIFETIME_MINUTES: int = 10        # session TTL shown to customer
+
+    # =========================
     # Reminder Jobs
     # =========================
     REMINDER_LEAD_MINUTES: int = 60

@@ -12,6 +12,7 @@ from app.core.notify import (
     send_email_notification,
 )
 from app.models.schemas import PaymentCreate, PaymentResponse, PaymentIntent
+from app.services.khqr import KHQRService, KHQRPaymentStatus
 import uuid
 import hashlib
 import time
@@ -1097,6 +1098,78 @@ async def _sync_payway_payment_status(db: Session, *, payment: dict) -> dict:
         _send_booking_emails(db, updated_payment["booking_id"], "confirmation")
     return updated_payment
 
+async def _sync_khqr_payment_status(db: Session, *, payment: dict) -> dict:
+    """
+    Poll Bakong for the KHQR transaction status and persist any change.
+    Mirrors the PayWay/Stripe sync pattern — never raises, network errors
+    return the payment unchanged so the frontend can retry.
+    """
+    md5 = str(payment.get("provider_reference") or "").strip()
+    if not md5:
+        return payment
+
+    # Skip if the QR session TTL has expired and payment is still pending
+    created_at = payment.get("created_at")
+    if created_at is not None:
+        if created_at.tzinfo is None:
+            created_at_utc = created_at.replace(tzinfo=timezone.utc)
+        else:
+            created_at_utc = created_at.astimezone(timezone.utc)
+        age_minutes = (datetime.now(timezone.utc) - created_at_utc).total_seconds() / 60
+        ttl = settings.KHQR_QR_LIFETIME_MINUTES
+        if age_minutes > ttl:
+            logger.info(
+                "KHQR QR expired — marking payment failed: payment_id=%s",
+                str(payment.get("id")),
+            )
+            _apply_payment_status(
+                db,
+                payment=payment,
+                normalized_status="failed",
+                metadata_patch={"khqr_expired_at": int(time.time())},
+            )
+            db.commit()
+            return _load_payment_record(db, payment["id"])
+
+    previous_status = str(payment["status"])
+
+    svc = KHQRService(settings)
+    try:
+        result = await svc.check_status(md5)
+    except Exception as exc:
+        logger.warning("KHQR status check failed unexpectedly: %s", exc)
+        return payment
+
+    if result.status == KHQRPaymentStatus.ERROR:
+        # Network / auth error — don't change DB, let frontend retry
+        return payment
+
+    if result.status == KHQRPaymentStatus.PENDING:
+        return payment
+
+    # COMPLETED
+    _apply_payment_status(
+        db,
+        payment=payment,
+        normalized_status="completed",
+        provider_reference=md5,
+        metadata_patch={
+            "khqr_checked_at": int(time.time()),
+            "khqr_from_account": result.from_account_id,
+            "khqr_to_account": result.to_account_id,
+            "khqr_confirmed_amount": result.amount,
+            "khqr_confirmed_currency": result.currency,
+            "khqr_description": result.description,
+            "khqr_created_date_ms": result.created_date_ms,
+        },
+    )
+    db.commit()
+    updated_payment = _load_payment_record(db, payment["id"])
+    if previous_status != "completed" and updated_payment and updated_payment["status"] == "completed":
+        _send_booking_emails(db, updated_payment["booking_id"], "confirmation")
+    return updated_payment
+
+
 def _get_customer_id(db: Session, user_id: str) -> str | None:
     record = db.execute(
         "SELECT id FROM customers WHERE user_id = :user_id",
@@ -1157,6 +1230,18 @@ async def create_payment_intent(
             payment=payment,
             db=db,
         )
+    elif provider == "bakong_khqr":
+        if not settings.KHQR_JWT_TOKEN:
+            raise HTTPException(status_code=503, detail="Bakong KHQR is not configured")
+        bill_number = f"BKG-{payment.booking_id[:12].upper()}"
+        svc = KHQRService(settings)
+        khqr_record = svc.create_payment(
+            bill_number=bill_number,
+            amount=float(payment.amount),
+            currency=payment.currency,
+        )
+        transaction_id = khqr_record.md5
+        provider_reference = khqr_record.md5
     else:
         raise HTTPException(status_code=400, detail="Unsupported payment provider")
 
@@ -1174,6 +1259,10 @@ async def create_payment_intent(
             else "live"
         )
         metadata["stripe_session_id"] = provider_reference
+    if provider == "bakong_khqr":
+        metadata["khqr_payload"] = khqr_record.payload
+        metadata["khqr_md5"] = khqr_record.md5
+        metadata["khqr_bill_number"] = khqr_record.bill_number
 
     db.execute(
         text(
@@ -1198,6 +1287,15 @@ async def create_payment_intent(
 
     if provider == "aba_payway":
         return payway_intent
+
+    if provider == "bakong_khqr":
+        return {
+            "provider": provider,
+            "payment_id": payment_id,
+            "transaction_id": transaction_id,
+            "qr_image": khqr_record.qr_image_b64,
+            "qr_string": khqr_record.payload,
+        }
 
     return {
         "provider": provider,
@@ -1464,6 +1562,8 @@ async def get_payment(
         )
     if payment["provider"] == "aba_payway" and payment["status"] == "pending":
         payment = await _sync_payway_payment_status(db, payment=payment)
+    if payment["provider"] == "bakong_khqr" and payment["status"] == "pending":
+        payment = await _sync_khqr_payment_status(db, payment=payment)
     return _serialize_payment_response(payment)
 
 @router.get("/booking/{booking_id}", response_model=List[PaymentResponse])

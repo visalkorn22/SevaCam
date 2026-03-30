@@ -47,7 +47,7 @@ type PaymentIntentResponse = {
   expires_at?: string | null;
 };
 
-type PaymentProvider = "aba_payway" | "stripe";
+type PaymentProvider = "aba_payway" | "stripe" | "bakong_khqr";
 
 type ApiRecord = Record<string, unknown>;
 
@@ -344,6 +344,11 @@ export function PaymentForm({ booking }: PaymentFormProps) {
       description: "Scan a QR on this page.",
     },
     {
+      value: "bakong_khqr",
+      title: "Bakong KHQR",
+      description: "Scan with any Bakong app.",
+    },
+    {
       value: "stripe",
       title: "Stripe",
       description: "Card via hosted checkout.",
@@ -354,7 +359,7 @@ export function PaymentForm({ booking }: PaymentFormProps) {
     setIsProcessing(true);
     setErrorMessage(null);
     setQrRenderError(null);
-    if (provider === "aba_payway") {
+    if (provider === "aba_payway" || provider === "bakong_khqr") {
       setAbaIntent(null);
       setGeneratedQrImage(null);
     }
@@ -382,24 +387,27 @@ export function PaymentForm({ booking }: PaymentFormProps) {
         );
       }
 
-      if (provider === "aba_payway") {
-        const normalizedAbaIntent = normalizeAbaIntent(payload);
-        if (!normalizedAbaIntent) {
+      if (provider === "aba_payway" || provider === "bakong_khqr") {
+        const normalizedIntent = normalizeAbaIntent(payload);
+        if (!normalizedIntent) {
           throw new Error(
-            "ABA PayWay created the payment request, but the response did not include usable QR or session details.",
+            provider === "bakong_khqr"
+              ? "Bakong KHQR created the payment request, but the response did not include a QR code."
+              : "ABA PayWay created the payment request, but the response did not include usable QR or session details.",
           );
         }
 
-        setAbaIntent(normalizedAbaIntent);
+        setAbaIntent(normalizedIntent);
         setIsProcessing(false);
 
         const shouldRedirect =
-          !normalizedAbaIntent.qrImageUrl &&
-          !normalizedAbaIntent.qrRaw &&
-          Boolean(normalizedAbaIntent.paymentUrl);
+          provider === "aba_payway" &&
+          !normalizedIntent.qrImageUrl &&
+          !normalizedIntent.qrRaw &&
+          Boolean(normalizedIntent.paymentUrl);
 
-        if (shouldRedirect && normalizedAbaIntent.paymentUrl) {
-          window.location.href = normalizedAbaIntent.paymentUrl;
+        if (shouldRedirect && normalizedIntent.paymentUrl) {
+          window.location.href = normalizedIntent.paymentUrl;
         }
         return;
       }
@@ -582,7 +590,7 @@ export function PaymentForm({ booking }: PaymentFormProps) {
                   ? provider === "stripe"
                     ? "Redirecting to Stripe…"
                     : "Generating QR…"
-                  : `Pay ${usd.format(amount)} via ${provider === "stripe" ? "Stripe" : "ABA PayWay"}`}
+                  : `Pay ${usd.format(amount)} via ${provider === "stripe" ? "Stripe" : provider === "bakong_khqr" ? "Bakong KHQR" : "ABA PayWay"}`}
               </Button>
               {errorMessage && (
                 <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/10 p-3.5 text-sm text-destructive">
@@ -593,18 +601,20 @@ export function PaymentForm({ booking }: PaymentFormProps) {
               <p className="mt-4 text-center text-xs text-muted-foreground">
                 {provider === "stripe"
                   ? "You'll be redirected securely to Stripe."
-                  : "A custom QR code will be generated for scanning."}
+                  : provider === "bakong_khqr"
+                    ? "A Bakong KHQR code will be generated for scanning."
+                    : "A custom QR code will be generated for scanning."}
               </p>
             </>
           )}
         </div>
       </div>
 
-      {/* ── ABA generating spinner ───────────────────────────────────── */}
-      {provider === "aba_payway" && isProcessing && !abaIntent && (
+      {/* ── QR generating spinner ────────────────────────────────────── */}
+      {(provider === "aba_payway" || provider === "bakong_khqr") && isProcessing && !abaIntent && (
         <div className="flex items-center justify-center gap-3 rounded-2xl border border-border/60 bg-muted/20 px-6 py-5 text-sm font-medium text-muted-foreground shadow-sm motion-preset-slide-up-sm motion-duration-500">
           <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
-          Requesting ABA PayWay QR…
+          {provider === "bakong_khqr" ? "Generating Bakong KHQR…" : "Requesting ABA PayWay QR…"}
         </div>
       )}
 
@@ -617,7 +627,7 @@ export function PaymentForm({ booking }: PaymentFormProps) {
               {abaQrImageSrc ? (
                 <img
                   src={abaQrImageSrc}
-                  alt="ABA PayWay QR"
+                  alt={abaIntent.provider === "bakong_khqr" ? "Bakong KHQR" : "ABA PayWay QR"}
                   className="h-auto w-full max-w-60 object-contain"
                 />
               ) : isGeneratingQrImage ? (
@@ -635,7 +645,7 @@ export function PaymentForm({ booking }: PaymentFormProps) {
 
             <div className="mt-6 text-center">
               <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-                Scan with ABA Mobile
+                {abaIntent.provider === "bakong_khqr" ? "Scan with Bakong App" : "Scan with ABA Mobile"}
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-foreground">
                 {usd.format(amount)}
@@ -664,7 +674,14 @@ export function PaymentForm({ booking }: PaymentFormProps) {
               )}
             </div>
 
-            {abaIntent.gatewayMode?.toLowerCase() === "sandbox" && (
+            {abaIntent.provider === "bakong_khqr" && (
+              <div className="mt-4 rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 py-3.5 text-xs text-blue-700 dark:text-blue-400">
+                <span className="block font-semibold mb-0.5">Bakong KHQR</span>
+                Open any Bakong-compatible app, tap Scan QR, and pay. After paying tap
+                "Check status" to confirm your booking.
+              </div>
+            )}
+            {abaIntent.provider !== "bakong_khqr" && abaIntent.gatewayMode?.toLowerCase() === "sandbox" && (
               <div className="mt-4 rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 py-3.5 text-xs text-blue-700 dark:text-blue-400">
                 <span className="block font-semibold mb-0.5">Sandbox Mode</span>
                 A real ABA app may show "transaction not found". Complete the
