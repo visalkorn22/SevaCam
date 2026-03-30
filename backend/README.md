@@ -194,3 +194,7 @@ npm run dev
 # refresh database
 
 docker compose restart
+
+# Webhook testing stripe
+
+stripe listen --forward-to localhost:8000/api/payments/webhook/stripe

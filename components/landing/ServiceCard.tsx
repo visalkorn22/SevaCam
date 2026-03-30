@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import type { Service } from "@/lib/types/landing";
 
 interface ServiceCardProps {
@@ -23,106 +22,109 @@ export function ServiceCard({ service }: ServiceCardProps) {
   const depositAmount = service.depositAmount
     ? Number(service.depositAmount)
     : 0;
-  const tags = new Set(service.tags ?? []);
   const totalImages = images.length;
   const hasMultipleImages = totalImages > 1;
   const displayIndex =
     totalImages === 0 ? 0 : Math.min(imageIndex, totalImages - 1);
   const activeImage = images[displayIndex];
 
-  if (depositAmount > 0) {
-    tags.add("Deposit");
-  }
-
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card motion-card motion-reduce:transition-none">
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card motion-card motion-reduce:transition-none">
+      {/* Image */}
+      <div className="relative aspect-4/3 overflow-hidden bg-muted">
         {activeImage ? (
           <img
             src={activeImage}
             alt={displayName}
             loading="lazy"
-            className="h-full w-full object-cover motion-standard motion-safe:group-hover:scale-[1.02] motion-reduce:transform-none"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Service Image
+          <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground/40">
+            No image
           </div>
         )}
+
+        {/* Price pill — top right */}
+        <div className="absolute right-3 top-3 rounded-full bg-background/95 px-3 py-1.5 text-[11px] font-bold tabular-nums text-foreground shadow-sm backdrop-blur-sm">
+          ${service.price}
+        </div>
+
+        {/* Category — top left */}
+        {service.category && (
+          <div className="absolute left-3 top-3 rounded-full border border-border/40 bg-background/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.3em] text-muted-foreground backdrop-blur-sm">
+            {service.category}
+          </div>
+        )}
+
+        {/* Image nav — visible on hover */}
         {hasMultipleImages && (
-          <div className="absolute bottom-4 right-4 flex items-center gap-2">
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             <button
               type="button"
               aria-label="Previous image"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                setImageIndex(() =>
+                setImageIndex(
                   displayIndex === 0 ? totalImages - 1 : displayIndex - 1,
                 );
               }}
-              className="motion-standard motion-press flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-[var(--shadow-card)] hover:bg-muted motion-reduce:transition-none"
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background/90 text-foreground shadow-sm backdrop-blur-sm hover:bg-background"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3.5 w-3.5" />
             </button>
+
+            {/* Dot indicators */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalImages }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1 rounded-full bg-white transition-all duration-200 ${
+                    i === displayIndex ? "w-3 opacity-100" : "w-1 opacity-50"
+                  }`}
+                />
+              ))}
+            </div>
+
             <button
               type="button"
               aria-label="Next image"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                setImageIndex(() => (displayIndex + 1) % totalImages);
+                setImageIndex((displayIndex + 1) % totalImages);
               }}
-              className="motion-standard motion-press flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-[var(--shadow-card)] hover:bg-muted motion-reduce:transition-none"
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background/90 text-foreground shadow-sm backdrop-blur-sm hover:bg-background"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </button>
-          </div>
-        )}
-        <div className="absolute right-4 top-4 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-wide text-foreground shadow-[var(--shadow-card)]">
-          ${service.price}
-        </div>
-        {tags.size > 0 && (
-          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            {Array.from(tags)
-              .slice(0, 1)
-              .map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="outline"
-                  className="rounded-full border-border bg-background px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground/70"
-                >
-                  {tag}
-                </Badge>
-              ))}
           </div>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-6">
-        {service.category && (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-            {service.category}
-          </p>
-        )}
-        <h3 className="mt-3 text-lg font-semibold leading-snug">
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="text-base font-semibold leading-snug text-foreground">
           {displayName}
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {service.description || "Service details available upon booking."}
         </p>
 
-        <div className="mt-4 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          <span>{service.durationMinutes} min</span>
-          {depositAmount > 0 && <span>Deposit ${depositAmount}</span>}
-        </div>
-
-        <div className="mt-5 flex items-center justify-end">
+        <div className="mt-auto flex items-center justify-between pt-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+            {service.durationMinutes} min
+            {depositAmount > 0 && (
+              <span className="ml-2 text-primary">· ${depositAmount} dep.</span>
+            )}
+          </p>
           <Link
             href={`/book/${service.id}?serviceId=${service.id}`}
-            className="motion-standard text-xs font-semibold uppercase tracking-[0.25em] text-primary hover:text-primary/80"
+            className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.3em] text-primary transition-colors hover:text-primary/70"
           >
-            Book now
+            Book
+            <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </div>

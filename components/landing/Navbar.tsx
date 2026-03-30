@@ -55,53 +55,51 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
+        {/* Logo */}
+        <Link href="/" className="group flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/15">
             <Image
               src="/logo.png"
               alt="AICSER"
-              width={28}
-              height={28}
-              className="h-7 w-7"
+              width={22}
+              height={22}
+              className="h-5.5 w-5.5"
               priority
             />
           </div>
-          <span className="text-lg font-semibold tracking-tight">AICSER</span>
+          <span className="text-[13px] font-bold uppercase tracking-[0.15em]">
+            AICSER
+          </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 text-sm font-semibold uppercase tracking-[0.2em] text-foreground/60 md:flex">
-          <Link
-            href="#services"
-            onClick={(event) => handleScroll(event, "services")}
-            className="motion-standard hover:text-foreground"
-          >
-            Services
-          </Link>
-          <Link
-            href="#about"
-            onClick={(event) => handleScroll(event, "about")}
-            className="motion-standard hover:text-foreground"
-          >
-            About
-          </Link>
-          <Link
-            href="#contact"
-            onClick={(event) => handleScroll(event, "contact")}
-            className="motion-standard hover:text-foreground"
-          >
-            Contact
-          </Link>
+        {/* Nav links */}
+        <nav className="hidden items-center gap-8 md:flex">
+          {[
+            { label: "Services", targetId: "services" },
+            { label: "About", targetId: "about" },
+            { label: "Contact", targetId: "contact" },
+          ].map(({ label, targetId }) => (
+            <Link
+              key={label}
+              href={`#${targetId}`}
+              onClick={(event) => handleScroll(event, targetId)}
+              className="text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        {/* Actions */}
+        <div className="flex items-center gap-2">
           {showMyBookingsLink && (
             <Button
               asChild
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="h-10 rounded-full border-border/70 px-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/70"
+              className="h-9 px-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
             >
               <Link href="/bookings">My Bookings</Link>
             </Button>
@@ -109,10 +107,10 @@ export function Navbar() {
           {isCustomer && (
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="h-10 rounded-full border-border/70 px-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/70"
+              className="h-9 px-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
             >
               Logout
             </Button>
@@ -122,15 +120,15 @@ export function Navbar() {
               asChild
               variant="outline"
               size="sm"
-              className="h-10 rounded-full border-border/70 px-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/70"
+              className="hidden h-9 rounded-full border-border/60 px-4 text-[11px] font-semibold uppercase tracking-[0.2em] sm:flex"
             >
               <Link href={staffAdminHref}>{staffAdminLabel}</Link>
             </Button>
           )}
           <Button
             asChild
-            size="lg"
-            className="h-10 px-6 text-[11px] font-semibold uppercase tracking-[0.2em]"
+            size="sm"
+            className="h-9 px-5 text-[11px] font-bold uppercase tracking-[0.2em]"
           >
             <Link
               href="#services"

@@ -106,114 +106,119 @@ function ConfirmedView({ booking }: { booking: BookingRow }) {
     }).format(amount);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-emerald-950/30 via-background to-background">
-      <div className="container py-16 sm:py-24">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Soft success glow behind the card */}
+      <div className="absolute inset-x-0 top-0 h-96 bg-emerald-500/5 blur-[100px] pointer-events-none" />
+
+      <div className="container relative py-16 sm:py-24">
         <div className="mx-auto max-w-lg">
-          <div className="mb-8 text-center">
-            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/15 ring-2 ring-emerald-500/30">
-              <CheckCircle2 className="h-10 w-10 text-emerald-400" />
+          <div className="mb-10 text-center motion-preset-slide-up-sm motion-duration-500">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+              <CheckCircle2 className="h-8 w-8 text-emerald-500" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              You&apos;re all set!
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl text-foreground">
+              You&apos;re all set
             </h1>
-            <p className="mt-2 text-base text-muted-foreground">
-              Your appointment has been confirmed. See you soon.
+            <p className="mt-3 text-base text-muted-foreground">
+              Your appointment is confirmed and secured.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <div className="border-b border-border bg-emerald-500/10 px-6 py-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)] motion-preset-slide-up-sm motion-delay-100 duration-500">
+            <div className="border-b border-border/40 bg-muted/20 px-6 py-5">
+              <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
                 Booking Confirmed
               </p>
-              <p className="mt-0.5 text-xl font-bold text-foreground">
+              <p className="mt-1 text-lg font-medium text-foreground">
                 {booking.services.name}
               </p>
             </div>
 
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-border/40">
               <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
-                  <User className="h-5 w-5 text-muted-foreground" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/50 border border-border/40">
+                  <User className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Provider
                   </p>
-                  <p className="font-semibold">{staffName}</p>
+                  <p className="text-sm font-medium mt-0.5">{staffName}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
-                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/50 border border-border/40">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Date
                   </p>
-                  <p className="font-semibold">
+                  <p className="text-sm font-medium mt-0.5">
                     {format(startDate, "EEEE, MMMM d, yyyy")}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/50 border border-border/40">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Time
                   </p>
-                  <p className="font-semibold">
+                  <p className="text-sm font-medium mt-0.5">
                     {format(startDate, "h:mm a")} &rarr;{" "}
                     {format(endDate, "h:mm a")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {booking.services.duration_minutes} min session
+                    <span className="ml-2 font-normal text-muted-foreground">
+                      ({booking.services.duration_minutes} min)
+                    </span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between px-6 py-4">
-                <p className="text-sm text-muted-foreground">Total</p>
-                <p className="text-lg font-bold text-foreground">
+              <div className="flex items-center justify-between px-6 py-5 bg-muted/10">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total
+                </p>
+                <p className="text-lg font-semibold text-foreground">
                   {formatPrice(booking.services.price)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-5">
-            <p className="mb-3 text-sm font-semibold">What&apos;s next?</p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+          <div className="mt-8 rounded-2xl border border-border/60 bg-muted/30 p-5 motion-preset-slide-up-sm motion-delay-200 duration-500">
+            <p className="mb-3 text-sm font-medium">What&apos;s next?</p>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
                 You&apos;ll receive a confirmation email shortly.
               </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
                 We&apos;ll send a reminder before your appointment.
               </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
                 Manage your booking anytime from your dashboard.
               </li>
             </ul>
           </div>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row motion-preset-slide-up-sm motion-delay-300 duration-500">
             <Link
               href="/bookings"
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold transition hover:bg-muted"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border/60 bg-background px-4 py-3.5 text-sm font-medium transition-colors hover:bg-muted/50 hover:border-border"
             >
-              <CalendarDays className="h-4 w-4" />
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
               My Bookings
             </Link>
             <Link
               href="/services"
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 shadow-sm"
             >
               Book Another
               <ArrowRight className="h-4 w-4" />

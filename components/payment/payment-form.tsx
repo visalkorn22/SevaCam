@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toDataURL } from "qrcode";
 import { format } from "date-fns";
 import {
+  AlertTriangle,
   ArrowUpRight,
   CheckCircle2,
   Loader2,
@@ -12,7 +13,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 type PaymentBooking = {
   id: string;
@@ -455,58 +455,62 @@ export function PaymentForm({ booking }: PaymentFormProps) {
   const price = Number(booking.services.price || 0);
 
   return (
-    <div className="space-y-4">
-      <div className="pb-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Complete payment
+    <div className="mx-auto max-w-xl space-y-6 motion-preset-slide-up-sm motion-duration-500">
+      <div className="pb-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          Complete your booking
         </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Review your details and select a payment method to secure your
+          appointment.
+        </p>
       </div>
 
       {/* ── Main payment panel ──────────────────────────────────────── */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
-
+      <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
         {/* Booking summary strip */}
-        <div className="px-6 py-5">
+        <div className="px-6 py-6">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="truncate font-semibold text-foreground">
+              <p className="truncate text-lg font-semibold text-foreground">
                 {booking.services.name}
               </p>
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <span>{booking.staff?.full_name || "Staff Member"}</span>
+                <span>·</span>
+                <span>{format(startDate, "MMM d, yyyy")}</span>
+                <span>·</span>
+                <span>{format(startDate, "h:mm a")}</span>
+              </p>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                with {booking.staff?.full_name || "Staff Member"}
-                {" · "}
-                {format(startDate, "MMM d, yyyy")}
-                {" · "}
-                {format(startDate, "h:mm a")}
-                {" · "}
-                {booking.services.duration_minutes} min
+                {booking.services.duration_minutes} minute session
               </p>
             </div>
             <div className="shrink-0 text-right">
-              <p className="text-xl font-bold tabular-nums">
+              <p className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
                 {usd.format(amount)}
               </p>
               {deposit > 0 && (
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  deposit now
+                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Deposit Due
                 </p>
               )}
             </div>
           </div>
           {deposit > 0 && (
-            <div className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-              Full price {usd.format(price)} · Remaining{" "}
-              {usd.format(price - deposit)} due at appointment
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-muted/40 px-4 py-3 text-sm text-muted-foreground border border-border/40">
+              <span>Total price: {usd.format(price)}</span>
+              <span>{usd.format(price - deposit)} due at appointment</span>
             </div>
           )}
         </div>
 
         {/* Payment method */}
-        <div className="border-t border-border px-6 py-5">
-          <p className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-            Payment method
+        <div className="border-t border-border/40 bg-muted/10 px-6 py-6">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Payment Method
           </p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {providerOptions.map((option) => {
               const selected = provider === option.value;
               return (
@@ -514,27 +518,33 @@ export function PaymentForm({ booking }: PaymentFormProps) {
                   key={option.value}
                   type="button"
                   onClick={() => setProvider(option.value)}
-                  className={`flex items-center justify-between rounded-xl border px-4 py-3.5 text-left transition-colors ${
+                  className={`group relative flex flex-col items-start rounded-xl border p-4 text-left transition-all ${
                     selected
-                      ? "border-foreground/25 bg-foreground/[0.04] text-foreground"
-                      : "border-border text-foreground/70 hover:border-foreground/20 hover:bg-muted/40"
+                      ? "border-primary/50 bg-primary/5 shadow-sm"
+                      : "border-border/60 bg-background hover:border-foreground/20 hover:bg-muted/30 hover:shadow-sm"
                   }`}
                 >
-                  <div>
-                    <p className="text-sm font-semibold leading-tight">
+                  <div className="flex w-full items-center justify-between">
+                    <p
+                      className={`text-sm font-semibold transition-colors ${selected ? "text-foreground" : "text-foreground/80 group-hover:text-foreground"}`}
+                    >
                       {option.title}
                     </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {option.description}
-                    </p>
+                    <div
+                      className={`h-4 w-4 shrink-0 rounded-full border transition-colors flex items-center justify-center ${
+                        selected
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground/30 bg-background"
+                      }`}
+                    >
+                      {selected && (
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+                      )}
+                    </div>
                   </div>
-                  <div
-                    className={`ml-3 h-4 w-4 shrink-0 rounded-full border-2 transition-colors ${
-                      selected
-                        ? "border-foreground bg-foreground"
-                        : "border-border"
-                    }`}
-                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {option.description}
+                  </p>
                 </button>
               );
             })}
@@ -542,17 +552,16 @@ export function PaymentForm({ booking }: PaymentFormProps) {
         </div>
 
         {/* CTA */}
-        <div className="border-t border-border px-6 py-5">
+        <div className="border-t border-border/40 px-6 py-6 bg-background">
           {isAlreadyPaid ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                <CheckCircle2 className="h-5 w-5 shrink-0" />
                 Payment already completed.
               </div>
               <Button
                 onClick={() => router.push(`/payment/${booking.id}`)}
-                className="w-full"
-                size="lg"
+                className="h-12 w-full rounded-xl text-base shadow-sm"
               >
                 View confirmation
               </Button>
@@ -562,27 +571,29 @@ export function PaymentForm({ booking }: PaymentFormProps) {
               <Button
                 onClick={handleStartPayment}
                 disabled={isProcessing}
-                className="w-full"
-                size="lg"
+                className="h-12 w-full transition-all rounded-xl text-base shadow-sm"
               >
                 {isProcessing ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 ) : (
-                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  <ShieldCheck className="mr-2 h-5 w-5" />
                 )}
                 {isProcessing
                   ? provider === "stripe"
                     ? "Redirecting to Stripe…"
                     : "Generating QR…"
-                  : `Pay ${usd.format(amount)} · ${provider === "stripe" ? "Stripe" : "ABA PayWay"}`}
+                  : `Pay ${usd.format(amount)} via ${provider === "stripe" ? "Stripe" : "ABA PayWay"}`}
               </Button>
               {errorMessage && (
-                <p className="mt-3 text-sm text-destructive">{errorMessage}</p>
+                <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/10 p-3.5 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  <p>{errorMessage}</p>
+                </div>
               )}
-              <p className="mt-3 text-center text-xs text-muted-foreground">
+              <p className="mt-4 text-center text-xs text-muted-foreground">
                 {provider === "stripe"
-                  ? "You'll be redirected to Stripe's secure checkout."
-                  : "A scannable QR will appear on this page."}
+                  ? "You'll be redirected securely to Stripe."
+                  : "A custom QR code will be generated for scanning."}
               </p>
             </>
           )}
@@ -591,199 +602,146 @@ export function PaymentForm({ booking }: PaymentFormProps) {
 
       {/* ── ABA generating spinner ───────────────────────────────────── */}
       {provider === "aba_payway" && isProcessing && !abaIntent && (
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-          Requesting ABA PayWay QR — keep this page open.
+        <div className="flex items-center justify-center gap-3 rounded-2xl border border-border/60 bg-muted/20 px-6 py-5 text-sm font-medium text-muted-foreground shadow-sm motion-preset-slide-up-sm motion-duration-500">
+          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
+          Requesting ABA PayWay QR…
         </div>
       )}
 
       {/* ── ABA QR panel ─────────────────────────────────────────────── */}
       {abaIntent && (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card">
-
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)] motion-preset-slide-up-sm motion-delay-100 duration-500">
           {/* QR display */}
-          <div className="flex flex-col items-center px-6 py-8">
-            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <div className="flex flex-col items-center bg-muted/10 px-6 py-10">
+            <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-border/50">
               {abaQrImageSrc ? (
                 <img
                   src={abaQrImageSrc}
                   alt="ABA PayWay QR"
-                  className="h-auto w-full max-w-[240px] object-contain"
+                  className="h-auto w-full max-w-60 object-contain"
                 />
               ) : isGeneratingQrImage ? (
-                <div className="flex h-56 w-56 flex-col items-center justify-center gap-3 text-sm text-slate-500">
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                <div className="flex h-56 w-56 flex-col items-center justify-center gap-3 text-sm text-muted-foreground/60">
+                  <Loader2 className="h-8 w-8 animate-spin" />
                   <p>Rendering QR…</p>
                 </div>
               ) : (
-                <div className="flex h-56 w-56 flex-col items-center justify-center gap-3 p-4 text-center text-sm text-slate-500">
-                  <QrCode className="h-8 w-8 opacity-30" />
-                  <p>No QR image returned. Use the ABA deeplink below.</p>
+                <div className="flex h-56 w-56 flex-col items-center justify-center gap-3 p-4 text-center text-sm text-muted-foreground/60">
+                  <QrCode className="h-10 w-10 opacity-30" />
+                  <p>No QR image returned. Use the link below.</p>
                 </div>
               )}
             </div>
 
-            <div className="mt-4 text-center">
-              <p className="text-xl font-bold tabular-nums">
-                {usd.format(amount)}
+            <div className="mt-6 text-center">
+              <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
+                Scan with ABA Mobile
               </p>
-              <p className="text-sm text-muted-foreground">
-                {booking.services.name}
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-foreground">
+                {usd.format(amount)}
               </p>
             </div>
           </div>
 
           {/* Instruction + metadata */}
-          <div className="border-t border-border px-6 py-4">
-            <p className="text-sm text-muted-foreground">
-              Scan with{" "}
-              <span className="font-medium text-foreground">ABA Mobile</span>{" "}
-              from another device. Keep this screen open.
-            </p>
-
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <div className="border-t border-border/40 px-6 py-5 bg-background">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
               {abaIntent.gatewayMode && (
-                <span>
+                <span className="flex items-center gap-1.5 rounded-md bg-muted px-2 py-1">
                   Mode:{" "}
-                  <span className="text-foreground">{abaIntent.gatewayMode}</span>
+                  <span className="font-medium text-foreground">
+                    {abaIntent.gatewayMode}
+                  </span>
                 </span>
               )}
               {abaExpiresAt && (
-                <span>
+                <span className="flex items-center gap-1.5 rounded-md bg-muted px-2 py-1">
                   Expires:{" "}
-                  <span className="text-foreground">{abaExpiresAt}</span>
+                  <span className="font-medium text-foreground">
+                    {abaExpiresAt}
+                  </span>
                 </span>
               )}
             </div>
 
             {abaIntent.gatewayMode?.toLowerCase() === "sandbox" && (
-              <div className="mt-3 rounded-lg bg-blue-500/8 px-3 py-2.5 text-xs text-blue-700 dark:text-blue-400">
-                Sandbox — real ABA app may show "transaction not found". Complete
-                the sandbox flow first, then check payment status.
+              <div className="mt-4 rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 py-3.5 text-xs text-blue-700 dark:text-blue-400">
+                <span className="block font-semibold mb-0.5">Sandbox Mode</span>
+                A real ABA app may show "transaction not found". Complete the
+                sandbox flow directly, then check payment status.
               </div>
             )}
 
             {qrRenderError && (
-              <div className="mt-3 rounded-lg bg-destructive/8 px-3 py-2.5 text-xs text-destructive">
+              <div className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3.5 text-xs text-destructive">
                 {qrRenderError}
               </div>
             )}
 
             {!hasAbaQrPayload && !qrRenderError && (
-              <div className="mt-3 rounded-lg bg-amber-500/8 px-3 py-2.5 text-xs text-amber-700 dark:text-amber-400">
-                No QR payload returned. Check backend response alignment.
+              <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3.5 text-xs text-amber-700 dark:text-amber-400">
+                No QR payload returned. Please verify your backend
+                Configuration.
               </div>
             )}
           </div>
 
-          {/* Reference IDs (compact) */}
-          {abaIntent.references.length > 0 && (
-            <div className="border-t border-border px-6 py-3">
-              <div className="flex flex-wrap gap-x-5 gap-y-1">
-                {abaIntent.references.map((ref) => (
-                  <div
-                    key={`${ref.label}-${ref.value}`}
-                    className="flex items-baseline gap-1.5"
-                  >
-                    <span className="text-xs text-muted-foreground">
-                      {ref.label}
-                    </span>
-                    <span className="font-mono text-xs text-foreground">
-                      {ref.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Settlement destination */}
-          {abaIntent.settlementDestination && (
-            <div className="border-t border-border px-6 py-3 text-sm text-emerald-700 dark:text-emerald-400">
-              {abaIntent.settlementDestination}
-            </div>
-          )}
-
           {/* Actions */}
-          <div className="border-t border-border px-6 py-4">
-            <div className="flex flex-wrap gap-2">
+          <div className="border-t border-border/40 px-6 py-5 bg-background">
+            <div className="flex flex-col sm:flex-row gap-3">
               {abaIntent.deeplink && (
-                <Button asChild size="sm">
-                  <a
-                    href={abaIntent.deeplink}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                <Button asChild className="flex-1 h-11 rounded-xl shadow-sm">
+                  <a href={abaIntent.deeplink} target="_blank" rel="noreferrer">
                     Open ABA App
-                    <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+                    <ArrowUpRight className="ml-1.5 h-4 w-4" />
                   </a>
                 </Button>
               )}
               {abaIntent.paymentUrl && (
-                <Button asChild variant="secondary" size="sm">
+                <Button
+                  asChild
+                  variant="secondary"
+                  className="flex-1 h-11 rounded-xl"
+                >
                   <a
                     href={abaIntent.paymentUrl}
                     target="_blank"
                     rel="noreferrer"
                   >
                     PayWay Checkout
-                    <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+                    <ArrowUpRight className="ml-1.5 h-4 w-4" />
                   </a>
                 </Button>
               )}
               {abaIntent.paymentId && (
                 <Button
                   type="button"
-                  variant="secondary"
-                  size="sm"
+                  variant="outline"
+                  className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/50"
                   onClick={() =>
                     router.push(
                       `/payment/${booking.id}?payment_id=${abaIntent.paymentId}`,
                     )
                   }
                 >
-                  Check payment status
-                </Button>
-              )}
-              {isLocalDev && abaIntent.paymentId && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isProcessing}
-                  onClick={handleMarkSandboxPaid}
-                >
-                  {isProcessing && (
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                  )}
-                  Mark paid (sandbox)
+                  Check status
                 </Button>
               )}
             </div>
 
-            {(abaIntent.appStore || abaIntent.playStore) && (
-              <div className="mt-3 flex gap-4 text-xs">
-                {abaIntent.appStore && (
-                  <a
-                    href={abaIntent.appStore}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    iPhone app
-                  </a>
+            {isLocalDev && abaIntent.paymentId && (
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-4 w-full h-10 rounded-xl border-blue-500/30 text-blue-600 bg-blue-500/5 hover:bg-blue-500/10 dark:text-blue-400"
+                disabled={isProcessing}
+                onClick={handleMarkSandboxPaid}
+              >
+                {isProcessing && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {abaIntent.playStore && (
-                  <a
-                    href={abaIntent.playStore}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    Android app
-                  </a>
-                )}
-              </div>
+                Mark Paid (Dev Sandbox)
+              </Button>
             )}
           </div>
         </div>

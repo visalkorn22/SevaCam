@@ -4,12 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { BookingCard } from "@/components/booking/BookingCard";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
   SheetContent,
@@ -101,8 +96,7 @@ type AvailableSlot = {
   staff_name?: string | null;
 };
 
-const formatDate = (value: string) =>
-  format(new Date(value), "MMM d, yyyy");
+const formatDate = (value: string) => format(new Date(value), "MMM d, yyyy");
 const formatTime = (value: string) => format(new Date(value), "h:mm a");
 
 export default function CustomerBookingsClient({
@@ -128,8 +122,9 @@ export default function CustomerBookingsClient({
   const [detailsChanges, setDetailsChanges] = useState<BookingChangeRow[]>([]);
   const [detailsLoading, setDetailsLoading] = useState(false);
 
-  const [rescheduleBooking, setRescheduleBooking] =
-    useState<BookingRow | null>(null);
+  const [rescheduleBooking, setRescheduleBooking] = useState<BookingRow | null>(
+    null,
+  );
   const [rescheduleDate, setRescheduleDate] = useState<string>("");
   const [rescheduleSlots, setRescheduleSlots] = useState<AvailableSlot[]>([]);
   const [rescheduleLoading, setRescheduleLoading] = useState(false);
@@ -360,18 +355,15 @@ export default function CustomerBookingsClient({
     setRebookLoadingId(booking.id);
     setError(null);
     try {
-      const res = await fetch(
-        `${apiUrl}/api/bookings/${booking.id}/rebook`,
-        {
-          method: "POST",
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`${apiUrl}/api/bookings/${booking.id}/rebook`, {
+        method: "POST",
+        credentials: "include",
+      });
       const payload = await res.json();
       if (!res.ok) {
         throw new Error(payload?.detail || "Unable to rebook");
       }
-      router.push(`/booking-confirmed/${payload.id}`);
+      router.push(`/payment/${payload.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to rebook");
     } finally {
@@ -382,14 +374,14 @@ export default function CustomerBookingsClient({
   const renderBookings = (items: BookingRow[], allowBookAgain: boolean) => {
     if (items.length === 0) {
       return (
-        <div className="rounded-3xl border border-dashed border-border bg-muted/30 p-8 text-center">
-          <p className="text-lg font-semibold text-foreground">
+        <div className="rounded-2xl border border-dashed border-border/60 bg-muted/20 p-12 text-center">
+          <p className="text-base font-semibold text-foreground">
             No bookings yet
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Browse services and book your next appointment.
           </p>
-          <Button asChild className="mt-4">
+          <Button asChild size="sm" className="mt-6 rounded-full px-6 text-[11px] font-bold uppercase tracking-[0.2em]">
             <a href="/services">Explore Services</a>
           </Button>
         </div>
@@ -424,11 +416,7 @@ export default function CustomerBookingsClient({
               onViewDetails={() => openDetails(booking)}
               onEdit={canEdit ? () => openReschedule(booking) : undefined}
               onCancel={canEdit ? () => setCancelBooking(booking) : undefined}
-              onBook={
-                canBookAgain
-                  ? () => handleRebook(booking)
-                  : undefined
-              }
+              onBook={canBookAgain ? () => handleRebook(booking) : undefined}
             />
           );
         })}
@@ -438,9 +426,14 @@ export default function CustomerBookingsClient({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b border-border/60 bg-card/50 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <h1 className="text-3xl font-semibold">Your Bookings</h1>
+      <div className="border-b border-border/40">
+        <div className="mx-auto max-w-6xl px-4 py-10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-muted-foreground">
+            My Account
+          </p>
+          <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight text-foreground">
+            Your Bookings
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Manage upcoming appointments, reschedule, or join waitlists.
           </p>
@@ -460,7 +453,9 @@ export default function CustomerBookingsClient({
               Upcoming ({upcomingBookings.length})
             </TabsTrigger>
             <TabsTrigger value="past">Past ({pastBookings.length})</TabsTrigger>
-            <TabsTrigger value="waitlist">Waitlist ({waitlist.length})</TabsTrigger>
+            <TabsTrigger value="waitlist">
+              Waitlist ({waitlist.length})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="upcoming">
@@ -488,7 +483,8 @@ export default function CustomerBookingsClient({
                   You are not on any waitlists
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  If a service is full, you can join its waitlist during booking.
+                  If a service is full, you can join its waitlist during
+                  booking.
                 </p>
               </div>
             ) : (
@@ -606,9 +602,10 @@ export default function CustomerBookingsClient({
                             </p>
                             {change.old_start_time && change.new_start_time ? (
                               <p className="mt-1 text-muted-foreground">
-                                {formatDate(change.old_start_time)} {formatTime(change.old_start_time)}
-                                {" "}?{" "}
-                                {formatDate(change.new_start_time)} {formatTime(change.new_start_time)}
+                                {formatDate(change.old_start_time)}{" "}
+                                {formatTime(change.old_start_time)} ?{" "}
+                                {formatDate(change.new_start_time)}{" "}
+                                {formatTime(change.new_start_time)}
                               </p>
                             ) : null}
                             {change.reason ? (
@@ -617,7 +614,8 @@ export default function CustomerBookingsClient({
                               </p>
                             ) : null}
                             <p className="mt-1 text-muted-foreground">
-                              {formatDate(change.created_at)} {formatTime(change.created_at)}
+                              {formatDate(change.created_at)}{" "}
+                              {formatTime(change.created_at)}
                             </p>
                           </div>
                         ))}
@@ -630,7 +628,8 @@ export default function CustomerBookingsClient({
                               {log.action}
                             </p>
                             <p className="mt-1 text-muted-foreground">
-                              {formatDate(log.created_at)} {formatTime(log.created_at)}
+                              {formatDate(log.created_at)}{" "}
+                              {formatTime(log.created_at)}
                             </p>
                           </div>
                         ))}
@@ -686,7 +685,9 @@ export default function CustomerBookingsClient({
               <div className="space-y-3">
                 <p className="text-sm font-medium">Available times</p>
                 {rescheduleLoading ? (
-                  <p className="text-sm text-muted-foreground">Loading slots...</p>
+                  <p className="text-sm text-muted-foreground">
+                    Loading slots...
+                  </p>
                 ) : rescheduleSlots.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No slots on this date. Try another day.

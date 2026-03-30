@@ -11,7 +11,6 @@ import {
   RefreshCw,
   XCircle,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 type PaymentStatus = "pending" | "completed" | "failed" | "refunded" | string;
@@ -51,7 +50,9 @@ export function PaymentReturnStatus({
   const router = useRouter();
   const hasNavigatedRef = useRef(false);
   const [payment, setPayment] = useState<PaymentRecord | null>(initialPayment);
-  const [isLoading, setIsLoading] = useState(!initialPayment && !deferInitialFetch);
+  const [isLoading, setIsLoading] = useState(
+    !initialPayment && !deferInitialFetch,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const status = payment?.status || "pending";
@@ -60,7 +61,11 @@ export function PaymentReturnStatus({
   // Auto-navigate to the payment page (no params) when status becomes completed.
   // The server will fetch the updated booking and render the confirmed view.
   useEffect(() => {
-    if (status === "completed" && payment?.booking_id && !hasNavigatedRef.current) {
+    if (
+      status === "completed" &&
+      payment?.booking_id &&
+      !hasNavigatedRef.current
+    ) {
       hasNavigatedRef.current = true;
       router.push(`/payment/${payment.booking_id}`);
     }
@@ -127,8 +132,9 @@ export function PaymentReturnStatus({
         description:
           "Your payment has been confirmed. Your booking is now secured.",
         icon: CheckCircle2,
-        tone: "text-emerald-600",
-        box: "border-emerald-500/30 bg-emerald-500/10",
+        iconClass: "text-emerald-600 dark:text-emerald-400",
+        ringClass: "ring-emerald-500/20 bg-emerald-500/10",
+        barClass: "bg-emerald-500/8 border-b border-emerald-500/20",
       };
     }
     if (status === "failed") {
@@ -137,8 +143,9 @@ export function PaymentReturnStatus({
         description:
           "The payment was not completed. You can try again from your booking.",
         icon: XCircle,
-        tone: "text-red-600",
-        box: "border-red-500/30 bg-red-500/10",
+        iconClass: "text-red-600 dark:text-red-400",
+        ringClass: "ring-red-500/20 bg-red-500/10",
+        barClass: "bg-red-500/8 border-b border-red-500/20",
       };
     }
     if (status === "refunded") {
@@ -146,104 +153,144 @@ export function PaymentReturnStatus({
         title: "Payment refunded",
         description: "This payment has been refunded.",
         icon: AlertTriangle,
-        tone: "text-amber-600",
-        box: "border-amber-500/30 bg-amber-500/10",
+        iconClass: "text-amber-600 dark:text-amber-400",
+        ringClass: "ring-amber-500/20 bg-amber-500/10",
+        barClass: "bg-amber-500/8 border-b border-amber-500/20",
       };
     }
     return {
       title: "Waiting for confirmation",
-      description:
-        autoRefresh
-          ? "We are checking the latest payment status with the selected provider."
-          : "QR created. Complete payment first, then refresh status manually.",
+      description: autoRefresh
+        ? "We are checking the latest payment status with the selected provider."
+        : "QR created. Complete payment first, then refresh status manually.",
       icon: Clock3,
-      tone: "text-blue-600",
-      box: "border-blue-500/30 bg-blue-500/10",
+      iconClass: "text-blue-600 dark:text-blue-400",
+      ringClass: "ring-blue-500/20 bg-blue-500/10",
+      barClass: "bg-blue-500/8 border-b border-blue-500/20",
     };
   }, [autoRefresh, status]);
 
   const StatusIcon = statusMeta.icon;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment Status</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className={`rounded-lg border p-4 ${statusMeta.box}`}>
-            <div className="flex items-start gap-3">
-              <StatusIcon className={`mt-0.5 h-5 w-5 ${statusMeta.tone}`} />
-              <div>
-                <p className="font-semibold">{statusMeta.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  {statusMeta.description}
-                </p>
-              </div>
+    <div className="mx-auto max-w-lg space-y-5 motion-preset-slide-up-sm motion-duration-500">
+      {/* Page heading */}
+      <div className="pb-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          Payment Status
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Checking your payment with{" "}
+          {payment?.provider?.replace("_", " ") || "the provider"}&hellip;
+        </p>
+      </div>
+
+      {/* Status card */}
+      <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+        {/* Status banner */}
+        <div className={`px-6 py-6 ${statusMeta.barClass}`}>
+          <div className="flex items-center gap-4">
+            <div
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ring-1 ${statusMeta.ringClass} ${statusMeta.iconClass}`}
+            >
+              <StatusIcon className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-base font-semibold text-foreground">
+                {statusMeta.title}
+              </p>
+              <p className="mt-0.5 text-sm text-muted-foreground max-w-75">
+                {statusMeta.description}
+              </p>
             </div>
           </div>
+        </div>
 
+        {/* Body */}
+        <div className="px-6 py-5 bg-background">
           {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Loading payment status...
+            <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+              Syncing latest status&hellip;
             </div>
           )}
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
 
           {payment && (
-            <div className="rounded-lg border p-3 text-sm">
-              <div className="flex items-center justify-between py-1">
+            <div className="space-y-2.5 rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
+              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Payment ID</span>
-                <span className="font-mono text-xs">{payment.id}</span>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-muted-foreground">Amount</span>
-                <span className="font-medium">
-                  {usd.format(Number(payment.amount || 0))} {payment.currency}
+                <span className="font-mono text-xs text-foreground/70">
+                  {payment.id}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-1">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Amount</span>
+                <span className="font-semibold text-foreground">
+                  {usd.format(Number(payment.amount || 0))}{" "}
+                  {payment.currency}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Provider</span>
-                <span className="font-medium capitalize">
+                <span className="font-medium capitalize text-foreground">
                   {payment.provider.replace("_", " ")}
                 </span>
               </div>
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2">
+          {/* Actions */}
+          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
             {!isTerminal && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => fetchPayment()}
+                className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/50"
               >
-                <RefreshCw className="mr-2 h-4 w-4" />
+                <RefreshCw
+                  className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+                />
                 Refresh Status
               </Button>
             )}
             {payment?.booking_id && status === "completed" && (
-              <Button asChild>
+              <Button asChild className="flex-1 h-11 rounded-xl shadow-sm">
                 <Link href={`/payment/${payment.booking_id}`}>
                   View Confirmation
                 </Link>
               </Button>
             )}
             {payment?.booking_id && status !== "completed" && (
-              <Button asChild variant="secondary">
+              <Button
+                asChild
+                variant="secondary"
+                className="flex-1 h-11 rounded-xl"
+              >
                 <Link href={`/payment/${payment.booking_id}`}>
                   Try Payment Again
                 </Link>
               </Button>
             )}
-            <Button asChild variant="ghost">
-              <Link href="/bookings">My Bookings</Link>
+          </div>
+
+          <div className="mt-3 text-center">
+            <Button
+              asChild
+              variant="link"
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              <Link href="/bookings">Return to My Bookings</Link>
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
