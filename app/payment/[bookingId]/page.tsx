@@ -247,18 +247,14 @@ export default async function PaymentPage({
   const me = await getMe();
   if (!me) redirect("/auth/login");
 
-  // Returning from a payment provider (Stripe redirect or ABA sandbox confirm)
+  // Returning from a payment provider (Stripe redirect or ABA sandbox confirm).
+  // Always render PaymentReturnStatus so the success modal can fire — even when
+  // the payment is already completed server-side (e.g. Stripe webhook fires before
+  // the user is redirected back). ConfirmedView is only shown at the clean URL
+  // (no payment_id param), which the modal CTA navigates to.
   if (paymentId) {
     const payment = await getPayment(paymentId, stripeSessionId);
 
-    // Payment already completed server-side — skip polling, show confirmation
-    if (payment?.status === "completed") {
-      const booking = await getBooking(bookingId);
-      if (!booking?.services) notFound();
-      return <ConfirmedView booking={booking} />;
-    }
-
-    // Payment pending or failed — show live status poller
     return (
       <div className="min-h-screen bg-background">
         <div className="container py-12">

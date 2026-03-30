@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,19 +12,10 @@ import {
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePaymentPoller, type PaymentRecord } from "@/hooks/use-payment-poller";
+import { PaymentSuccessModal } from "@/components/payment/payment-success-modal";
 
 type PaymentStatus = "pending" | "completed" | "failed" | "refunded" | string;
-
-type PaymentRecord = {
-  id: string;
-  booking_id: string;
-  provider: string;
-  provider_reference?: string | null;
-  amount: string | number;
-  currency: string;
-  status: PaymentStatus;
-  created_at: string;
-};
 
 interface PaymentReturnStatusProps {
   paymentId: string;
@@ -48,82 +39,27 @@ export function PaymentReturnStatus({
   deferInitialFetch = false,
 }: PaymentReturnStatusProps) {
   const router = useRouter();
-  const hasNavigatedRef = useRef(false);
-  const [payment, setPayment] = useState<PaymentRecord | null>(initialPayment);
-  const [isLoading, setIsLoading] = useState(
-    !initialPayment && !deferInitialFetch,
-  );
-  const [error, setError] = useState<string | null>(null);
 
-  const status = payment?.status || "pending";
+  const { payment, isLoading, error, refetch } = usePaymentPoller(paymentId, {
+    enabled: Boolean(paymentId),
+    autoRefresh,
+    initialPayment,
+    deferInitialFetch,
+    stripeSessionId,
+  });
+
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (payment?.status !== "completed") return;
+    const key = `payment_success_shown_${paymentId}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    setShowSuccess(true);
+  }, [payment?.status, paymentId]);
+
+  const status: PaymentStatus = payment?.status || "pending";
   const isTerminal = ["completed", "failed", "refunded"].includes(status);
-
-  // Auto-navigate to the payment page (no params) when status becomes completed.
-  // The server will fetch the updated booking and render the confirmed view.
-  useEffect(() => {
-    if (
-      status === "completed" &&
-      payment?.booking_id &&
-      !hasNavigatedRef.current
-    ) {
-      hasNavigatedRef.current = true;
-      router.push(`/payment/${payment.booking_id}`);
-    }
-  }, [status, payment?.booking_id, router]);
-
-  const fetchPayment = async (silent = false) => {
-    if (!silent) {
-      setIsLoading(true);
-    }
-    setError(null);
-
-    try {
-      const query = stripeSessionId
-        ? `?stripe_session_id=${encodeURIComponent(stripeSessionId)}`
-        : "";
-      const res = await fetch(`/api/payments/${paymentId}${query}`, {
-        method: "GET",
-        cache: "no-store",
-      });
-      const data = (await res.json().catch(() => ({}))) as
-        | PaymentRecord
-        | { detail?: string; error?: string };
-
-      if (!res.ok || !("status" in data)) {
-        throw new Error(
-          ("detail" in data && data.detail) ||
-            ("error" in data && data.error) ||
-            "Unable to load payment status",
-        );
-      }
-
-      setPayment(data);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Unable to load payment status";
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!payment && !deferInitialFetch) {
-      fetchPayment();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paymentId, deferInitialFetch]);
-
-  useEffect(() => {
-    if (!autoRefresh || isTerminal) return;
-
-    const timer = window.setInterval(() => {
-      fetchPayment(true);
-    }, 3000);
-
-    return () => window.clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paymentId, isTerminal, autoRefresh]);
 
   const statusMeta = useMemo(() => {
     if (status === "completed") {
@@ -251,7 +187,7 @@ export function PaymentReturnStatus({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => fetchPayment()}
+                onClick={() => refetch()}
                 className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/50"
               >
                 <RefreshCw
@@ -291,6 +227,14 @@ export function PaymentReturnStatus({
           </div>
         </div>
       </div>
+
+      <PaymentSuccessModal
+        open={showSuccess}
+        bookingId={payment?.booking_id ?? ""}
+        amount={Number(payment?.amount ?? 0)}
+        currency={payment?.currency}
+        onConfirm={() => router.replace(`/payment/${payment?.booking_id}`)}
+      />
     </div>
   );
 }
