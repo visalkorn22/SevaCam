@@ -73,14 +73,14 @@ export default function UpdatePasswordClient() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 md:p-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-(--bg-base) p-6 md:p-10">
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2 text-center">
             <h1 className="text-3xl font-bold tracking-tight">
               Update Password
             </h1>
-            <p className="text-muted-foreground">Enter your new password</p>
+            <p className="text-(--text-secondary)">Enter your new password</p>
           </div>
 
           <Card>
@@ -121,7 +121,7 @@ export default function UpdatePasswordClient() {
                   </div>
 
                   {error && (
-                    <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    <div className="rounded-(--radius-md) bg-(--state-error-subtle) p-3 text-sm text-(--state-error)">
                       {error}
                     </div>
                   )}

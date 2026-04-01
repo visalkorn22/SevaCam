@@ -76,19 +76,19 @@ export default function MagicLinkPage() {
 
   const icon =
     status === "loading" ? (
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <Loader2 className="h-8 w-8 animate-spin text-(--accent-primary)" />
     ) : status === "success" ? (
-      <CheckCircle2 className="h-8 w-8 text-green-600" />
+      <CheckCircle2 className="h-8 w-8 text-(--state-success)" />
     ) : (
-      <XCircle className="h-8 w-8 text-red-600" />
+      <XCircle className="h-8 w-8 text-(--state-error)" />
     );
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 md:p-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-(--bg-base) p-6 md:p-10">
       <div className="w-full max-w-md">
         <Card>
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-(--bg-elevated)">
               {icon}
             </div>
             <CardTitle className="text-2xl">Email Sign-In</CardTitle>
@@ -99,7 +99,7 @@ export default function MagicLinkPage() {
               <Link href="/auth/login">Back to Login</Link>
             </Button>
             {status === "error" && (
-              <p className="text-center text-xs text-muted-foreground">
+              <p className="text-center text-xs text-(--text-secondary)">
                 If the link expired, request a new sign-in link from the login
                 page.
               </p>

@@ -58,27 +58,27 @@ export default function ResetPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 md:p-10">
+      <div className="flex min-h-screen w-full items-center justify-center bg-(--bg-base) p-6 md:p-10">
         <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-(--state-success-subtle)">
+                <CheckCircle2 className="h-8 w-8 text-(--state-success)" />
               </div>
               <CardTitle className="text-2xl">Check Your Email</CardTitle>
               <CardDescription>Password reset link sent</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-sm text-(--text-secondary)">
                 We&apos;ve sent a password reset link to{" "}
                 <strong>{email}</strong>. Please check your inbox and follow the
                 instructions to reset your password.
               </p>
               {resetToken && (
-                <div className="rounded-md border bg-muted/40 p-3 text-sm">
+                <div className="rounded-(--radius-md) bg-(--bg-inset) p-3 text-sm">
                   <div className="mb-1 font-medium">Dev reset token</div>
                   <div className="break-all">{resetToken}</div>
-                  <div className="mt-2 text-xs text-muted-foreground">
+                  <div className="mt-2 text-xs text-(--text-secondary)">
                     Open{" "}
                     <Link
                       href={`/auth/update-password?token=${resetToken}`}
@@ -103,14 +103,14 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 md:p-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-(--bg-base) p-6 md:p-10">
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2 text-center">
             <h1 className="text-3xl font-bold tracking-tight">
               Reset Password
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-(--text-secondary)">
               Enter your email to receive a reset link
             </p>
           </div>
@@ -139,7 +139,7 @@ export default function ResetPasswordPage() {
                   </div>
 
                   {error && (
-                    <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    <div className="rounded-(--radius-md) bg-(--state-error-subtle) p-3 text-sm text-(--state-error)">
                       {error}
                     </div>
                   )}
@@ -153,7 +153,7 @@ export default function ResetPasswordPage() {
                   Remember your password?{" "}
                   <Link
                     href="/auth/login"
-                    className="font-medium text-primary underline-offset-4 hover:underline"
+                    className="font-medium text-(--accent-primary) underline-offset-4 hover:underline"
                   >
                     Sign in
                   </Link>
