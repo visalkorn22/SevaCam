@@ -5,18 +5,33 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden',
+  // Base: all-caps Inter label-md, no border, radius-sm
+  'inline-flex items-center justify-center rounded-[var(--radius-sm)] px-2 py-0.5 text-[0.6875rem] font-semibold tracking-[0.10em] uppercase w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none overflow-hidden',
   {
     variants: {
       variant: {
+        // Booking status variants — use these in booking/account flows
+        pending:
+          'bg-[var(--accent-subtle)] text-[var(--accent-primary)]',
+        confirmed:
+          'bg-[var(--state-success-subtle)] text-[var(--state-success)]',
+        cancelled:
+          'bg-[var(--state-error-subtle)] text-[var(--state-error)]',
+        completed:
+          'bg-[var(--bg-elevated)] text-[var(--text-secondary)]',
+        'no-show':
+          'bg-[var(--bg-inset)] text-[var(--text-disabled)]',
+        warning:
+          'bg-[var(--state-warning-subtle)] text-[var(--state-warning)]',
+        // Legacy variants — kept for shadcn compatibility during migration
         default:
-          'border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90',
+          'bg-[var(--accent-primary)] text-[var(--text-on-accent)]',
         secondary:
-          'border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90',
+          'bg-[var(--bg-elevated)] text-[var(--text-secondary)]',
         destructive:
-          'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+          'bg-[var(--state-error-subtle)] text-[var(--state-error)]',
         outline:
-          'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+          'border border-[var(--border-subtle)] text-[var(--text-primary)]',
       },
     },
     defaultVariants: {
