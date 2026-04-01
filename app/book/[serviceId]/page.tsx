@@ -1,8 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { headers } from "next/headers";
-import React from "react";
 import Link from "next/link";
-import { Playfair_Display } from "next/font/google";
 import { BookingForm } from "@/components/booking/booking-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import {
@@ -11,11 +9,6 @@ import {
 } from "@/components/booking/ServiceReviews";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, Clock, DollarSign, Tag, Users } from "lucide-react";
-
-const displayFont = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
 
 type MeUser = {
   id: string;
@@ -121,11 +114,6 @@ async function getServiceReviews(
   }
 }
 
-const themeStyle = {
-  "--booking-bg": "oklch(0.07 0.02 240)",
-  "--booking-accent": "oklch(0.52 0.22 200)",
-} as React.CSSProperties;
-
 const formatPrice = (amount: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -175,12 +163,12 @@ export default async function BookServicePage({
     : [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-(--bg-base)">
       <div className="mx-auto w-full max-w-6xl px-4 py-10">
         {/* Back navigation */}
         <Link
           href="/services"
-          className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-(--text-secondary) transition-colors hover:text-(--text-primary)"
         >
           <ChevronLeft className="h-4 w-4" />
           All Services
@@ -189,7 +177,7 @@ export default async function BookServicePage({
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)]">
           <div className="space-y-8 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-6 motion-preset-slide-up-sm motion-duration-500">
             {/* Hero image */}
-            <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] bg-muted/10">
+            <div className="relative overflow-hidden rounded-2xl bg-(--bg-surface)">
               {images.length > 0 ? (
                 <ImageCarousel
                   images={images}
@@ -201,18 +189,18 @@ export default async function BookServicePage({
                 <div className="h-80 w-full" />
               )}
               {service.category && (
-                <span className="absolute left-4 top-4 rounded-full border border-border/60 bg-background/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-foreground backdrop-blur-md shadow-sm">
+                <span className="absolute left-4 top-4 rounded-full bg-(--bg-overlay)/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-(--text-primary) backdrop-blur-md">
                   {service.category}
                 </span>
               )}
             </div>
 
             <div className="space-y-3">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              <h1 className="font-display text-3xl font-semibold tracking-tight text-(--text-primary) sm:text-4xl">
                 {service.public_name || service.name}
               </h1>
               {service.description ? (
-                <p className="text-base leading-relaxed text-muted-foreground">
+                <p className="text-base leading-relaxed text-(--text-secondary)">
                   {service.description}
                 </p>
               ) : null}
@@ -220,23 +208,23 @@ export default async function BookServicePage({
 
             {/* Meta pills with icons */}
             <div className="flex flex-wrap gap-2 text-xs font-medium">
-              <span className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-3 py-1.5 text-foreground/80 shadow-sm">
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="flex items-center gap-1.5 rounded-full bg-(--bg-elevated) px-3 py-1.5 text-(--text-secondary)">
+                <Clock className="h-3.5 w-3.5 text-(--text-disabled)" />
                 {formatDuration(service.duration_minutes)}
               </span>
-              <span className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-3 py-1.5 text-foreground/80 shadow-sm">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="flex items-center gap-1.5 rounded-full bg-(--bg-elevated) px-3 py-1.5 text-(--text-secondary)">
+                <DollarSign className="h-3.5 w-3.5 text-(--text-disabled)" />
                 {formatPrice(service.price)}
               </span>
               {service.deposit_amount > 0 ? (
-                <span className="flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-amber-700 dark:text-amber-400">
+                <span className="flex items-center gap-1.5 rounded-full bg-(--state-warning-subtle) px-3 py-1.5 text-(--state-warning)">
                   <Tag className="h-3 w-3" />
                   {formatPrice(service.deposit_amount)} deposit
                 </span>
               ) : null}
               {service.max_capacity > 1 ? (
-                <span className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-3 py-1.5 text-foreground/80 shadow-sm">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="flex items-center gap-1.5 rounded-full bg-(--bg-elevated) px-3 py-1.5 text-(--text-secondary)">
+                  <Users className="h-3.5 w-3.5 text-(--text-disabled)" />
                   Group · up to {service.max_capacity}
                 </span>
               ) : null}
@@ -244,14 +232,14 @@ export default async function BookServicePage({
 
             <div className="grid gap-4 md:grid-cols-2">
               {inclusionItems.length > 0 ? (
-                <div className="rounded-2xl border border-border/60 bg-muted/20 p-5 shadow-sm">
-                  <h2 className="text-sm font-semibold text-foreground">
+                <div className="rounded-2xl bg-(--bg-elevated) p-5">
+                  <h2 className="text-sm font-semibold text-(--text-primary)">
                     What's Included
                   </h2>
-                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                  <ul className="mt-3 space-y-2 text-sm text-(--text-secondary)">
                     {inclusionItems.map((item) => (
                       <li key={item} className="flex items-start gap-2.5">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)/60" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -259,11 +247,11 @@ export default async function BookServicePage({
                 </div>
               ) : null}
               {service.prep_notes ? (
-                <div className="rounded-2xl border border-border/60 bg-muted/20 p-5 shadow-sm">
-                  <h2 className="text-sm font-semibold text-foreground">
+                <div className="rounded-2xl bg-(--bg-elevated) p-5">
+                  <h2 className="text-sm font-semibold text-(--text-primary)">
                     Prep Notes
                   </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-3 text-sm leading-relaxed text-(--text-secondary)">
                     {service.prep_notes}
                   </p>
                 </div>
@@ -274,22 +262,22 @@ export default async function BookServicePage({
           </div>
 
           <div className="lg:sticky lg:top-8 lg:self-start">
-            <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-8 motion-preset-slide-up-sm motion-duration-500 motion-delay-100">
+            <div className="rounded-2xl bg-(--bg-surface) p-6 shadow-(--shadow-lg) sm:p-8 motion-preset-slide-up-sm motion-duration-500 motion-delay-100">
               {/* Booking form header */}
-              <div className="mb-6 space-y-1 border-b border-border/40 pb-5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+              <div className="mb-6 space-y-1 border-b border-(--border-muted) pb-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--text-secondary)">
                   Step-by-step booking
                 </p>
-                <h2 className="text-lg font-bold text-foreground">
+                <h2 className="text-lg font-bold text-(--text-primary)">
                   {service.public_name || service.name}
                 </h2>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 text-xs text-(--text-secondary)">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {formatDuration(service.duration_minutes)}
                   </span>
-                  <span className="text-muted-foreground/30">Â·</span>
-                  <span className="font-semibold text-foreground/80">
+                  <span className="text-(--text-disabled)">·</span>
+                  <span className="font-semibold tabular-nums text-(--text-primary)">
                     {formatPrice(service.price)}
                   </span>
                 </div>

@@ -166,8 +166,8 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
                   className={cn(
                     "h-px flex-1 transition-colors duration-500",
                     isDone || isActive
-                      ? "bg-(--booking-accent)/60"
-                      : "bg-muted/10",
+                      ? "bg-(--accent-primary)/60"
+                      : "bg-(--bg-inset)",
                   )}
                 />
               )}
@@ -175,10 +175,10 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300",
                   isDone
-                    ? "border-(--booking-accent) bg-(--booking-accent) text-foreground"
+                    ? "border-(--accent-primary) bg-(--accent-primary) text-(--text-primary)"
                     : isActive
-                      ? "border-(--booking-accent) bg-(--booking-accent)/15 text-(--booking-accent)"
-                      : "border-border/70 bg-muted/20 text-muted-foreground/80",
+                      ? "border-(--accent-primary) bg-(--accent-primary)/15 text-(--accent-primary)"
+                      : "border-(--border-muted) bg-(--bg-elevated) text-(--text-secondary)/80",
                 )}
               >
                 {isDone ? (
@@ -191,7 +191,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
                 <div
                   className={cn(
                     "h-px flex-1 transition-colors duration-500",
-                    isDone ? "bg-(--booking-accent)/60" : "bg-muted/10",
+                    isDone ? "bg-(--accent-primary)/60" : "bg-(--bg-inset)",
                   )}
                 />
               )}
@@ -200,10 +200,10 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
               className={cn(
                 "text-[9px] font-semibold uppercase tracking-widest transition-colors",
                 isActive
-                  ? "text-foreground/90"
+                  ? "text-(--text-primary)/90"
                   : isDone
-                    ? "text-(--booking-accent)/70"
-                    : "text-muted-foreground/60",
+                    ? "text-(--accent-primary)/70"
+                    : "text-(--text-secondary)/60",
               )}
             >
               {label}
@@ -241,8 +241,8 @@ function SlotPeriodSection({
         className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${bgColor} ${borderColor}`}
       >
         <Icon className={`h-3.5 w-3.5 shrink-0 ${iconColor}`} />
-        <span className="text-xs font-semibold text-foreground/90">{label}</span>
-        <span className="text-[10px] text-muted-foreground/80">{subLabel}</span>
+        <span className="text-xs font-semibold text-(--text-primary)/90">{label}</span>
+        <span className="text-[10px] text-(--text-secondary)/80">{subLabel}</span>
         <span
           className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${bgColor} ${iconColor}`}
         >
@@ -267,15 +267,15 @@ function SlotPeriodSection({
               className={cn(
                 "flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all duration-200",
                 isSelected
-                  ? "border-(--booking-accent) bg-(--booking-accent)/15 shadow-[0_0_0_1px_var(--booking-accent)]"
-                  : "border-border/60 bg-muted/20 hover:border-border/80 hover:bg-muted/30",
+                  ? "border-(--accent-primary) bg-(--accent-primary)/15 shadow-[0_0_0_1px_var(--accent-primary)]"
+                  : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--border-interactive) hover:bg-(--bg-elevated)",
               )}
               aria-pressed={isSelected}
             >
               <span
                 className={cn(
                   "text-sm font-bold leading-tight",
-                  isSelected ? "text-foreground" : "text-foreground",
+                  isSelected ? "text-(--text-primary)" : "text-(--text-primary)",
                 )}
               >
                 {startLabel}
@@ -283,7 +283,7 @@ function SlotPeriodSection({
               <span
                 className={cn(
                   "mt-0.5 text-[10px] leading-none",
-                  isSelected ? "text-(--booking-accent)" : "text-muted-foreground/80",
+                  isSelected ? "text-(--accent-primary)" : "text-(--text-secondary)/80",
                 )}
               >
                 ends {endLabel}
@@ -322,22 +322,22 @@ function BookingCalendar({
   onDateSelect: (d: Date) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
+    <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) p-4">
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onPrevMonth}
           disabled={isLoadingCalendar}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 text-foreground/80 transition hover:border-border hover:text-foreground disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:text-(--text-primary) disabled:opacity-40"
           aria-label="Previous month"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex items-center gap-2">
           {isLoadingCalendar && (
-            <Loader2 className="h-3 w-3 animate-spin text-muted-foreground/80" />
+            <Loader2 className="h-3 w-3 animate-spin text-(--text-secondary)/80" />
           )}
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-semibold text-(--text-primary)">
             {format(calendarMonth, "MMMM yyyy")}
           </p>
         </div>
@@ -345,7 +345,7 @@ function BookingCalendar({
           type="button"
           onClick={onNextMonth}
           disabled={isLoadingCalendar}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 text-foreground/80 transition hover:border-border hover:text-foreground disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:text-(--text-primary) disabled:opacity-40"
           aria-label="Next month"
         >
           <ChevronRight className="h-4 w-4" />
@@ -356,7 +356,7 @@ function BookingCalendar({
         {WEEKDAY_LABELS.map((label) => (
           <span
             key={label}
-            className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80"
+            className="text-[10px] font-semibold uppercase tracking-wider text-(--text-secondary)/80"
           >
             {label.charAt(0)}
           </span>
@@ -385,19 +385,19 @@ function BookingCalendar({
                 className={cn(
                   "relative flex h-9 w-9 flex-col items-center justify-center rounded-full text-[13px] font-medium transition-all duration-150",
                   isSelected
-                    ? "bg-(--booking-accent) font-bold text-foreground shadow-lg"
+                    ? "bg-(--accent-primary) font-bold text-(--text-primary) shadow-lg"
                     : isToday && !isDisabled
-                      ? "text-(--booking-accent) ring-1 ring-(--booking-accent)/50"
-                      : "text-foreground/90",
+                      ? "text-(--accent-primary) ring-1 ring-(--accent-primary)/50"
+                      : "text-(--text-primary)/90",
                   isDisabled && "cursor-not-allowed opacity-20",
                   !isDisabled &&
                     isUnavailable &&
                     !isSelected &&
-                    "text-muted-foreground/80 hover:bg-muted/20 hover:text-foreground/80",
+                    "text-(--text-secondary)/80 hover:bg-(--bg-elevated) hover:text-(--text-primary)/80",
                   !isDisabled &&
                     !isUnavailable &&
                     !isSelected &&
-                    "hover:bg-muted/10 hover:text-foreground",
+                    "hover:bg-(--bg-inset) hover:text-(--text-primary)",
                   !isInMonth && "pointer-events-none opacity-0",
                 )}
                 aria-pressed={isSelected}
@@ -408,7 +408,7 @@ function BookingCalendar({
                   <span className="absolute bottom-0.5 h-1 w-1 rounded-full bg-emerald-400/70" />
                 )}
                 {isInMonth && !isPast && !hasSlots && !isSelected && (
-                  <span className="absolute bottom-1 h-px w-3 rounded-full bg-muted/10" />
+                  <span className="absolute bottom-1 h-px w-3 rounded-full bg-(--bg-inset)" />
                 )}
               </button>
             </div>
@@ -416,21 +416,21 @@ function BookingCalendar({
         })}
       </div>
 
-      <div className="mt-4 flex items-center gap-4 border-t border-border/40 pt-3 text-[10px] text-muted-foreground/80">
+      <div className="mt-4 flex items-center gap-4 border-t border-(--border-muted) pt-3 text-[10px] text-(--text-secondary)/80">
         <span className="flex items-center gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/70" />
           Available
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-px w-3 rounded-full bg-muted/50" />
+          <span className="h-px w-3 rounded-full bg-(--bg-elevated)" />
           No open times
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-(--booking-accent)" />
+          <span className="h-2.5 w-2.5 rounded-full bg-(--accent-primary)" />
           Selected
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full ring-1 ring-(--booking-accent)/50" />
+          <span className="h-2 w-2 rounded-full ring-1 ring-(--accent-primary)/50" />
           Today
         </span>
       </div>
@@ -803,12 +803,12 @@ export function BookingForm({
   const renderStep1 = () => (
     <div className="space-y-5">
       {staff.length === 0 ? (
-        <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-8 text-center">
-          <User className="mx-auto mb-3 h-8 w-8 text-muted-foreground/80" />
-          <p className="text-sm font-medium text-foreground/80">
+        <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-8 text-center">
+          <User className="mx-auto mb-3 h-8 w-8 text-(--text-secondary)/80" />
+          <p className="text-sm font-medium text-(--text-primary)/80">
             No staff available
           </p>
-          <p className="mt-1 text-xs text-muted-foreground/80">
+          <p className="mt-1 text-xs text-(--text-secondary)/80">
             No team members are available for this service right now.
           </p>
         </div>
@@ -824,22 +824,22 @@ export function BookingForm({
                 className={cn(
                   "group relative flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200",
                   isSelected
-                    ? "border-(--booking-accent) bg-(--booking-accent)/10 shadow-[0_0_0_1px_var(--booking-accent)]"
-                    : "border-border/60 bg-muted/20 hover:border-border/80 hover:bg-muted/30",
+                    ? "border-(--accent-primary) bg-(--accent-primary)/10 shadow-[0_0_0_1px_var(--accent-primary)]"
+                    : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--border-interactive) hover:bg-(--bg-elevated)",
                 )}
                 aria-pressed={isSelected}
               >
                 {isSelected && (
-                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-(--booking-accent)">
-                    <Check className="h-3 w-3 text-foreground" />
+                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)">
+                    <Check className="h-3 w-3 text-(--text-primary)" />
                   </span>
                 )}
                 <div
                   className={cn(
                     "flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 transition-all",
                     isSelected
-                      ? "border-(--booking-accent)"
-                      : "border-border/60 group-hover:border-border/80",
+                      ? "border-(--accent-primary)"
+                      : "border-(--border-muted) group-hover:border-(--border-interactive)",
                   )}
                 >
                   {member.avatar_url ? (
@@ -849,13 +849,13 @@ export function BookingForm({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-lg font-bold text-foreground/90">
+                    <span className="text-lg font-bold text-(--text-primary)/90">
                       {getInitials(member.name || "?")}
                     </span>
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-(--text-primary)">
                     {member.name}
                   </p>
                   {member.price_override ? (
@@ -863,14 +863,14 @@ export function BookingForm({
                       className={cn(
                         "mt-0.5 text-xs",
                         isSelected
-                          ? "text-(--booking-accent)"
-                          : "text-muted-foreground",
+                          ? "text-(--accent-primary)"
+                          : "text-(--text-secondary)",
                       )}
                     >
                       {formatCurrency(toNumber(member.price_override))}
                     </p>
                   ) : (
-                    <p className="mt-0.5 text-xs text-muted-foreground/80">
+                    <p className="mt-0.5 text-xs text-(--text-secondary)/80">
                       Standard rate
                     </p>
                   )}
@@ -888,8 +888,8 @@ export function BookingForm({
           className={cn(
             "flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold transition-all duration-200",
             canGoStep2
-              ? "bg-(--booking-accent) text-foreground hover:opacity-90"
-              : "cursor-not-allowed bg-muted/10 text-muted-foreground/80",
+              ? "bg-(--accent-primary) text-(--text-primary) hover:opacity-90"
+              : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
           )}
         >
           Choose Date & Time <ArrowRight className="h-4 w-4" />
@@ -902,12 +902,12 @@ export function BookingForm({
 
   const renderStep2 = () => (
     <div className="space-y-5">
-      <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-muted/20 px-4 py-2.5">
-        <CalendarDays className="h-4 w-4 shrink-0 text-(--booking-accent)" />
-        <span className="text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-2.5">
+        <CalendarDays className="h-4 w-4 shrink-0 text-(--accent-primary)" />
+        <span className="text-xs text-(--text-secondary)">
           {selectedDate ? (
             <>
-              <span className="font-semibold text-foreground">
+              <span className="font-semibold text-(--text-primary)">
                 {format(selectedDate, "EEEE, MMMM d")}
               </span>{" "}
               - pick a time below
@@ -926,7 +926,7 @@ export function BookingForm({
               setSelectedSlot("");
               setAvailableSlots([]);
             }}
-            className="ml-auto text-[10px] text-muted-foreground/80 underline-offset-2 hover:text-foreground/80 hover:underline"
+            className="ml-auto text-[10px] text-(--text-secondary)/80 underline-offset-2 hover:text-(--text-primary)/80 hover:underline"
           >
             change
           </button>
@@ -945,7 +945,7 @@ export function BookingForm({
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-secondary)">
               Calendar Status
             </p>
             {calendarError ? (
@@ -954,19 +954,19 @@ export function BookingForm({
               </p>
             ) : selectedStaff ? (
               <>
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-sm font-medium text-(--text-primary)">
                   {availableDayCount > 0
                     ? `${availableDayCount} open day${availableDayCount === 1 ? "" : "s"} in ${format(calendarMonth, "MMMM yyyy")} for ${selectedStaff.name}.`
                     : `No open days in ${format(calendarMonth, "MMMM yyyy")} for ${selectedStaff.name}.`}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-(--text-secondary)">
                   {availableDayCount > 0
                     ? "Green dots already have bookable times. Dim dates can still be opened to check details."
                     : "You can still tap a date to inspect it, switch month, or jump to the next available opening."}
                 </p>
               </>
             ) : (
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-medium text-(--text-primary)">
                 Choose a provider first to load their available dates.
               </p>
             )}
@@ -1003,20 +1003,20 @@ export function BookingForm({
 
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <Clock className="h-4 w-4 text-(--text-secondary)" />
+          <p className="text-xs font-semibold uppercase tracking-wider text-(--text-secondary)">
             Available Times
           </p>
           {selectedSlot && (
-            <span className="ml-auto rounded-full bg-(--booking-accent)/15 px-2.5 py-0.5 text-[11px] font-semibold text-(--booking-accent)">
+            <span className="ml-auto rounded-full bg-(--accent-primary)/15 px-2.5 py-0.5 text-[11px] font-semibold text-(--accent-primary)">
               {formatTimeInTimeZone(selectedSlot, timezone)} selected
             </span>
           )}
         </div>
 
         {!selectedDate ? (
-          <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-6 text-center">
-            <p className="text-sm text-muted-foreground">
+          <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-6 text-center">
+            <p className="text-sm text-(--text-secondary)">
               Pick a date above to see available times
             </p>
           </div>
@@ -1024,10 +1024,10 @@ export function BookingForm({
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse space-y-2">
-                <div className="h-8 rounded-xl bg-muted/20" />
+                <div className="h-8 rounded-xl bg-(--bg-elevated)" />
                 <div className="grid grid-cols-3 gap-2">
                   {[1, 2, 3].map((j) => (
-                    <div key={j} className="h-14 rounded-xl bg-muted/20" />
+                    <div key={j} className="h-14 rounded-xl bg-(--bg-elevated)" />
                   ))}
                 </div>
               </div>
@@ -1051,12 +1051,12 @@ export function BookingForm({
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-border/60 bg-muted/20 p-5 text-center">
-            <Sparkles className="mx-auto mb-2 h-6 w-6 text-muted-foreground/80" />
-            <p className="text-sm font-medium text-foreground/80">
+          <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) p-5 text-center">
+            <Sparkles className="mx-auto mb-2 h-6 w-6 text-(--text-secondary)/80" />
+            <p className="text-sm font-medium text-(--text-primary)/80">
               No slots on this date
             </p>
-            <p className="mt-1 text-xs text-muted-foreground/80">
+            <p className="mt-1 text-xs text-(--text-secondary)/80">
               Try another day or join the waitlist.
             </p>
             <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
@@ -1077,7 +1077,7 @@ export function BookingForm({
                 type="button"
                 onClick={handleJoinWaitlist}
                 disabled={isJoiningWaitlist}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/20 px-4 py-2 text-xs font-semibold text-foreground/80 transition hover:border-border/80 hover:bg-muted/10 disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 rounded-full border border-(--border-muted) bg-(--bg-elevated) px-4 py-2 text-xs font-semibold text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:bg-(--bg-inset) disabled:opacity-60"
               >
                 {isJoiningWaitlist ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1099,8 +1099,8 @@ export function BookingForm({
         className={cn(
           "flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold transition-all duration-200",
           canGoStep3
-            ? "bg-(--booking-accent) text-foreground hover:opacity-90"
-            : "cursor-not-allowed bg-muted/10 text-muted-foreground/80",
+            ? "bg-(--accent-primary) text-(--text-primary) hover:opacity-90"
+            : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
         )}
       >
         Review Booking <ArrowRight className="h-4 w-4" />
@@ -1116,15 +1116,15 @@ export function BookingForm({
 
     return (
       <div className="space-y-5">
-        <div className="overflow-hidden rounded-2xl border border-border/60">
-          <div className="bg-muted/20 px-5 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <div className="overflow-hidden rounded-2xl border border-(--border-muted)">
+          <div className="bg-(--bg-elevated) px-5 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-(--text-secondary)">
               Booking Summary
             </p>
           </div>
           <div className="divide-y divide-border/40">
             <div className="flex items-center gap-4 px-5 py-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/60 bg-muted/20">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-muted) bg-(--bg-elevated)">
                 {selectedStaff?.avatar_url ? (
                   <img
                     src={selectedStaff.avatar_url}
@@ -1132,36 +1132,36 @@ export function BookingForm({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-sm font-bold text-foreground/90">
+                  <span className="text-sm font-bold text-(--text-primary)/90">
                     {getInitials(selectedStaff?.name ?? "?")}
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80">
+                <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
                   Provider
                 </p>
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-sm font-semibold text-(--text-primary)">
                   {selectedStaff?.name}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-4 px-5 py-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/60 bg-muted/20">
-                <CalendarDays className="h-4 w-4 text-(--booking-accent)" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-muted) bg-(--bg-elevated)">
+                <CalendarDays className="h-4 w-4 text-(--accent-primary)" />
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80">
+                <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
                   Date & Time
                 </p>
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-sm font-semibold text-(--text-primary)">
                   {selectedDate && format(selectedDate, "EEEE, MMMM d, yyyy")}
                 </p>
                 {slotStart && slotEnd && (
-                  <p className="mt-0.5 text-xs text-muted-foreground">
+                  <p className="mt-0.5 text-xs text-(--text-secondary)">
                     {formatTimeInTimeZone(slotStart, timezone)} &rarr;{" "}
                     {formatTimeInTimeZone(slotEnd, timezone)}
-                    <span className="ml-2 text-muted-foreground/80">
+                    <span className="ml-2 text-(--text-secondary)/80">
                       ({effectiveDuration} min)
                     </span>
                   </p>
@@ -1169,30 +1169,30 @@ export function BookingForm({
               </div>
             </div>
             <div className="flex items-start gap-4 px-5 py-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/60 bg-muted/20">
-                <CreditCard className="h-4 w-4 text-(--booking-accent)" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-muted) bg-(--bg-elevated)">
+                <CreditCard className="h-4 w-4 text-(--accent-primary)" />
               </div>
               <div className="flex-1">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80">
+                <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
                   Pricing
                 </p>
                 <div className="mt-1.5 space-y-1.5">
                   <div className="flex justify-between text-sm">
-                    <span className="text-foreground/80">Service</span>
-                    <span className="font-semibold text-foreground">
+                    <span className="text-(--text-primary)/80">Service</span>
+                    <span className="font-semibold text-(--text-primary)">
                       {formatCurrency(effectivePrice)}
                     </span>
                   </div>
                   {effectiveDeposit > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Deposit due now</span>
-                      <span className="font-semibold text-(--booking-accent)">
+                      <span className="text-(--text-secondary)">Deposit due now</span>
+                      <span className="font-semibold text-(--accent-primary)">
                         {formatCurrency(effectiveDeposit)}
                       </span>
                     </div>
                   )}
                   {effectiveCapacity > 1 && (
-                    <div className="flex justify-between text-xs text-muted-foreground/80">
+                    <div className="flex justify-between text-xs text-(--text-secondary)/80">
                       <span>Group capacity</span>
                       <span>Up to {effectiveCapacity} people</span>
                     </div>
@@ -1203,10 +1203,10 @@ export function BookingForm({
           </div>
         </div>
 
-        <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80">
+        <p className="flex items-center gap-1.5 text-[11px] text-(--text-secondary)/80">
           <Clock className="h-3.5 w-3.5 shrink-0" />
           Times shown in your timezone:{" "}
-          <span className="font-medium text-muted-foreground">{timezone}</span>
+          <span className="font-medium text-(--text-secondary)">{timezone}</span>
         </p>
 
         {bookingError && (
@@ -1227,8 +1227,8 @@ export function BookingForm({
           className={cn(
             "flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-bold tracking-wide transition-all duration-200",
             isBooking
-              ? "cursor-not-allowed bg-muted/10 text-muted-foreground"
-              : "bg-(--booking-accent) text-foreground hover:opacity-90",
+              ? "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)"
+              : "bg-(--accent-primary) text-(--text-primary) hover:opacity-90",
           )}
         >
           {isBooking ? (
@@ -1251,7 +1251,7 @@ export function BookingForm({
   // -- Render -----------------------------------------------------------------
 
   return (
-    <div className="text-foreground -mx-2 sm:mx-0">
+    <div className="text-(--text-primary) -mx-2 sm:mx-0">
       {isStaffAccount && (
         <div className="mb-5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
           Staff accounts cannot book services. Please switch to a customer
@@ -1265,7 +1265,7 @@ export function BookingForm({
         <button
           type="button"
           onClick={() => setStep((prev) => (prev - 1) as 1 | 2 | 3)}
-          className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground/90"
+          className="mb-4 flex items-center gap-1.5 text-xs text-(--text-secondary) transition hover:text-(--text-primary)/90"
         >
           <ChevronLeft className="h-3.5 w-3.5" /> Back
         </button>
