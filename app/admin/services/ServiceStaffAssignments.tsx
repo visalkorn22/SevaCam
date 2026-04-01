@@ -127,7 +127,7 @@ export default function ServiceStaffAssignments({
   };
 
   return (
-    <Card className="glass-card">
+    <Card className="">
       <CardHeader>
         <CardTitle>Assign Staff</CardTitle>
       </CardHeader>

@@ -54,7 +54,7 @@ export default async function AdminReportsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="size-5" />
@@ -74,7 +74,7 @@ export default async function AdminReportsPage() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="size-5" />
@@ -92,7 +92,7 @@ export default async function AdminReportsPage() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="size-5" />
@@ -112,7 +112,7 @@ export default async function AdminReportsPage() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="size-5" />

@@ -328,7 +328,7 @@ export default function StaffManager({
   return (
     <div className="container py-8">
       <div className="space-y-6">
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle>Create Staff Account</CardTitle>
             <CardDescription>
@@ -439,7 +439,7 @@ export default function StaffManager({
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle>Staff Directory</CardTitle>
             <CardDescription>
@@ -628,7 +628,7 @@ export default function StaffManager({
         </Card>
 
         {selectedUser && (
-          <Card className="glass-card">
+          <Card className="">
             <CardHeader>
               <CardTitle>Staff Details</CardTitle>
               <CardDescription>

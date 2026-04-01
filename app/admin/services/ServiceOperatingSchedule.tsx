@@ -450,7 +450,7 @@ export default function ServiceOperatingSchedule({ serviceId }: Props) {
   ]);
 
   return (
-    <Card className="glass-card border-border/40 bg-card/80">
+    <Card className="border-border/40 bg-card/80">
       <CardHeader>
         <CardTitle>Service Operating Schedule</CardTitle>
       </CardHeader>

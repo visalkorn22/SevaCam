@@ -89,7 +89,7 @@ export default async function AdminPaymentsPage() {
       </div>
 
       {payments.length > 0 ? (
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
           </CardHeader>

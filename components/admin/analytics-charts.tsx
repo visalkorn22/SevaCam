@@ -60,7 +60,7 @@ export function AnalyticsCharts() {
 
   if (isLoading) {
     return (
-      <Card className="glass-card">
+      <Card className="">
         <CardContent className="flex h-96 items-center justify-center">
           <p className="text-muted-foreground">Loading analytics...</p>
         </CardContent>
@@ -70,7 +70,7 @@ export function AnalyticsCharts() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Revenue by Service</CardTitle>
           <CardDescription>Total revenue generated per service</CardDescription>
@@ -91,7 +91,7 @@ export function AnalyticsCharts() {
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Daily Bookings</CardTitle>
           <CardDescription>Bookings over the last 7 days</CardDescription>

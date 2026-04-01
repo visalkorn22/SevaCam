@@ -44,7 +44,7 @@ export default async function AuditLogsPage() {
         </p>
       </div>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <div className="flex items-center gap-2">
             <FileText className="size-5 text-muted-foreground" />

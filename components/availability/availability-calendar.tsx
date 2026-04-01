@@ -196,7 +196,7 @@ export function AvailabilityCalendar({
 
   return (
     <div className="space-y-6">
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="size-5" />
@@ -296,7 +296,7 @@ export function AvailabilityCalendar({
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="size-5" />
@@ -370,7 +370,7 @@ export function AvailabilityCalendar({
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <CardTitle>Conflict Warnings</CardTitle>
         </CardHeader>
@@ -414,7 +414,7 @@ export function AvailabilityCalendar({
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <CardTitle>Utilization</CardTitle>
         </CardHeader>

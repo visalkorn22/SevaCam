@@ -126,7 +126,7 @@ export default async function AdminAnalyticsPage() {
       <AnalyticsCharts />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle>Top Services</CardTitle>
           </CardHeader>
@@ -135,7 +135,7 @@ export default async function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle>Peak Hours</CardTitle>
           </CardHeader>

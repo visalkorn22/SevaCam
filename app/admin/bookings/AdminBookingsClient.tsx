@@ -617,47 +617,47 @@ export default function AdminBookingsClient({
   return (
     <div className="space-y-6">
       {error ? (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-(--radius-md) bg-(--state-error-subtle) px-4 py-3 text-sm text-(--state-error)">
           {error}
         </div>
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <Card className="border-border/50 bg-card/80">
+        <Card className="">
           <CardHeader className="pb-2">
             <CardDescription>Total Bookings</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
-              <Calendar className="size-5 text-primary" />
+              <Calendar className="size-5 text-(--accent-primary)" />
               {summary.total}
             </CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="border-border/50 bg-card/80">
+        <Card className="">
           <CardHeader className="pb-2">
             <CardDescription>Pending</CardDescription>
             <CardTitle className="text-2xl">{summary.pending}</CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="border-border/50 bg-card/80">
+        <Card className="">
           <CardHeader className="pb-2">
             <CardDescription>Confirmed</CardDescription>
             <CardTitle className="text-2xl">{summary.confirmed}</CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="border-border/50 bg-card/80">
+        <Card className="">
           <CardHeader className="pb-2">
             <CardDescription>Paid</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
-              <Wallet className="size-5 text-primary" />
+              <Wallet className="size-5 text-(--accent-primary)" />
               {summary.paid}
             </CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="border-border/50 bg-card/80">
+        <Card className="">
           <CardHeader className="pb-2">
             <CardDescription>Needs Attention</CardDescription>
             <CardTitle className="text-2xl">{summary.attention}</CardTitle>
@@ -665,7 +665,7 @@ export default function AdminBookingsClient({
         </Card>
       </div>
 
-      <Card className="border-border/50 bg-card/80">
+      <Card className="">
         <CardHeader className="pb-4">
           <CardTitle className="text-base">Filters</CardTitle>
           <CardDescription>
@@ -675,7 +675,7 @@ export default function AdminBookingsClient({
         <CardContent className="space-y-4">
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_220px_220px_auto]">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-(--text-secondary)" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -726,7 +726,7 @@ export default function AdminBookingsClient({
             </Button>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-sm text-(--text-secondary)">
             <span>
               Showing {filteredBookings.length} of {bookings.length} bookings
             </span>
@@ -795,7 +795,7 @@ export default function AdminBookingsClient({
                       </CardDescription>
                     </div>
 
-                    <div className="rounded-2xl border border-border/60 bg-background/70 px-3 py-2 text-right text-xs text-muted-foreground">
+                    <div className="rounded-2xl border border-border/60 bg-background/70 px-3 py-2 text-right text-xs text-(--text-secondary)">
                       <div>Booking ID</div>
                       <div className="mt-1 font-mono text-foreground">
                         {booking.id.slice(0, 8)}
@@ -807,22 +807,22 @@ export default function AdminBookingsClient({
                 <CardContent className="space-y-5">
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
                         Customer
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
                         <p className="flex items-center gap-2 font-medium text-foreground">
-                          <UserRound className="size-4 text-muted-foreground" />
+                          <UserRound className="size-4 text-(--text-secondary)" />
                           {booking.customer?.full_name || "Customer"}
                         </p>
                         {booking.customer?.email ? (
-                          <p className="flex items-center gap-2 text-muted-foreground">
+                          <p className="flex items-center gap-2 text-(--text-secondary)">
                             <Mail className="size-4" />
                             {booking.customer.email}
                           </p>
                         ) : null}
                         {booking.customer?.phone ? (
-                          <p className="flex items-center gap-2 text-muted-foreground">
+                          <p className="flex items-center gap-2 text-(--text-secondary)">
                             <Phone className="size-4" />
                             {booking.customer.phone}
                           </p>
@@ -831,50 +831,50 @@ export default function AdminBookingsClient({
                     </div>
 
                     <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
                         Staff
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
                         <p className="flex items-center gap-2 font-medium text-foreground">
-                          <UserRound className="size-4 text-muted-foreground" />
+                          <UserRound className="size-4 text-(--text-secondary)" />
                           {booking.staff?.full_name || "Unassigned"}
                         </p>
-                        <p className="text-muted-foreground">
+                        <p className="text-(--text-secondary)">
                           Local timezone: {timezone}
                         </p>
                       </div>
                     </div>
 
                     <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
                         Service
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
                         <p className="font-medium text-foreground">
                           {booking.service?.name || "Service"}
                         </p>
-                        <p className="text-muted-foreground">
+                        <p className="text-(--text-secondary)">
                           Duration: {booking.service?.duration_minutes || 0}{" "}
                           mins
                         </p>
-                        <p className="text-muted-foreground">
+                        <p className="text-(--text-secondary)">
                           Price: {formatMoney(booking.service?.price)}
                         </p>
                       </div>
                     </div>
 
                     <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
                         Workflow
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
                         <p className="font-medium text-foreground">
                           {isPast ? "Past booking" : "Upcoming booking"}
                         </p>
-                        <p className="text-muted-foreground">
+                        <p className="text-(--text-secondary)">
                           Payment: {formatStatusLabel(booking.payment_status)}
                         </p>
-                        <p className="text-muted-foreground">
+                        <p className="text-(--text-secondary)">
                           Status: {formatStatusLabel(booking.status)}
                         </p>
                       </div>
@@ -888,13 +888,13 @@ export default function AdminBookingsClient({
           })}
         </div>
       ) : (
-        <Card className="border-border/50 bg-card/80">
+        <Card className="">
           <CardContent className="flex flex-col items-center justify-center py-14 text-center">
-            <Calendar className="mb-4 size-12 text-muted-foreground" />
+            <Calendar className="mb-4 size-12 text-(--text-secondary)" />
             <p className="text-lg font-semibold">
               No bookings match these filters
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-(--text-secondary)">
               Try widening the search or clearing the active filters.
             </p>
             <Button
@@ -951,40 +951,40 @@ export default function AdminBookingsClient({
                     {formatStatusLabel(detailsBooking.payment_status)}
                   </Badge>
                 </div>
-                <p className="mt-3 text-sm text-muted-foreground">
+                <p className="mt-3 text-sm text-(--text-secondary)">
                   {formatDateTime(detailsBooking.start_time_utc)}
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-border/60 bg-background/80 p-4 text-sm">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
                       Customer
                     </p>
                     <p className="mt-2 font-medium">
                       {detailsBooking.customer?.full_name || "Customer"}
                     </p>
                     {detailsBooking.customer?.email ? (
-                      <p className="mt-1 text-muted-foreground">
+                      <p className="mt-1 text-(--text-secondary)">
                         {detailsBooking.customer.email}
                       </p>
                     ) : null}
                     {detailsBooking.customer?.phone ? (
-                      <p className="mt-1 text-muted-foreground">
+                      <p className="mt-1 text-(--text-secondary)">
                         {detailsBooking.customer.phone}
                       </p>
                     ) : null}
                   </div>
 
                   <div className="rounded-2xl border border-border/60 bg-background/80 p-4 text-sm">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
                       Service Info
                     </p>
                     <p className="mt-2 font-medium">
                       {formatMoney(detailsBooking.service?.price)}
                     </p>
-                    <p className="mt-1 text-muted-foreground">
+                    <p className="mt-1 text-(--text-secondary)">
                       {detailsBooking.service?.duration_minutes || 0} minutes
                     </p>
-                    <p className="mt-1 text-muted-foreground">
+                    <p className="mt-1 text-(--text-secondary)">
                       Staff: {detailsBooking.staff?.full_name || "Unassigned"}
                     </p>
                   </div>
@@ -999,14 +999,14 @@ export default function AdminBookingsClient({
               <div className="space-y-3">
                 <p className="text-sm font-semibold">Change History</p>
                 {detailsLoading ? (
-                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <p className="flex items-center gap-2 text-sm text-(--text-secondary)">
                     <LoaderCircle className="size-4 animate-spin" />
                     Loading timeline...
                   </p>
                 ) : detailsError ? (
                   <p className="text-sm text-destructive">{detailsError}</p>
                 ) : detailsChanges.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-(--text-secondary)">
                     No reschedule or cancellation history yet.
                   </p>
                 ) : (
@@ -1020,12 +1020,12 @@ export default function AdminBookingsClient({
                           <p className="font-semibold">
                             {formatStatusLabel(change.change_type)}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-(--text-secondary)">
                             {formatDateTime(change.created_at)}
                           </p>
                         </div>
                         {change.old_start_time && change.new_start_time ? (
-                          <p className="mt-2 text-muted-foreground">
+                          <p className="mt-2 text-(--text-secondary)">
                             {formatDateOnly(change.old_start_time)}{" "}
                             {formatTime(change.old_start_time)} to{" "}
                             {formatDateOnly(change.new_start_time)}{" "}
@@ -1033,7 +1033,7 @@ export default function AdminBookingsClient({
                           </p>
                         ) : null}
                         {change.reason ? (
-                          <p className="mt-2 text-muted-foreground">
+                          <p className="mt-2 text-(--text-secondary)">
                             Reason: {change.reason}
                           </p>
                         ) : null}
@@ -1046,7 +1046,7 @@ export default function AdminBookingsClient({
               <div className="space-y-3">
                 <p className="text-sm font-semibold">Activity Log</p>
                 {detailsLoading ? null : detailsLogs.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-(--text-secondary)">
                     No activity log recorded yet.
                   </p>
                 ) : (
@@ -1060,13 +1060,13 @@ export default function AdminBookingsClient({
                           <p className="font-semibold">
                             {formatStatusLabel(log.action)}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-(--text-secondary)">
                             {formatDateTime(log.created_at)}
                           </p>
                         </div>
 
                         {log.details && Object.keys(log.details).length > 0 ? (
-                          <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+                          <div className="mt-3 space-y-1 text-xs text-(--text-secondary)">
                             {Object.entries(log.details).map(([key, value]) => (
                               <p key={key}>
                                 <span className="font-medium text-foreground">
@@ -1116,7 +1116,7 @@ export default function AdminBookingsClient({
                 <p className="text-sm font-semibold">
                   {rescheduleBooking.service?.name || "Service"}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-(--text-secondary)">
                   Current time:{" "}
                   {formatDateTime(rescheduleBooking.start_time_utc)}
                 </p>
@@ -1134,12 +1134,12 @@ export default function AdminBookingsClient({
               <div className="space-y-3">
                 <p className="text-sm font-medium">Available times</p>
                 {rescheduleLoading ? (
-                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <p className="flex items-center gap-2 text-sm text-(--text-secondary)">
                     <LoaderCircle className="size-4 animate-spin" />
                     Loading slots...
                   </p>
                 ) : rescheduleSlots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-(--text-secondary)">
                     No slots found for that date. Try another day.
                   </p>
                 ) : (
@@ -1207,7 +1207,7 @@ export default function AdminBookingsClient({
                 <p className="font-medium">
                   {cancelBooking.service?.name || "Service"}
                 </p>
-                <p className="mt-1 text-muted-foreground">
+                <p className="mt-1 text-(--text-secondary)">
                   {cancelBooking.customer?.full_name || "Customer"} on{" "}
                   {formatDateTime(cancelBooking.start_time_utc)}
                 </p>

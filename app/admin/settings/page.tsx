@@ -44,7 +44,7 @@ export default async function AdminSettingsPage() {
         </p>
       </div>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Settings className="size-5 text-muted-foreground" />

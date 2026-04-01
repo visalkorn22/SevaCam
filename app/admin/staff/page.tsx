@@ -86,7 +86,7 @@ export default async function AdminStaffPage() {
       {users.length > 0 ? (
         <StaffManager currentUser={me} users={users} />
       ) : (
-        <Card className="glass-card">
+        <Card className="">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Users className="mb-4 h-12 w-12 text-muted-foreground" />
             <p className="text-lg font-medium">No users found</p>

@@ -49,7 +49,7 @@ export default async function RoleManagementPage() {
         </p>
       </div>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="size-5 text-muted-foreground" />

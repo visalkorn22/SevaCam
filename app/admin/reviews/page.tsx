@@ -76,7 +76,7 @@ export default async function AdminReviewsPage() {
       {reviews.length > 0 ? (
         <div className="grid gap-4">
           {reviews.map((review) => (
-            <Card key={review.id} className="glass-card">
+            <Card key={review.id} className="">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

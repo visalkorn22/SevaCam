@@ -77,7 +77,7 @@ export function ScheduleApprovals() {
   };
 
   return (
-    <Card className="glass-card">
+    <Card className="">
       <CardHeader>
         <CardTitle>Schedule Approvals</CardTitle>
         <CardDescription>Review pending schedule requests</CardDescription>

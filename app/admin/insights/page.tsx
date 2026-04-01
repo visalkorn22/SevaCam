@@ -50,7 +50,7 @@ export default async function AdminInsightsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <div className="flex items-center gap-2">
               <BarChart3 className="size-5 text-muted-foreground" />
@@ -65,7 +65,7 @@ export default async function AdminInsightsPage() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <div className="flex items-center gap-2">
               <BarChart3 className="size-5 text-muted-foreground" />
