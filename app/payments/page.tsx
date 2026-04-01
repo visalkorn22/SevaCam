@@ -12,10 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { CreditCard, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { PaymentReturnStatus } from "@/components/payment/payment-return-status";
+import { formatDateTimeInTimeZone } from "@/lib/timezone";
 
 type MeUser = {
   id: string;
   email: string;
+  timezone?: string | null;
   role: "customer" | "staff" | "admin" | "superadmin";
 };
 
@@ -57,6 +59,8 @@ type PaymentHistoryItem = {
   booking: CustomerBooking;
   payments: PaymentRecord[];
 };
+
+const DEFAULT_CUSTOMER_TIMEZONE = "Asia/Phnom_Penh";
 
 const usd = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -155,6 +159,10 @@ export default async function PaymentsPage({
 }) {
   const me = await getMe();
   if (!me) redirect("/auth/login");
+  const displayTimeZone =
+    me.timezone && me.timezone !== "UTC"
+      ? me.timezone
+      : DEFAULT_CUSTOMER_TIMEZONE;
 
   const resolved = await searchParams;
   const paymentId =
@@ -194,9 +202,10 @@ export default async function PaymentsPage({
                           {item.booking.service_name || "Service"}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(
+                          {formatDateTimeInTimeZone(
                             item.booking.start_time_utc,
-                          ).toLocaleString()}
+                            displayTimeZone,
+                          )}
                         </p>
                       </div>
                       <Link
@@ -283,9 +292,10 @@ export default async function PaymentsPage({
                               {item.booking.service_name || "Service"}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(
+                              {formatDateTimeInTimeZone(
                                 item.booking.start_time_utc,
-                              ).toLocaleString()}
+                                displayTimeZone,
+                              )}
                             </p>
                           </div>
                           <Link

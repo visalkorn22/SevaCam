@@ -86,7 +86,7 @@ export default function ServiceForm({
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduleForm, setScheduleForm] = useState<OperatingScheduleDraft>({
-    timezone: "UTC",
+    timezone: "Asia/Phnom_Penh",
     rule_type: "daily",
     open_time: "",
     close_time: "",

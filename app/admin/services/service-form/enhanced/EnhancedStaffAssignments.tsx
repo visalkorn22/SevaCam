@@ -68,7 +68,7 @@ export default function EnhancedStaffAssignments({
   setSelectedStaffIds,
   enableScheduleAssignment = false,
   scheduleMode = "create",
-  scheduleTimezone = "UTC",
+  scheduleTimezone = "Asia/Phnom_Penh",
   setScheduleTimezone,
   scheduleBlocksByStaff = {},
   setScheduleBlocksByStaff,
@@ -243,7 +243,7 @@ export default function EnhancedStaffAssignments({
             <Input
               value={scheduleTimezone}
               onChange={(e) => setScheduleTimezone?.(e.target.value)}
-              placeholder="UTC"
+              placeholder="Asia/Phnom_Penh"
             />
           </div>
 

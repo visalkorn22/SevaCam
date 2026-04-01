@@ -9,13 +9,19 @@ import {
   Clock,
   User,
 } from "lucide-react";
-import { addMinutes, format } from "date-fns";
+import { addMinutes } from "date-fns";
 import { PaymentForm } from "@/components/payment/payment-form";
 import { PaymentReturnStatus } from "@/components/payment/payment-return-status";
+import {
+  formatLongDateInTimeZone,
+  formatTimeInTimeZone,
+  parseDateValue,
+} from "@/lib/timezone";
 
 type MeUser = {
   id: string;
   email: string;
+  timezone?: string | null;
   role: "customer" | "staff" | "admin" | "superadmin";
 };
 
@@ -32,6 +38,8 @@ type BookingRow = {
   };
   staff: { full_name?: string | null } | null;
 };
+
+const DEFAULT_CUSTOMER_TIMEZONE = "Asia/Phnom_Penh";
 
 type PaymentRecord = {
   id: string;
@@ -94,9 +102,16 @@ async function getPayment(
   }
 }
 
-function ConfirmedView({ booking }: { booking: BookingRow }) {
+function ConfirmedView({
+  booking,
+  timeZone,
+}: {
+  booking: BookingRow;
+  timeZone?: string | null;
+}) {
   const staffName = booking.staff?.full_name || "Staff Member";
-  const startDate = new Date(booking.start_time_utc);
+  const startDate =
+    parseDateValue(booking.start_time_utc) ?? new Date(booking.start_time_utc);
   const endDate = addMinutes(startDate, booking.services.duration_minutes);
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat("en-US", {
@@ -156,7 +171,7 @@ function ConfirmedView({ booking }: { booking: BookingRow }) {
                     Date
                   </p>
                   <p className="text-sm font-medium mt-0.5">
-                    {format(startDate, "EEEE, MMMM d, yyyy")}
+                    {formatLongDateInTimeZone(startDate, timeZone)}
                   </p>
                 </div>
               </div>
@@ -170,8 +185,8 @@ function ConfirmedView({ booking }: { booking: BookingRow }) {
                     Time
                   </p>
                   <p className="text-sm font-medium mt-0.5">
-                    {format(startDate, "h:mm a")} &rarr;{" "}
-                    {format(endDate, "h:mm a")}
+                    {formatTimeInTimeZone(startDate, timeZone)} &rarr;{" "}
+                    {formatTimeInTimeZone(endDate, timeZone)}
                     <span className="ml-2 font-normal text-muted-foreground">
                       ({booking.services.duration_minutes} min)
                     </span>
@@ -246,6 +261,10 @@ export default async function PaymentPage({
 
   const me = await getMe();
   if (!me) redirect("/auth/login");
+  const displayTimeZone =
+    me.timezone && me.timezone !== "UTC"
+      ? me.timezone
+      : DEFAULT_CUSTOMER_TIMEZONE;
 
   // Returning from a payment provider (Stripe redirect or ABA sandbox confirm).
   // Always render PaymentReturnStatus so the success modal can fire — even when
@@ -277,7 +296,7 @@ export default async function PaymentPage({
 
   // Already paid (direct URL visit or back-navigation after completion)
   if ((booking.payment_status ?? "").toLowerCase() === "paid") {
-    return <ConfirmedView booking={booking} />;
+    return <ConfirmedView booking={booking} timeZone={displayTimeZone} />;
   }
 
   // Needs payment — show payment form
@@ -285,7 +304,7 @@ export default async function PaymentPage({
     <div className="min-h-screen bg-background">
       <div className="container motion-page py-12">
         <div className="mx-auto max-w-2xl">
-          <PaymentForm booking={booking} />
+          <PaymentForm booking={booking} timeZone={displayTimeZone} />
         </div>
       </div>
     </div>

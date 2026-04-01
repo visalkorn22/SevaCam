@@ -159,7 +159,7 @@ class StaffServiceResponse(BaseModel):
 # Location Schemas
 class LocationCreate(BaseModel):
     name: str
-    timezone: str = "UTC"
+    timezone: str = "Asia/Phnom_Penh"
     address: Optional[str] = None
     is_active: bool = True
 
@@ -184,7 +184,7 @@ class AvailabilityRuleCreate(BaseModel):
     day_of_week: int  # 0 = Sunday, 6 = Saturday
     start_time: time
     end_time: time
-    timezone: str = "UTC"
+    timezone: str = "Asia/Phnom_Penh"
 
 class AvailabilityRuleResponse(BaseModel):
     id: str
@@ -219,7 +219,7 @@ class AvailabilityExceptionResponse(BaseModel):
 # Weekly Schedule Schemas
 class StaffWeeklyScheduleCreate(BaseModel):
     staff_id: str
-    timezone: str = "UTC"
+    timezone: str = "Asia/Phnom_Penh"
     effective_from: Optional[date] = None
     effective_to: Optional[date] = None
     is_default: bool = False
@@ -401,7 +401,7 @@ class CustomerCreate(BaseModel):
     full_name: str
     email: EmailStr
     phone: Optional[str] = None
-    timezone: str = "UTC"
+    timezone: str = "Asia/Phnom_Penh"
     notes: Optional[str] = None
 
 class CustomerResponse(BaseModel):
@@ -422,7 +422,7 @@ class BookingCreate(BaseModel):
     customer_id: str
     start_time_utc: datetime
     booking_source: str = "web"
-    customer_timezone: str = "UTC"
+    customer_timezone: str = "Asia/Phnom_Penh"
 
 class BookingUpdate(BaseModel):
     start_time_utc: Optional[datetime] = None

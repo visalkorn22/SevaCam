@@ -17,6 +17,7 @@ import secrets
 import uuid
 import hashlib
 import httpx
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from app.core.database import get_db
 from app.core.auth import get_current_user, resolve_token
@@ -30,6 +31,7 @@ SESSION_DAYS = 30
 RESET_TOKEN_MINUTES = 60
 VERIFY_TOKEN_HOURS = 24
 MAGIC_LINK_TOKEN_MINUTES = settings.MAGIC_LINK_TOKEN_MINUTES
+DEFAULT_APP_TIMEZONE = "Asia/Phnom_Penh"
 
 
 def utc_now() -> datetime:
@@ -41,6 +43,42 @@ def is_expired(expires_at: datetime) -> bool:
     if expires_at.tzinfo is None:
         return expires_at < now.replace(tzinfo=None)
     return expires_at < now
+
+
+def _canonicalize_timezone_name(value: str) -> str:
+    segments = []
+    for segment in value.split("/"):
+        parts = []
+        for part in segment.split("_"):
+            if part.upper() in {"UTC", "GMT"}:
+                parts.append(part.upper())
+            else:
+                parts.append(part[:1].upper() + part[1:].lower())
+        segments.append("_".join(parts))
+    return "/".join(segments)
+
+
+def _normalize_timezone_name(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+
+    candidate = value.strip().replace(" ", "_")
+    if not candidate:
+        return None
+
+    attempts = [candidate]
+    canonical = _canonicalize_timezone_name(candidate)
+    if canonical not in attempts:
+        attempts.append(canonical)
+
+    for attempt in attempts:
+        try:
+            ZoneInfo(attempt)
+            return attempt
+        except ZoneInfoNotFoundError:
+            continue
+
+    raise HTTPException(status_code=400, detail="Invalid timezone")
 
 
 # =========================
@@ -242,7 +280,8 @@ def signup(
             "full_name": payload.full_name,
             "role": role,
             "phone": payload.phone,
-            "timezone": payload.timezone,
+            "timezone": _normalize_timezone_name(payload.timezone)
+            or DEFAULT_APP_TIMEZONE,
             "password_hash": password_hash,
         },
     ).fetchone()
@@ -364,14 +403,15 @@ def request_magic_link(
         db.execute(
             text(
                 """
-                INSERT INTO users (id, email, role, email_verified, is_active)
-                VALUES (:id, :email, :role, FALSE, TRUE)
+                INSERT INTO users (id, email, role, timezone, email_verified, is_active)
+                VALUES (:id, :email, :role, :timezone, FALSE, TRUE)
                 """
             ),
             {
                 "id": user_id,
                 "email": payload.email,
                 "role": role,
+                "timezone": DEFAULT_APP_TIMEZONE,
             },
         )
 
@@ -523,8 +563,8 @@ def google_login(
         user = db.execute(
             text(
                 """
-                INSERT INTO users (id, email, full_name, role, avatar_url, email_verified)
-                VALUES (:id, :email, :full_name, :role, :avatar_url, TRUE)
+                INSERT INTO users (id, email, full_name, role, avatar_url, timezone, email_verified)
+                VALUES (:id, :email, :full_name, :role, :avatar_url, :timezone, TRUE)
                 RETURNING id, email, full_name, role, phone, avatar_url, timezone
                 """
             ),
@@ -534,6 +574,7 @@ def google_login(
                 "full_name": full_name,
                 "role": role,
                 "avatar_url": avatar_url,
+                "timezone": DEFAULT_APP_TIMEZONE,
             },
         ).fetchone()
     else:
@@ -613,7 +654,7 @@ def update_me(
         params["avatar_url"] = payload.avatar_url
     if payload.timezone is not None:
         updates.append("timezone = :timezone")
-        params["timezone"] = payload.timezone
+        params["timezone"] = _normalize_timezone_name(payload.timezone)
 
     if not updates:
         raise HTTPException(status_code=400, detail="No fields to update")

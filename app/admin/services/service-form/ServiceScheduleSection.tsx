@@ -78,7 +78,7 @@ export function ServiceScheduleSection({
                     timezone: event.target.value,
                   }))
                 }
-                placeholder="e.g. UTC, Asia/Singapore"
+                placeholder="e.g. Asia/Phnom_Penh"
                 className={inputCompactClass}
               />
             </div>

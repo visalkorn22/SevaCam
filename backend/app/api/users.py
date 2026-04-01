@@ -14,6 +14,7 @@ from app.core.auth import get_current_user, require_roles, get_permissions_for_r
 router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+DEFAULT_APP_TIMEZONE = "Asia/Phnom_Penh"
 
 
 class UserResponse(BaseModel):
@@ -223,7 +224,7 @@ def create_user(
             "full_name": payload.full_name,
             "role": payload.role,
             "phone": payload.phone,
-            "timezone": payload.timezone,
+            "timezone": payload.timezone or DEFAULT_APP_TIMEZONE,
             "password_hash": password_hash,
             "is_active": payload.is_active if payload.is_active is not None else True,
         },

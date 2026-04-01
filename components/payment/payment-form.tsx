@@ -15,6 +15,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { usePaymentPoller } from "@/hooks/use-payment-poller";
 import { PaymentSuccessModal } from "@/components/payment/payment-success-modal";
+import {
+  formatDateInTimeZone,
+  formatTimeInTimeZone,
+  parseDateValue,
+} from "@/lib/timezone";
 
 type PaymentBooking = {
   id: string;
@@ -80,6 +85,7 @@ type AbaQrIntent = {
 
 interface PaymentFormProps {
   booking: PaymentBooking;
+  timeZone?: string | null;
 }
 
 const usd = new Intl.NumberFormat("en-US", {
@@ -259,7 +265,7 @@ function formatExpiresAt(value: string | null): string | null {
   return format(parsed, "PPP p");
 }
 
-export function PaymentForm({ booking }: PaymentFormProps) {
+export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [provider, setProvider] = useState<PaymentProvider>("aba_payway");
@@ -479,7 +485,8 @@ export function PaymentForm({ booking }: PaymentFormProps) {
     }
   };
 
-  const startDate = new Date(booking.start_time_utc);
+  const startDate =
+    parseDateValue(booking.start_time_utc) ?? new Date(booking.start_time_utc);
   const deposit = Number(booking.services.deposit_amount || 0);
   const price = Number(booking.services.price || 0);
 
@@ -507,9 +514,9 @@ export function PaymentForm({ booking }: PaymentFormProps) {
               <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                 <span>{booking.staff?.full_name || "Staff Member"}</span>
                 <span>·</span>
-                <span>{format(startDate, "MMM d, yyyy")}</span>
+                <span>{formatDateInTimeZone(startDate, timeZone)}</span>
                 <span>·</span>
-                <span>{format(startDate, "h:mm a")}</span>
+                <span>{formatTimeInTimeZone(startDate, timeZone)}</span>
               </p>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {booking.services.duration_minutes} minute session

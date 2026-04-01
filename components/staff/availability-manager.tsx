@@ -21,10 +21,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2 } from "lucide-react";
+import {
+  dateTimeLocalToUtcIsoString,
+  formatDateTimeInTimeZone,
+} from "@/lib/timezone";
 
 interface AvailabilityManagerProps {
   staffId: string;
   role?: "customer" | "staff" | "admin" | "superadmin";
+  timezone?: string | null;
 }
 
 type StaffOption = {
@@ -44,7 +49,11 @@ const DAYS_OF_WEEK = [
   { value: "6", label: "Saturday" },
 ];
 
-export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps) {
+export function AvailabilityManager({
+  staffId,
+  role,
+  timezone,
+}: AvailabilityManagerProps) {
   const isAdmin = role === "admin" || role === "superadmin";
   const [schedules, setSchedules] = useState<any[]>([]);
   const [activeScheduleId, setActiveScheduleId] = useState<string | null>(null);
@@ -62,8 +71,23 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
   const [isLoadingStaff, setIsLoadingStaff] = useState(false);
   const [staffLoadError, setStaffLoadError] = useState<string | null>(null);
   const effectiveStaffId = canSelectStaff ? selectedStaffId : staffId;
+  const displayTimeZone = useMemo(() => {
+    if (timezone) return timezone;
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      return "UTC";
+    }
+  }, [timezone]);
 
-  const [newScheduleTimezone, setNewScheduleTimezone] = useState("UTC");
+  const [newScheduleTimezone, setNewScheduleTimezone] = useState(() => {
+    if (timezone) return timezone;
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      return "UTC";
+    }
+  });
   const [newWorkBlock, setNewWorkBlock] = useState({
     weekday: "1",
     start_time_local: "09:00",
@@ -313,6 +337,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            timezone: newScheduleTimezone,
             max_slots_per_day: maxSlotsPerDay,
             max_bookings_per_day: maxBookingsPerDay,
             max_bookings_per_customer: maxBookingsPerCustomer,
@@ -424,8 +449,14 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
         body: JSON.stringify({
           staff_id: effectiveStaffId,
           type: newException.type,
-          start_utc: newException.start_utc,
-          end_utc: newException.end_utc,
+          start_utc: dateTimeLocalToUtcIsoString(
+            newException.start_utc,
+            displayTimeZone,
+          ),
+          end_utc: dateTimeLocalToUtcIsoString(
+            newException.end_utc,
+            displayTimeZone,
+          ),
           is_all_day: newException.is_all_day,
           reason: newException.reason,
         }),
@@ -488,8 +519,12 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
               target: "exception",
               action: requestAction,
               type: exceptionType,
-              start_utc: exceptionStart || null,
-              end_utc: exceptionEnd || null,
+              start_utc: exceptionStart
+                ? dateTimeLocalToUtcIsoString(exceptionStart, displayTimeZone)
+                : null,
+              end_utc: exceptionEnd
+                ? dateTimeLocalToUtcIsoString(exceptionEnd, displayTimeZone)
+                : null,
               is_all_day: exceptionAllDay,
               exception_id: requestAction === "add" ? null : requestExceptionId,
             };
@@ -561,11 +596,14 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
           ? String(activeSchedule.max_bookings_per_customer)
           : "",
     });
+    setNewScheduleTimezone(activeSchedule.timezone || displayTimeZone);
   }, [
     activeSchedule?.id,
+    activeSchedule?.timezone,
     activeSchedule?.max_slots_per_day,
     activeSchedule?.max_bookings_per_day,
     activeSchedule?.max_bookings_per_customer,
+    displayTimeZone,
   ]);
 
   const requestBlockOptions = useMemo(
@@ -584,11 +622,14 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
     () =>
       exceptions.map((exception) => ({
         id: exception.id,
-        label: `${exception.type?.replace("_", " ") || "Exception"} ${new Date(
+        label: `${
+          exception.type?.replace("_", " ") || "Exception"
+        } ${formatDateTimeInTimeZone(
           exception.start_utc,
-        ).toLocaleString()} - ${new Date(exception.end_utc).toLocaleString()}`,
+          displayTimeZone,
+        )} - ${formatDateTimeInTimeZone(exception.end_utc, displayTimeZone)}`,
       })),
-    [exceptions],
+    [displayTimeZone, exceptions],
   );
 
   return (
@@ -653,6 +694,9 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
             <CardDescription>Weekly working hours and breaks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              Times shown in {displayTimeZone}
+            </p>
             {schedules.length === 0 ? (
               isAdmin ? (
                 <div className="space-y-3">
@@ -739,17 +783,17 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
-                </div>
-                <div className="rounded-lg border p-3 text-sm text-muted-foreground">
-                  <div>Timezone: {activeSchedule?.timezone || "UTC"}</div>
-                  <div>
-                    Effective: {activeSchedule?.effective_from || "Always"} -{" "}
-                    {activeSchedule?.effective_to || ""}
+                    </Select>
                   </div>
-                  {!isAdmin && (
-                    <div className="mt-2 text-xs">
-                      Schedules are managed by the admin.
+                  <div className="rounded-lg border p-3 text-sm text-muted-foreground">
+                    <div>Timezone: {activeSchedule?.timezone || "UTC"}</div>
+                    <div>
+                      Effective: {activeSchedule?.effective_from || "Always"} -{" "}
+                      {activeSchedule?.effective_to || ""}
+                    </div>
+                    {!isAdmin && (
+                      <div className="mt-2 text-xs">
+                        Schedules are managed by the admin.
                     </div>
                   )}
                   <div className="mt-2 text-xs">
@@ -769,6 +813,15 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
             )}
             {schedules.length > 0 && (
               <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Schedule timezone</Label>
+                  <Input
+                    value={newScheduleTimezone}
+                    onChange={(e) => setNewScheduleTimezone(e.target.value)}
+                    placeholder="Asia/Phnom_Penh"
+                    disabled={!isAdmin}
+                  />
+                </div>
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
                     <Label>Max slots per day</Label>
@@ -822,7 +875,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                       onClick={handleUpdateSchedule}
                       disabled={isSavingSchedule || !activeScheduleId}
                     >
-                      {isSavingSchedule ? "Saving..." : "Save Limits"}
+                      {isSavingSchedule ? "Saving..." : "Save Schedule"}
                     </Button>
                     {scheduleSaveError && (
                       <p className="text-sm text-destructive">
@@ -1100,7 +1153,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Start (UTC)</Label>
+                  <Label>Start ({displayTimeZone})</Label>
                   <Input
                     type="datetime-local"
                     value={newException.start_utc}
@@ -1113,7 +1166,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>End (UTC)</Label>
+                  <Label>End ({displayTimeZone})</Label>
                   <Input
                     type="datetime-local"
                     value={newException.end_utc}
@@ -1176,8 +1229,15 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                       <div className="flex items-center gap-2">
                         <Badge>{exception.type?.replace("_", " ")}</Badge>
                         <span className="text-sm">
-                          {new Date(exception.start_utc).toLocaleString()} -{" "}
-                          {new Date(exception.end_utc).toLocaleString()}
+                          {formatDateTimeInTimeZone(
+                            exception.start_utc,
+                            displayTimeZone,
+                          )}{" "}
+                          -{" "}
+                          {formatDateTimeInTimeZone(
+                            exception.end_utc,
+                            displayTimeZone,
+                          )}
                         </span>
                       </div>
                       {exception.reason && (
@@ -1338,7 +1398,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Start (UTC)</Label>
+                      <Label>Start ({displayTimeZone})</Label>
                       <Input
                         type="datetime-local"
                         value={exceptionStart}
@@ -1346,7 +1406,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>End (UTC)</Label>
+                      <Label>End ({displayTimeZone})</Label>
                       <Input
                         type="datetime-local"
                         value={exceptionEnd}
@@ -1434,7 +1494,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Start (UTC)</Label>
+                    <Label>Start ({displayTimeZone})</Label>
                     <Input
                       type="datetime-local"
                       value={exceptionStart}
@@ -1442,7 +1502,7 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>End (UTC)</Label>
+                    <Label>End ({displayTimeZone})</Label>
                     <Input
                       type="datetime-local"
                       value={exceptionEnd}
@@ -1505,7 +1565,10 @@ export function AvailabilityManager({ staffId, role }: AvailabilityManagerProps)
                   const target = payload.target as string | undefined;
                   const action = payload.action as string | undefined;
                   const createdAt = request.created_at
-                    ? new Date(request.created_at).toLocaleString()
+                    ? formatDateTimeInTimeZone(
+                        request.created_at,
+                        displayTimeZone,
+                      )
                     : null;
 
                   return (

@@ -7,7 +7,7 @@ from datetime import datetime, date, time, timedelta, timezone as dt_timezone
 import calendar
 import json
 from time import time as now_ts
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from app.core.database import get_db
 from app.core.auth import require_roles, is_admin
 from app.core.audit import log_audit
@@ -1883,6 +1883,7 @@ async def get_availability_calendar(
     end_date: date,
     staff_id: Optional[str] = None,
     location_id: Optional[str] = None,
+    timezone: Optional[str] = None,
     current_user: dict = Depends(require_roles("staff", "admin", "superadmin")),
     db: Session = Depends(get_db),
 ):
@@ -1892,8 +1893,23 @@ async def get_availability_calendar(
             raise HTTPException(status_code=403, detail="Forbidden")
         staff_id = current_user.get("id")
 
-    start_utc = datetime.combine(start_date, time(0, 0), tzinfo=dt_timezone.utc)
-    end_utc = datetime.combine(end_date + timedelta(days=1), time(0, 0), tzinfo=dt_timezone.utc)
+    try:
+        viewer_timezone = ZoneInfo(
+            timezone or current_user.get("timezone") or "UTC",
+        )
+    except ZoneInfoNotFoundError:
+        viewer_timezone = dt_timezone.utc
+
+    start_utc = datetime.combine(
+        start_date,
+        time(0, 0),
+        tzinfo=viewer_timezone,
+    ).astimezone(dt_timezone.utc)
+    end_utc = datetime.combine(
+        end_date + timedelta(days=1),
+        time(0, 0),
+        tzinfo=viewer_timezone,
+    ).astimezone(dt_timezone.utc)
 
     bookings = []
     if BOOKINGS_ENABLED:

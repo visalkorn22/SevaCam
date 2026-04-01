@@ -6,8 +6,11 @@ import { AvailabilityCalendar } from "@/components/availability/availability-cal
 type MeUser = {
   id: string;
   email: string;
+  timezone?: string | null;
   role: "customer" | "staff" | "admin" | "superadmin";
 };
+
+const DEFAULT_STAFF_TIMEZONE = "Asia/Phnom_Penh";
 
 async function getMe(): Promise<MeUser | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -37,7 +40,11 @@ export default async function StaffSchedulePage() {
           View your complete appointment schedule
         </p>
       </div>
-      <AvailabilityCalendar mode="staff" staffId={me.id} />
+      <AvailabilityCalendar
+        mode="staff"
+        staffId={me.id}
+        timezone={me.timezone || DEFAULT_STAFF_TIMEZONE}
+      />
     </DashboardLayout>
   );
 }

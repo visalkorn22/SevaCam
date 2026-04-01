@@ -24,7 +24,14 @@ type Message = { type: "success" | "error"; text: string } | null;
 export default function ProfileClient({ user }: { user: ProfileUser }) {
   const [fullName, setFullName] = useState(user.full_name ?? "");
   const [phone, setPhone] = useState(user.phone ?? "");
-  const [timezone, setTimezone] = useState(user.timezone ?? "");
+  const [timezone, setTimezone] = useState(() => {
+    if (user.timezone) return user.timezone;
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      return "";
+    }
+  });
   const [profileMessage, setProfileMessage] = useState<Message>(null);
   const [profileSaving, setProfileSaving] = useState(false);
 

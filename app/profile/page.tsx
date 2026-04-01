@@ -29,7 +29,6 @@ async function getMe(): Promise<MeUser | null> {
 export default async function ProfilePage() {
   const me = await getMe();
   if (!me) redirect("/auth/login");
-  if (me.role === "customer") redirect("/#services");
 
   return (
     <DashboardLayout>

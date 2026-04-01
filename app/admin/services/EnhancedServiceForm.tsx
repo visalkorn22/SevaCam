@@ -101,7 +101,7 @@ export default function EnhancedServiceForm({
   });
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduleForm, setScheduleForm] = useState<OperatingScheduleDraft>({
-    timezone: "UTC",
+    timezone: "Asia/Phnom_Penh",
     rule_type: "daily",
     open_time: "",
     close_time: "",
@@ -139,7 +139,9 @@ export default function EnhancedServiceForm({
     () => Array.from(new Set(selectedStaffIds)).filter(Boolean),
     [selectedStaffIds],
   );
-  const [staffScheduleTimezone, setStaffScheduleTimezone] = useState("UTC");
+  const [staffScheduleTimezone, setStaffScheduleTimezone] = useState(
+    "Asia/Phnom_Penh",
+  );
   const [staffScheduleBlocks, setStaffScheduleBlocks] = useState<
     Record<string, StaffWorkBlockDraft[]>
   >({});
@@ -365,7 +367,7 @@ export default function EnhancedServiceForm({
           credentials: "include",
           body: JSON.stringify({
             staff_id: staffId,
-            timezone: staffScheduleTimezone || "UTC",
+            timezone: staffScheduleTimezone || "Asia/Phnom_Penh",
             is_default: true,
           }),
         },

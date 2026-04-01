@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { format } from "date-fns";
 import { BookingCard } from "@/components/booking/BookingCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,6 +27,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import {
+  formatDateInTimeZone,
+  formatDateInputInTimeZone,
+  formatTimeInTimeZone,
+  parseDateValue,
+} from "@/lib/timezone";
 
 export type CustomerBookingsUser = {
   id: string;
@@ -96,18 +101,20 @@ type AvailableSlot = {
   staff_name?: string | null;
 };
 
-const formatDate = (value: string) => format(new Date(value), "MMM d, yyyy");
-const formatTime = (value: string) => format(new Date(value), "h:mm a");
-
 export default function CustomerBookingsClient({
   user,
 }: {
   user: CustomerBookingsUser;
 }) {
+  const DEFAULT_CUSTOMER_TIMEZONE = "Asia/Phnom_Penh";
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const router = useRouter();
   const timezone =
-    user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    user.timezone && user.timezone !== "UTC"
+      ? user.timezone
+      : DEFAULT_CUSTOMER_TIMEZONE;
+  const getBookingTimestamp = (value: string) =>
+    parseDateValue(value)?.getTime() ?? Number.NaN;
 
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistRow[]>([]);
@@ -203,15 +210,15 @@ export default function CustomerBookingsClient({
     });
   }, [waitlist]);
 
-  const now = new Date();
+  const now = Date.now();
   const upcomingBookings = useMemo(
     () =>
       bookings
-        .filter((booking) => new Date(booking.start_time_utc) >= now)
+        .filter((booking) => getBookingTimestamp(booking.start_time_utc) >= now)
         .sort(
           (a, b) =>
-            new Date(a.start_time_utc).getTime() -
-            new Date(b.start_time_utc).getTime(),
+            getBookingTimestamp(a.start_time_utc) -
+            getBookingTimestamp(b.start_time_utc),
         ),
     [bookings, now],
   );
@@ -219,11 +226,11 @@ export default function CustomerBookingsClient({
   const pastBookings = useMemo(
     () =>
       bookings
-        .filter((booking) => new Date(booking.start_time_utc) < now)
+        .filter((booking) => getBookingTimestamp(booking.start_time_utc) < now)
         .sort(
           (a, b) =>
-            new Date(b.start_time_utc).getTime() -
-            new Date(a.start_time_utc).getTime(),
+            getBookingTimestamp(b.start_time_utc) -
+            getBookingTimestamp(a.start_time_utc),
         ),
     [bookings, now],
   );
@@ -255,7 +262,9 @@ export default function CustomerBookingsClient({
 
   const openReschedule = (booking: BookingRow) => {
     setRescheduleBooking(booking);
-    setRescheduleDate(format(new Date(booking.start_time_utc), "yyyy-MM-dd"));
+    setRescheduleDate(
+      formatDateInputInTimeZone(booking.start_time_utc, timezone),
+    );
     setSelectedSlot("");
     setRescheduleError(null);
   };
@@ -391,7 +400,7 @@ export default function CustomerBookingsClient({
     return (
       <div className="space-y-6">
         {items.map((booking) => {
-          const isFuture = new Date(booking.start_time_utc) >= now;
+          const isFuture = getBookingTimestamp(booking.start_time_utc) >= now;
           const canEdit =
             isFuture &&
             booking.status !== "cancelled" &&
@@ -408,8 +417,8 @@ export default function CustomerBookingsClient({
               key={booking.id}
               id={booking.id}
               serviceName={booking.service_name || "Service"}
-              date={formatDate(booking.start_time_utc)}
-              time={formatTime(booking.start_time_utc)}
+              date={formatDateInTimeZone(booking.start_time_utc, timezone)}
+              time={formatTimeInTimeZone(booking.start_time_utc, timezone)}
               price={Number(booking.service_price || 0)}
               status={booking.status}
               providerName={booking.staff_name || "Staff"}
@@ -503,7 +512,10 @@ export default function CustomerBookingsClient({
                         </span>
                         <span className="font-semibold">
                           {entry.preferred_date
-                            ? formatDate(`${entry.preferred_date}T00:00:00`)
+                            ? formatDateInTimeZone(
+                                `${entry.preferred_date}T00:00:00`,
+                                timezone,
+                              )
                             : "Flexible"}
                         </span>
                       </div>
@@ -553,13 +565,13 @@ export default function CustomerBookingsClient({
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Date</span>
                   <span className="font-semibold">
-                    {formatDate(detailsBooking.start_time_utc)}
+                    {formatDateInTimeZone(detailsBooking.start_time_utc, timezone)}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-muted-foreground">Time</span>
                   <span className="font-semibold">
-                    {formatTime(detailsBooking.start_time_utc)}
+                    {formatTimeInTimeZone(detailsBooking.start_time_utc, timezone)}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
@@ -602,10 +614,23 @@ export default function CustomerBookingsClient({
                             </p>
                             {change.old_start_time && change.new_start_time ? (
                               <p className="mt-1 text-muted-foreground">
-                                {formatDate(change.old_start_time)}{" "}
-                                {formatTime(change.old_start_time)} ?{" "}
-                                {formatDate(change.new_start_time)}{" "}
-                                {formatTime(change.new_start_time)}
+                                {formatDateInTimeZone(
+                                  change.old_start_time,
+                                  timezone,
+                                )}{" "}
+                                {formatTimeInTimeZone(
+                                  change.old_start_time,
+                                  timezone,
+                                )}{" "}
+                                ?{" "}
+                                {formatDateInTimeZone(
+                                  change.new_start_time,
+                                  timezone,
+                                )}{" "}
+                                {formatTimeInTimeZone(
+                                  change.new_start_time,
+                                  timezone,
+                                )}
                               </p>
                             ) : null}
                             {change.reason ? (
@@ -614,8 +639,8 @@ export default function CustomerBookingsClient({
                               </p>
                             ) : null}
                             <p className="mt-1 text-muted-foreground">
-                              {formatDate(change.created_at)}{" "}
-                              {formatTime(change.created_at)}
+                              {formatDateInTimeZone(change.created_at, timezone)}{" "}
+                              {formatTimeInTimeZone(change.created_at, timezone)}
                             </p>
                           </div>
                         ))}
@@ -628,8 +653,8 @@ export default function CustomerBookingsClient({
                               {log.action}
                             </p>
                             <p className="mt-1 text-muted-foreground">
-                              {formatDate(log.created_at)}{" "}
-                              {formatTime(log.created_at)}
+                              {formatDateInTimeZone(log.created_at, timezone)}{" "}
+                              {formatTimeInTimeZone(log.created_at, timezone)}
                             </p>
                           </div>
                         ))}
@@ -705,7 +730,7 @@ export default function CustomerBookingsClient({
                             : "border-border bg-background text-foreground hover:border-primary"
                         }`}
                       >
-                        {formatTime(slot.start_time)}
+                        {formatTimeInTimeZone(slot.start_time, timezone)}
                       </button>
                     ))}
                   </div>

@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime, time, timedelta, timezone as dt_timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from app.core.database import get_db
 from app.core.auth import get_current_user, require_permissions, require_roles, is_admin
 from app.core.audit import log_audit
@@ -44,6 +46,16 @@ async def staff_dashboard(
             "totalBookings": 0,
         }
     staff_id = current_user.get("id")
+    try:
+        staff_timezone = ZoneInfo(current_user.get("timezone") or "Asia/Phnom_Penh")
+    except ZoneInfoNotFoundError:
+        staff_timezone = dt_timezone.utc
+
+    today_local = datetime.now(staff_timezone).date()
+    day_start_local = datetime.combine(today_local, time(0, 0), tzinfo=staff_timezone)
+    day_end_local = day_start_local + timedelta(days=1)
+    day_start_utc = day_start_local.astimezone(dt_timezone.utc)
+    day_end_utc = day_end_local.astimezone(dt_timezone.utc)
 
     today_result = db.execute(
         text(
@@ -55,11 +67,16 @@ async def staff_dashboard(
         LEFT JOIN services s ON b.service_id = s.id
         LEFT JOIN customers c ON b.customer_id = c.id
         WHERE b.staff_id = :staff_id
-          AND DATE(b.start_time_utc) = CURRENT_DATE
+          AND b.start_time_utc >= :day_start_utc
+          AND b.start_time_utc < :day_end_utc
         ORDER BY b.start_time_utc ASC
         """
         ),
-        {"staff_id": staff_id},
+        {
+            "staff_id": staff_id,
+            "day_start_utc": day_start_utc,
+            "day_end_utc": day_end_utc,
+        },
     )
 
     upcoming_result = db.execute(

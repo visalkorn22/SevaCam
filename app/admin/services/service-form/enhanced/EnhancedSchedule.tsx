@@ -97,7 +97,7 @@ export default function EnhancedSchedule({
                     timezone: e.target.value,
                   }))
                 }
-                placeholder="e.g. UTC, Asia/Singapore"
+                placeholder="e.g. Asia/Phnom_Penh"
               />
             </div>
             <div className="space-y-2">

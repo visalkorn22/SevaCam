@@ -23,6 +23,10 @@ import {
 } from "@/components/ui/table";
 import { Calendar, Clock } from "lucide-react";
 import Link from "next/link";
+import {
+  formatDateInputInTimeZone,
+  formatDateTimeInTimeZone,
+} from "@/lib/timezone";
 
 type StaffOption = {
   id: string;
@@ -79,19 +83,32 @@ type CalendarResponse = {
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-const toDateInput = (value: Date) => value.toISOString().slice(0, 10);
-
 export function AvailabilityCalendar({
   mode,
   staffId,
+  timezone,
 }: {
   mode: "admin" | "staff";
   staffId?: string;
+  timezone?: string | null;
 }) {
+  const displayTimeZone = useMemo(() => {
+    if (timezone) return timezone;
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      return "UTC";
+    }
+  }, [timezone]);
   const today = useMemo(() => new Date(), []);
-  const [startDate, setStartDate] = useState(toDateInput(today));
+  const [startDate, setStartDate] = useState(() =>
+    formatDateInputInTimeZone(today, displayTimeZone),
+  );
   const [endDate, setEndDate] = useState(
-    toDateInput(new Date(today.getTime() + 6 * 86400000)),
+    formatDateInputInTimeZone(
+      new Date(today.getTime() + 6 * 86400000),
+      displayTimeZone,
+    ),
   );
   const [selectedStaff, setSelectedStaff] = useState(staffId || "all");
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -131,6 +148,7 @@ export function AvailabilityCalendar({
       const params = new URLSearchParams({
         start_date: startDate,
         end_date: endDate,
+        timezone: displayTimeZone,
       });
 
       if (selectedStaff !== "all") params.set("staff_id", selectedStaff);
@@ -259,6 +277,10 @@ export function AvailabilityCalendar({
             </Badge>
           </div>
 
+          <p className="text-xs text-muted-foreground">
+            Times shown in {displayTimeZone}
+          </p>
+
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm">
               <Link href="/staff/availability">Manage weekly schedule</Link>
@@ -319,8 +341,12 @@ export function AvailabilityCalendar({
                           {item.type}
                         </Badge>
                       </TableCell>
-                      <TableCell>{start.toLocaleString()}</TableCell>
-                      <TableCell>{end.toLocaleString()}</TableCell>
+                      <TableCell>
+                        {formatDateTimeInTimeZone(start, displayTimeZone)}
+                      </TableCell>
+                      <TableCell>
+                        {formatDateTimeInTimeZone(end, displayTimeZone)}
+                      </TableCell>
                       <TableCell>
                         {item.title || item.service_name || "-"}
                       </TableCell>
@@ -369,8 +395,16 @@ export function AvailabilityCalendar({
                   <div className="mt-2 text-sm text-muted-foreground">
                     <div>Staff: {warning.staff_name || warning.staff_id}</div>
                     <div>
-                      Window: {new Date(warning.start_utc).toLocaleString()} -{" "}
-                      {new Date(warning.end_utc).toLocaleString()}
+                      Window:{" "}
+                      {formatDateTimeInTimeZone(
+                        warning.start_utc,
+                        displayTimeZone,
+                      )}{" "}
+                      -{" "}
+                      {formatDateTimeInTimeZone(
+                        warning.end_utc,
+                        displayTimeZone,
+                      )}
                     </div>
                   </div>
                 </div>

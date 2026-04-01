@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { formatTimeInTimeZone, getHourInTimeZone } from "@/lib/timezone";
 
 // --- Types --------------------------------------------------------------------
 
@@ -134,18 +135,6 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
-const formatSlotTime = (value: string) => {
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  return format(d, "h:mm a");
-};
-
-const getSlotHour = (value: string) => {
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return 0;
-  return d.getHours();
-};
-
 const getInitials = (name: string) => {
   const parts = name.trim().split(/\s+/).slice(0, 2);
   if (!parts.length) return "";
@@ -233,12 +222,14 @@ function SlotPeriodSection({
   slots,
   selectedSlot,
   durationMinutes,
+  timeZone,
   onSelect,
 }: {
   period: (typeof TIME_PERIODS)[number];
   slots: AvailableSlot[];
   selectedSlot: string;
   durationMinutes: number;
+  timeZone: string;
   onSelect: (startTime: string) => void;
 }) {
   if (slots.length === 0) return null;
@@ -261,12 +252,12 @@ function SlotPeriodSection({
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {slots.map((slot) => {
           const isSelected = selectedSlot === slot.start_time;
-          const startLabel = formatSlotTime(slot.start_time);
+          const startLabel = formatTimeInTimeZone(slot.start_time, timeZone);
           const endDate = addMinutes(
             new Date(slot.start_time),
             durationMinutes,
           );
-          const endLabel = format(endDate, "h:mm a");
+          const endLabel = formatTimeInTimeZone(endDate, timeZone);
 
           return (
             <button
@@ -455,6 +446,7 @@ export function BookingForm({
   customer,
   bookingSource = "web",
 }: BookingFormProps) {
+  const DEFAULT_BOOKING_TIMEZONE = "Asia/Phnom_Penh";
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedStaffId, setSelectedStaffId] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -477,7 +469,9 @@ export function BookingForm({
 
   const router = useRouter();
   const timezone =
-    customer.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    customer.timezone && customer.timezone !== "UTC"
+      ? customer.timezone
+      : DEFAULT_BOOKING_TIMEZONE;
   const isStaffAccount = customer.role === "staff";
   const today = useMemo(() => startOfDay(new Date()), []);
 
@@ -552,7 +546,7 @@ export function BookingForm({
       evening: [],
     };
     for (const slot of availableSlots) {
-      const h = getSlotHour(slot.start_time);
+      const h = getHourInTimeZone(slot.start_time, timezone);
       if (h < 12) groups.morning.push(slot);
       else if (h < 17) groups.afternoon.push(slot);
       else groups.evening.push(slot);
@@ -1015,7 +1009,7 @@ export function BookingForm({
           </p>
           {selectedSlot && (
             <span className="ml-auto rounded-full bg-(--booking-accent)/15 px-2.5 py-0.5 text-[11px] font-semibold text-(--booking-accent)">
-              {formatSlotTime(selectedSlot)} selected
+              {formatTimeInTimeZone(selectedSlot, timezone)} selected
             </span>
           )}
         </div>
@@ -1051,6 +1045,7 @@ export function BookingForm({
                 slots={slotsByPeriod[period.key] ?? []}
                 selectedSlot={selectedSlot}
                 durationMinutes={effectiveDuration}
+                timeZone={timezone}
                 onSelect={setSelectedSlot}
               />
             ))}
@@ -1164,8 +1159,8 @@ export function BookingForm({
                 </p>
                 {slotStart && slotEnd && (
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {format(slotStart, "h:mm a")} &rarr;{" "}
-                    {format(slotEnd, "h:mm a")}
+                    {formatTimeInTimeZone(slotStart, timezone)} &rarr;{" "}
+                    {formatTimeInTimeZone(slotEnd, timezone)}
                     <span className="ml-2 text-muted-foreground/80">
                       ({effectiveDuration} min)
                     </span>

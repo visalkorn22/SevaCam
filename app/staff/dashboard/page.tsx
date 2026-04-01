@@ -14,12 +14,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, DollarSign, Users, Phone, Mail } from "lucide-react";
-import { format, startOfDay, endOfDay } from "date-fns";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import {
+  formatDateTimeInTimeZone,
+  formatTimeInTimeZone,
+} from "@/lib/timezone";
 
 type MeUser = {
   id: string;
   email: string;
+  timezone?: string | null;
   role: "customer" | "staff" | "admin" | "superadmin";
 };
 
@@ -47,6 +51,8 @@ type StaffDashboardData = {
   totalRevenue: number;
   totalBookings: number;
 };
+
+const DEFAULT_STAFF_TIMEZONE = "Asia/Phnom_Penh";
 
 async function getMe(): Promise<MeUser | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -109,6 +115,7 @@ export default async function StaffDashboard() {
   if (!me) redirect("/auth/login");
   if (me.role !== "staff" && me.role !== "admin" && me.role !== "superadmin")
     redirect("/dashboard");
+  const displayTimeZone = me.timezone || DEFAULT_STAFF_TIMEZONE;
 
   // If you *don't* have /api/staff/dashboard yet, you can replace this with
   // two fetches (today/upcoming) + one stats fetch. But one endpoint is cleaner.
@@ -161,7 +168,10 @@ export default async function StaffDashboard() {
                         {booking.services?.name || "Service"}
                       </CardTitle>
                       <CardDescription className="mt-1.5 text-sm">
-                        {format(new Date(booking.start_time_utc), "h:mm a")}
+                        {formatTimeInTimeZone(
+                          booking.start_time_utc,
+                          displayTimeZone,
+                        )}
                       </CardDescription>
                     </div>
 
@@ -250,9 +260,9 @@ export default async function StaffDashboard() {
                         {booking.services?.name || "Service"}
                       </CardTitle>
                       <CardDescription className="mt-1.5 text-sm">
-                        {format(
-                          new Date(booking.start_time_utc),
-                          "MMMM d, yyyy 'at' h:mm a",
+                        {formatDateTimeInTimeZone(
+                          booking.start_time_utc,
+                          displayTimeZone,
                         )}
                       </CardDescription>
                     </div>

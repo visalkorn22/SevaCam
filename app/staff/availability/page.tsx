@@ -5,8 +5,11 @@ import { AvailabilityManager } from "@/components/staff/availability-manager";
 type MeUser = {
   id: string;
   email: string;
+  timezone?: string | null;
   role: "customer" | "staff" | "admin" | "superadmin";
 };
+
+const DEFAULT_STAFF_TIMEZONE = "Asia/Phnom_Penh";
 
 async function getMe(): Promise<MeUser | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -37,7 +40,11 @@ export default async function StaffAvailabilityPage() {
       </header>
 
       <div className="container py-8">
-        <AvailabilityManager staffId={me.id} role={me.role} />
+        <AvailabilityManager
+          staffId={me.id}
+          role={me.role}
+          timezone={me.timezone || DEFAULT_STAFF_TIMEZONE}
+        />
       </div>
     </div>
   );
