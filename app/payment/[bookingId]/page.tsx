@@ -121,41 +121,41 @@ function ConfirmedView({
     }).format(amount);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-(--bg-base) relative overflow-hidden">
       {/* Soft success glow behind the card */}
-      <div className="absolute inset-x-0 top-0 h-96 bg-emerald-500/5 blur-[100px] pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-96 bg-(--state-success)/5 blur-[100px] pointer-events-none" />
 
       <div className="container relative py-16 sm:py-24">
         <div className="mx-auto max-w-lg">
           <div className="mb-10 text-center motion-preset-slide-up-sm motion-duration-500">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-              <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-(--state-success-subtle) ring-1 ring-(--state-success)/20">
+              <CheckCircle2 className="h-8 w-8 text-(--state-success)" />
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl text-foreground">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl text-(--text-primary)">
               You&apos;re all set
             </h1>
-            <p className="mt-3 text-base text-muted-foreground">
+            <p className="mt-3 text-base text-(--text-secondary)">
               Your appointment is confirmed and secured.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)] motion-preset-slide-up-sm motion-delay-100 duration-500">
-            <div className="border-b border-border/40 bg-muted/20 px-6 py-5">
-              <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+          <div className="overflow-hidden rounded-2xl bg-(--bg-surface) shadow-(--shadow-lg) motion-preset-slide-up-sm motion-delay-100 duration-500">
+            <div className="border-b border-(--border-muted) bg-(--bg-elevated) px-6 py-5">
+              <p className="text-[11px] font-medium uppercase tracking-widest text-(--text-secondary)">
                 Booking Confirmed
               </p>
-              <p className="mt-1 text-lg font-medium text-foreground">
+              <p className="mt-1 text-lg font-medium text-(--text-primary)">
                 {booking.services.name}
               </p>
             </div>
 
-            <div className="divide-y divide-border/40">
+            <div className="divide-y divide-(--border-muted)">
               <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/50 border border-border/40">
-                  <User className="h-4 w-4 text-muted-foreground" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-elevated)">
+                  <User className="h-4 w-4 text-(--text-secondary)" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-(--text-secondary)">
                     Provider
                   </p>
                   <p className="text-sm font-medium mt-0.5">{staffName}</p>
@@ -163,11 +163,11 @@ function ConfirmedView({
               </div>
 
               <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/50 border border-border/40">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-elevated)">
+                  <Calendar className="h-4 w-4 text-(--text-secondary)" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-(--text-secondary)">
                     Date
                   </p>
                   <p className="text-sm font-medium mt-0.5">
@@ -177,47 +177,47 @@ function ConfirmedView({
               </div>
 
               <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/50 border border-border/40">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-elevated)">
+                  <Clock className="h-4 w-4 text-(--text-secondary)" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-(--text-secondary)">
                     Time
                   </p>
                   <p className="text-sm font-medium mt-0.5">
                     {formatTimeInTimeZone(startDate, timeZone)} &rarr;{" "}
                     {formatTimeInTimeZone(endDate, timeZone)}
-                    <span className="ml-2 font-normal text-muted-foreground">
+                    <span className="ml-2 font-normal text-(--text-secondary)">
                       ({booking.services.duration_minutes} min)
                     </span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between px-6 py-5 bg-muted/10">
-                <p className="text-sm font-medium text-muted-foreground">
+              <div className="flex items-center justify-between px-6 py-5 bg-(--bg-inset)">
+                <p className="text-sm font-medium text-(--text-secondary)">
                   Total
                 </p>
-                <p className="text-lg font-semibold text-foreground">
+                <p className="text-lg font-semibold text-(--text-primary)">
                   {formatPrice(booking.services.price)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 rounded-2xl border border-border/60 bg-muted/30 p-5 motion-preset-slide-up-sm motion-delay-200 duration-500">
+          <div className="mt-8 rounded-2xl bg-(--bg-elevated) p-5 motion-preset-slide-up-sm motion-delay-200 duration-500">
             <p className="mb-3 text-sm font-medium">What&apos;s next?</p>
-            <ul className="space-y-2.5 text-sm text-muted-foreground">
+            <ul className="space-y-2.5 text-sm text-(--text-secondary)">
               <li className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)/60" />
                 You&apos;ll receive a confirmation email shortly.
               </li>
               <li className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)/60" />
                 We&apos;ll send a reminder before your appointment.
               </li>
               <li className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)/60" />
                 Manage your booking anytime from your dashboard.
               </li>
             </ul>
@@ -226,14 +226,14 @@ function ConfirmedView({
           <div className="mt-8 flex flex-col gap-3 sm:flex-row motion-preset-slide-up-sm motion-delay-300 duration-500">
             <Link
               href="/bookings"
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border/60 bg-background px-4 py-3.5 text-sm font-medium transition-colors hover:bg-muted/50 hover:border-border"
+              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-md) bg-(--bg-surface) border border-(--border-muted) px-4 py-3.5 text-sm font-medium transition-colors hover:bg-(--bg-elevated) hover:border-(--border-interactive) text-(--text-primary)"
             >
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              <CalendarDays className="h-4 w-4 text-(--text-secondary)" />
               My Bookings
             </Link>
             <Link
               href="/services"
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 shadow-sm"
+              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-md) bg-(--accent-primary) px-4 py-3.5 text-sm font-medium text-(--text-on-accent) transition-colors hover:bg-(--accent-primary-hover)"
             >
               Book Another
               <ArrowRight className="h-4 w-4" />
@@ -275,7 +275,7 @@ export default async function PaymentPage({
     const payment = await getPayment(paymentId, stripeSessionId);
 
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-(--bg-base)">
         <div className="container py-12">
           <div className="mx-auto max-w-2xl">
             <PaymentReturnStatus
@@ -301,7 +301,7 @@ export default async function PaymentPage({
 
   // Needs payment — show payment form
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-(--bg-base)">
       <div className="container motion-page py-12">
         <div className="mx-auto max-w-2xl">
           <PaymentForm booking={booking} timeZone={displayTimeZone} />
