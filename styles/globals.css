@@ -1,125 +1,237 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@custom-variant dark (&:is(.dark *));
-
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 1 — RAW PALETTE (private — never consumed directly by components)
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Charcoal scale */
+  --_color-charcoal-base:   #131313;
+  --_color-charcoal-low:    #1c1b1b;
+  --_color-charcoal-mid:    #252524;
+  --_color-charcoal-high:   #353534;
+  --_color-charcoal-dim:    #0e0e0e;
+  --_color-charcoal-inset:  #101010;
+
+  /* Teal accent */
+  --_color-teal-primary:    #7ad5dd;
+  --_color-teal-on:         #00363a;
+  --_color-teal-subtle:     #1a3e41;
+
+  /* Warm accent */
+  --_color-amber:           #ffb785;
+
+  /* Text scale */
+  --_color-white:           #f0eeeb;
+  --_color-white-muted:     #a8a49e;
+  --_color-white-faint:     #6b6762;
+
+  /* State colors */
+  --_color-error:           #e57373;
+  --_color-error-subtle:    #2a1515;
+  --_color-success:         #7fd1a5;
+  --_color-success-subtle:  #15241c;
+  --_color-warning-subtle:  #2b1d14;
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     LAYER 2 — SEMANTIC TOKENS (public — what all components consume)
+     ═════════════════════════════════════════════════════════════════════════ */
+
+  /* ─── Surfaces ────────────────────────────────────────────────────────────
+     --bg-base      = app/page background (Layer 0)
+     --bg-surface   = default cards, panels, sections (Layer 1)
+     --bg-elevated  = emphasized or active grouped content (Layer 2)
+     --bg-overlay   = modals, sheets, dropdowns (Layer 3)
+     --bg-inset     = nested containers, table bodies, inset areas
+     --bg-dim       = scrims, backdrops, de-emphasis zones
+     --bg-hover     = transient row/item hover wash — NOT a structural layer
+  */
+  --bg-base:                var(--_color-charcoal-base);
+  --bg-surface:             var(--_color-charcoal-low);
+  --bg-elevated:            var(--_color-charcoal-mid);
+  --bg-overlay:             var(--_color-charcoal-high);
+  --bg-inset:               var(--_color-charcoal-inset);
+  --bg-dim:                 var(--_color-charcoal-dim);
+  --bg-hover:               rgba(240, 238, 235, 0.04);
+
+  /* ─── Text ──────────────────────────────────────────────────────────────── */
+  --text-primary:           var(--_color-white);
+  --text-secondary:         var(--_color-white-muted);
+  --text-disabled:          var(--_color-white-faint);
+  --text-on-accent:         var(--_color-teal-on);
+  --text-on-dark:           var(--_color-white);
+
+  /* ─── Accent ────────────────────────────────────────────────────────────── */
+  --accent-primary:         var(--_color-teal-primary);
+  --accent-on:              var(--_color-teal-on);
+  --accent-subtle:          var(--_color-teal-subtle);
+  --accent-warm:            var(--_color-amber);
+
+  /* Button state tokens */
+  --accent-primary-hover:   color-mix(in srgb, var(--_color-teal-primary) 92%, white);
+  --accent-primary-active:  color-mix(in srgb, var(--_color-teal-primary) 84%, black);
+  --ghost-hover-bg:         rgba(122, 213, 221, 0.06);
+  --ghost-hover-text:       var(--_color-teal-primary);
+
+  /* ─── Borders ─────────────────────────────────────────────────────────────
+     --border-muted       = table row separators, low-emphasis dividers (faintest)
+     --border-subtle      = card outlines, container boundaries (default)
+     --border-interactive = hover/selected state on cards, slots
+     --border-focus       = keyboard focus ring — must be unmistakable
+  */
+  --border-muted:           rgba(240, 238, 235, 0.05);
+  --border-subtle:          rgba(240, 238, 235, 0.08);
+  --border-interactive:     rgba(122, 213, 221, 0.25);
+  --border-focus:           rgba(122, 213, 221, 0.40);
+
+  /* ─── State / Status ────────────────────────────────────────────────────── */
+  --state-error:            var(--_color-error);
+  --state-error-subtle:     var(--_color-error-subtle);
+  --state-success:          var(--_color-success);
+  --state-success-subtle:   var(--_color-success-subtle);
+  --state-warning:          var(--_color-amber);
+  --state-warning-subtle:   var(--_color-warning-subtle);
+
+  /* ─── Spacing Tiers ───────────────────────────────────────────────────────
+     comfortable = customer-facing flows
+     compact     = admin operational surfaces
+  */
+  --spacing-comfortable-x:  1.25rem;
+  --spacing-comfortable-y:  1.5rem;
+  --spacing-compact-x:      0.75rem;
+  --spacing-compact-y:      0.75rem;
+
+  --space-comfortable-1:    0.75rem;
+  --space-comfortable-2:    1rem;
+  --space-comfortable-3:    1.5rem;
+
+  --space-compact-1:        0.5rem;
+  --space-compact-2:        0.75rem;
+  --space-compact-3:        1rem;
+
+  /* ─── Radius ─────────────────────────────────────────────────────────────── */
+  --radius-sm:              0.5rem;
+  --radius-md:              0.75rem;
+  --radius-lg:              1rem;
+  --radius-xl:              1.5rem;
+
+  /* ─── Elevation ──────────────────────────────────────────────────────────── */
+  --shadow-sm:              0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md:              0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-lg:              0 16px 48px rgba(0, 0, 0, 0.36);
+
+  /* ─── Blur ───────────────────────────────────────────────────────────────── */
+  --blur-sm:                8px;
+  --blur-md:                16px;
+
+  /* ─── Motion ─────────────────────────────────────────────────────────────── */
+  --ease-standard:          cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast:          150ms;
+  --duration-base:          250ms;
+
+  /* ─── Shadcn bridge (legacy compatibility — do not delete until all components migrated) ─── */
+  --background:             var(--bg-base);
+  --foreground:             var(--text-primary);
+  --card:                   var(--bg-surface);
+  --card-foreground:        var(--text-primary);
+  --popover:                var(--bg-overlay);
+  --popover-foreground:     var(--text-primary);
+  --primary:                var(--accent-primary);
+  --primary-foreground:     var(--text-on-accent);
+  --secondary:              var(--bg-elevated);
+  --secondary-foreground:   var(--text-primary);
+  --muted:                  var(--bg-inset);
+  --muted-foreground:       var(--text-secondary);
+  --accent:                 var(--accent-subtle);
+  --accent-foreground:      var(--accent-primary);
+  --destructive:            var(--state-error);
+  --destructive-foreground: var(--text-on-dark);
+  --border:                 var(--border-subtle);
+  --input:                  var(--border-subtle);
+  --ring:                   var(--border-focus);
+  --radius:                 var(--radius-md);
+  --sidebar:                var(--bg-surface);
+  --sidebar-foreground:     var(--text-primary);
+  --sidebar-primary:        var(--accent-primary);
+  --sidebar-primary-foreground: var(--text-on-accent);
+  --sidebar-accent:         var(--bg-elevated);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border:         var(--border-subtle);
+  --sidebar-ring:           var(--border-focus);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
-}
-
+/* ─── Tailwind Bridge ─────────────────────────────────────────────────────── */
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans:                  var(--font-inter);
+  --font-display:               var(--font-serif);
+  --font-mono:                  'Geist Mono', 'Geist Mono Fallback';
+
+  --color-background:           var(--bg-base);
+  --color-foreground:           var(--text-primary);
+  --color-surface:              var(--bg-surface);
+  --color-elevated:             var(--bg-elevated);
+  --color-overlay:              var(--bg-overlay);
+  --color-inset:                var(--bg-inset);
+  --color-dim:                  var(--bg-dim);
+
+  --color-card:                 var(--bg-surface);
+  --color-card-foreground:      var(--text-primary);
+  --color-popover:              var(--bg-overlay);
+  --color-popover-foreground:   var(--text-primary);
+
+  --color-primary:              var(--accent-primary);
+  --color-primary-foreground:   var(--text-on-accent);
+  --color-secondary:            var(--bg-elevated);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted:                var(--bg-inset);
+  --color-muted-foreground:     var(--text-secondary);
+  --color-accent:               var(--accent-subtle);
+  --color-accent-foreground:    var(--accent-primary);
+  --color-destructive:          var(--state-error);
+  --color-destructive-foreground: var(--text-on-dark);
+
+  --color-border:               var(--border-subtle);
+  --color-border-muted:         var(--border-muted);
+  --color-border-focus:         var(--border-focus);
+  --color-border-interactive:   var(--border-interactive);
+  --color-input:                var(--border-subtle);
+  --color-ring:                 var(--border-focus);
+
+  --color-sidebar:              var(--bg-surface);
+  --color-sidebar-foreground:   var(--text-primary);
+  --color-sidebar-primary:      var(--accent-primary);
+  --color-sidebar-primary-foreground: var(--text-on-accent);
+  --color-sidebar-accent:       var(--bg-elevated);
+  --color-sidebar-accent-foreground: var(--text-primary);
+  --color-sidebar-border:       var(--border-subtle);
+  --color-sidebar-ring:         var(--border-focus);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 }
 
+/* ─── Base ────────────────────────────────────────────────────────────────── */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--bg-base);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
