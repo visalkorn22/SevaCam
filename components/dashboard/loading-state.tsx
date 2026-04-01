@@ -6,7 +6,7 @@ export function LoadingState() {
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="glass-card">
+          <Card key={i} className="">
             <CardHeader className="pb-2">
               <Skeleton className="h-4 w-24" />
             </CardHeader>
@@ -17,7 +17,7 @@ export function LoadingState() {
           </Card>
         ))}
       </div>
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <Skeleton className="h-6 w-48" />
         </CardHeader>

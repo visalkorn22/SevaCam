@@ -153,30 +153,30 @@ export default async function AdminDashboard() {
 
         {/* System Overview */}
         <div className="grid gap-6 md:grid-cols-2">
-          <Card className="glass-card">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Quick Stats</CardTitle>
               <CardDescription>Key performance indicators</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/80 px-4 py-3">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between rounded-(--radius-md) bg-(--bg-elevated) px-4 py-3">
+                <span className="text-sm text-(--text-secondary)">
                   Cancellation Rate
                 </span>
                 <span className="text-sm font-semibold">
                   {stats.cancellationRate.toFixed(1)}%
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/80 px-4 py-3">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between rounded-(--radius-md) bg-(--bg-elevated) px-4 py-3">
+                <span className="text-sm text-(--text-secondary)">
                   Total Reviews
                 </span>
                 <span className="text-sm font-semibold">
                   {stats.totalReviews}
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/80 px-4 py-3">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between rounded-(--radius-md) bg-(--bg-elevated) px-4 py-3">
+                <span className="text-sm text-(--text-secondary)">
                   Active Users
                 </span>
                 <span className="text-sm font-semibold">
@@ -186,7 +186,7 @@ export default async function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="glass-card">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Quick Tasks</CardTitle>
               <CardDescription>Common administrative tasks</CardDescription>
@@ -194,37 +194,37 @@ export default async function AdminDashboard() {
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <Link
                 href="/admin/services"
-                className="group rounded-2xl border border-border/60 bg-card/80 p-4 transition hover:border-primary/40 hover:bg-primary/5"
+                className="group rounded-2xl bg-(--bg-elevated) p-4 transition-colors duration-150 hover:bg-(--bg-hover)"
               >
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-(--accent-subtle) text-(--accent-primary)">
                   <Briefcase className="size-4" />
                 </div>
                 <p className="mt-3 text-sm font-semibold">Manage Services</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-(--text-secondary)">
                   Create or edit services
                 </p>
               </Link>
               <Link
                 href="/admin/bookings"
-                className="group rounded-2xl border border-border/60 bg-card/80 p-4 transition hover:border-primary/40 hover:bg-primary/5"
+                className="group rounded-2xl bg-(--bg-elevated) p-4 transition-colors duration-150 hover:bg-(--bg-hover)"
               >
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-(--accent-subtle) text-(--accent-primary)">
                   <Calendar className="size-4" />
                 </div>
                 <p className="mt-3 text-sm font-semibold">View Bookings</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-(--text-secondary)">
                   Track upcoming appointments
                 </p>
               </Link>
               <Link
                 href="/admin/staff"
-                className="group rounded-2xl border border-border/60 bg-card/80 p-4 transition hover:border-primary/40 hover:bg-primary/5"
+                className="group rounded-2xl bg-(--bg-elevated) p-4 transition-colors duration-150 hover:bg-(--bg-hover)"
               >
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-(--accent-subtle) text-(--accent-primary)">
                   <Users className="size-4" />
                 </div>
                 <p className="mt-3 text-sm font-semibold">Manage Staff</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-(--text-secondary)">
                   Update roles and access
                 </p>
               </Link>
