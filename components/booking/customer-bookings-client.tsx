@@ -28,12 +28,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { ReviewDialog } from "@/components/booking/ReviewDialog";
 
 export type CustomerBookingsUser = {
   id: string;
   email: string;
   full_name?: string | null;
   timezone?: string | null;
+};
+
+type BookingReviewSummary = {
+  id: string;
+  rating: number;
 };
 
 type BookingRow = {
@@ -52,6 +58,7 @@ type BookingRow = {
   staff_name?: string | null;
   customer_name?: string | null;
   service_price?: number | string | null;
+  review?: BookingReviewSummary | null;
 };
 
 type BookingLogRow = {
@@ -135,6 +142,7 @@ export default function CustomerBookingsClient({
   const [cancelReason, setCancelReason] = useState("");
   const [cancelLoading, setCancelLoading] = useState(false);
   const [rebookLoadingId, setRebookLoadingId] = useState<string | null>(null);
+  const [reviewBooking, setReviewBooking] = useState<BookingRow | null>(null);
 
   const loadBookings = async () => {
     try {
@@ -151,6 +159,16 @@ export default function CustomerBookingsClient({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load bookings");
     }
+  };
+
+  const onReviewSubmitted = (
+    bookingId: string,
+    review: BookingReviewSummary,
+  ) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, review } : b)),
+    );
+    setReviewBooking(null);
   };
 
   const loadWaitlist = async () => {
@@ -417,6 +435,12 @@ export default function CustomerBookingsClient({
               onEdit={canEdit ? () => openReschedule(booking) : undefined}
               onCancel={canEdit ? () => setCancelBooking(booking) : undefined}
               onBook={canBookAgain ? () => handleRebook(booking) : undefined}
+              review={booking.review ?? null}
+              onReviewSubmit={
+                booking.status === "completed" && !booking.review
+                  ? () => setReviewBooking(booking)
+                  : undefined
+              }
             />
           );
         })}
@@ -761,6 +785,18 @@ export default function CustomerBookingsClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {reviewBooking && (
+        <ReviewDialog
+          open={reviewBooking !== null}
+          onOpenChange={(open) => {
+            if (!open) setReviewBooking(null);
+          }}
+          bookingId={reviewBooking.id}
+          serviceName={reviewBooking.service_name || "Service"}
+          onSuccess={(review) => onReviewSubmitted(reviewBooking.id, review)}
+        />
+      )}
     </div>
   );
 }
