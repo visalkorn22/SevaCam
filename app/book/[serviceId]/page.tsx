@@ -5,6 +5,10 @@ import Link from "next/link";
 import { Playfair_Display } from "next/font/google";
 import { BookingForm } from "@/components/booking/booking-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import {
+  ServiceReviews,
+  type ServiceReviewsData,
+} from "@/components/booking/ServiceReviews";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, Clock, DollarSign, Tag, Users } from "lucide-react";
 
@@ -102,6 +106,21 @@ async function getServiceStaff(serviceId: string): Promise<StaffOption[]> {
   }
 }
 
+async function getServiceReviews(
+  serviceId: string,
+): Promise<ServiceReviewsData | null> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  try {
+    const res = await fetch(`${apiUrl}/api/services/${serviceId}/reviews`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as ServiceReviewsData;
+  } catch {
+    return null;
+  }
+}
+
 const themeStyle = {
   "--booking-bg": "oklch(0.07 0.02 240)",
   "--booking-accent": "oklch(0.52 0.22 200)",
@@ -140,6 +159,7 @@ export default async function BookServicePage({
   if (!service) notFound();
 
   const staff = await getServiceStaff(serviceId);
+  const reviewsData = await getServiceReviews(serviceId);
 
   const images = service.image_urls?.length
     ? service.image_urls
@@ -249,6 +269,8 @@ export default async function BookServicePage({
                 </div>
               ) : null}
             </div>
+
+            <ServiceReviews data={reviewsData} />
           </div>
 
           <div className="lg:sticky lg:top-8 lg:self-start">

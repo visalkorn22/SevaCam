@@ -31,6 +31,8 @@ interface BookingCardProps {
   onEdit?: () => void;
   onCancel?: () => void;
   onViewDetails?: () => void;
+  review?: { id: string; rating: number } | null;
+  onReviewSubmit?: () => void;
 }
 
 const statusConfig = {
@@ -79,6 +81,8 @@ export function BookingCard({
   onEdit,
   onCancel,
   onViewDetails,
+  review,
+  onReviewSubmit,
 }: BookingCardProps) {
   const config = statusConfig[status];
 
@@ -218,6 +222,22 @@ export function BookingCard({
                   Book Again
                 </Button>
               )}
+            {status === "completed" && !review && onReviewSubmit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onReviewSubmit}
+                className="rounded-full border-border/60 px-5 text-[11px] font-semibold uppercase tracking-[0.15em] hover:bg-muted/50"
+              >
+                Leave a Review
+              </Button>
+            )}
+            {status === "completed" && review && (
+              <span className="flex items-center gap-1 rounded-full border border-border/60 bg-muted/30 px-3 py-1 text-[11px] font-semibold text-amber-500">
+                {"★".repeat(review.rating)}
+                {"☆".repeat(5 - review.rating)} Reviewed
+              </span>
+            )}
           </div>
         </div>
       </div>

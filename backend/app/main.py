@@ -27,7 +27,7 @@ app.include_router(availability.router, prefix="/api/availability")
 app.include_router(admin.router)
 
 if settings.FEATURE_SET == "full":
-    from app.api import bookings, payments, notifications, analytics, customers, waitlist
+    from app.api import bookings, payments, notifications, analytics, customers, waitlist, reviews
 
     app.include_router(bookings.router, prefix="/api/bookings")
     app.include_router(payments.router, prefix="/api/payments")
@@ -35,6 +35,7 @@ if settings.FEATURE_SET == "full":
     app.include_router(analytics.router, prefix="/api/analytics")
     app.include_router(customers.router)
     app.include_router(waitlist.router, prefix="/api/waitlist")
+    app.include_router(reviews.router, prefix="/api/reviews")
 
 @app.get("/health")
 def health():

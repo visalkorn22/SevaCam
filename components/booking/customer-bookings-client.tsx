@@ -41,6 +41,11 @@ export type CustomerBookingsUser = {
   timezone?: string | null;
 };
 
+type BookingReviewSummary = {
+  id: string;
+  rating: number;
+};
+
 type BookingRow = {
   id: string;
   service_id: string;
@@ -57,6 +62,7 @@ type BookingRow = {
   staff_name?: string | null;
   customer_name?: string | null;
   service_price?: number | string | null;
+  review?: BookingReviewSummary | null;
 };
 
 type BookingLogRow = {
@@ -142,6 +148,7 @@ export default function CustomerBookingsClient({
   const [cancelReason, setCancelReason] = useState("");
   const [cancelLoading, setCancelLoading] = useState(false);
   const [rebookLoadingId, setRebookLoadingId] = useState<string | null>(null);
+  const [reviewBooking, setReviewBooking] = useState<BookingRow | null>(null);
 
   const loadBookings = async () => {
     try {
@@ -158,6 +165,16 @@ export default function CustomerBookingsClient({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load bookings");
     }
+  };
+
+  const onReviewSubmitted = (
+    bookingId: string,
+    review: BookingReviewSummary,
+  ) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, review } : b)),
+    );
+    setReviewBooking(null);
   };
 
   const loadWaitlist = async () => {
@@ -390,7 +407,11 @@ export default function CustomerBookingsClient({
           <p className="mt-2 text-sm text-muted-foreground">
             Browse services and book your next appointment.
           </p>
-          <Button asChild size="sm" className="mt-6 rounded-full px-6 text-[11px] font-bold uppercase tracking-[0.2em]">
+          <Button
+            asChild
+            size="sm"
+            className="mt-6 rounded-full px-6 text-[11px] font-bold uppercase tracking-[0.2em]"
+          >
             <a href="/services">Explore Services</a>
           </Button>
         </div>
@@ -426,6 +447,12 @@ export default function CustomerBookingsClient({
               onEdit={canEdit ? () => openReschedule(booking) : undefined}
               onCancel={canEdit ? () => setCancelBooking(booking) : undefined}
               onBook={canBookAgain ? () => handleRebook(booking) : undefined}
+              review={booking.review ?? null}
+              onReviewSubmit={
+                booking.status === "completed" && !booking.review
+                  ? () => setReviewBooking(booking)
+                  : undefined
+              }
             />
           );
         })}
@@ -565,13 +592,19 @@ export default function CustomerBookingsClient({
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Date</span>
                   <span className="font-semibold">
-                    {formatDateInTimeZone(detailsBooking.start_time_utc, timezone)}
+                    {formatDateInTimeZone(
+                      detailsBooking.start_time_utc,
+                      timezone,
+                    )}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-muted-foreground">Time</span>
                   <span className="font-semibold">
-                    {formatTimeInTimeZone(detailsBooking.start_time_utc, timezone)}
+                    {formatTimeInTimeZone(
+                      detailsBooking.start_time_utc,
+                      timezone,
+                    )}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
@@ -639,8 +672,14 @@ export default function CustomerBookingsClient({
                               </p>
                             ) : null}
                             <p className="mt-1 text-muted-foreground">
-                              {formatDateInTimeZone(change.created_at, timezone)}{" "}
-                              {formatTimeInTimeZone(change.created_at, timezone)}
+                              {formatDateInTimeZone(
+                                change.created_at,
+                                timezone,
+                              )}{" "}
+                              {formatTimeInTimeZone(
+                                change.created_at,
+                                timezone,
+                              )}
                             </p>
                           </div>
                         ))}
@@ -786,6 +825,18 @@ export default function CustomerBookingsClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {reviewBooking && (
+        <ReviewDialog
+          open={reviewBooking !== null}
+          onOpenChange={(open) => {
+            if (!open) setReviewBooking(null);
+          }}
+          bookingId={reviewBooking.id}
+          serviceName={reviewBooking.service_name || "Service"}
+          onSuccess={(review) => onReviewSubmitted(reviewBooking.id, review)}
+        />
+      )}
     </div>
   );
 }

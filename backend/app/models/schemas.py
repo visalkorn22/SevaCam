@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime, date, time
 from decimal import Decimal
@@ -442,11 +442,16 @@ class BookingResponse(BaseModel):
     customer_timezone: str
     created_at: datetime
 
+class BookingReviewSummary(BaseModel):
+    id: str
+    rating: int
+
 class BookingWithDetails(BookingResponse):
     service_name: Optional[str] = None
     staff_name: Optional[str] = None
     customer_name: Optional[str] = None
     service_price: Optional[Decimal] = None
+    review: Optional[BookingReviewSummary] = None
 
 class BookingChangeResponse(BaseModel):
     id: str
@@ -519,7 +524,7 @@ class PaymentIntent(BaseModel):
 # Review Schemas
 class ReviewCreate(BaseModel):
     booking_id: str
-    rating: int  # 1-5
+    rating: int = Field(..., ge=1, le=5)
     comment: Optional[str] = None
 
 class ReviewResponse(BaseModel):
