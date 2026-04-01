@@ -34,3 +34,6 @@ __pycache__/
 # uploads
 /backend/uploads/
 /backend/app/uploads/
+
+# git worktrees
+.worktrees/
