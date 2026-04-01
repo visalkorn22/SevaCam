@@ -12,7 +12,7 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
       data-slot="input"
       className={cn(
         // Shared base
-        'w-full min-w-0 bg-[var(--bg-surface)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-disabled)] outline-none transition-[background-color,border-color,box-shadow] duration-[150ms] ease-[cubic-bezier(0.4,0,0.2,1)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 file:border-0 file:bg-transparent file:text-sm file:font-medium',
+        'w-full min-w-0 bg-[var(--bg-surface)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-disabled)] outline-none transition-[background-color,border-color,box-shadow] duration-150 ease-in-out disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 file:border-0 file:bg-transparent file:text-sm file:font-medium',
         // Container-style controls (date, time, etc.)
         isContainer
           ? 'h-9 rounded-[var(--radius-md)] border border-[var(--border-subtle)] px-3 py-1 focus-visible:border-[var(--border-focus)] focus-visible:shadow-[inset_0_0_0_1px_var(--border-focus)]'
