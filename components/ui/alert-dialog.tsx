@@ -34,7 +34,7 @@ function AlertDialogOverlay({
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
       className={cn(
-        "motion-overlay fixed inset-0 z-50 bg-black/50 data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none",
+        "motion-overlay fixed inset-0 z-50 bg-(--bg-dim)/60 data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none",
         className,
       )}
       {...props}
@@ -52,7 +52,7 @@ function AlertDialogContent({
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         className={cn(
-          "motion-surface fixed left-1/2 top-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-6 shadow-[var(--shadow-overlay)] data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none",
+          "motion-surface fixed left-1/2 top-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-(--bg-overlay) p-6 shadow-(--shadow-lg) data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none",
           className,
         )}
         {...props}
@@ -88,7 +88,7 @@ function AlertDialogTitle({
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
-      className={cn("text-base font-semibold text-foreground", className)}
+      className={cn("text-base font-semibold text-(--text-primary)", className)}
       {...props}
     />
   );
@@ -101,7 +101,7 @@ function AlertDialogDescription({
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-sm text-(--text-secondary)", className)}
       {...props}
     />
   );
