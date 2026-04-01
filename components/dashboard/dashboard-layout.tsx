@@ -84,12 +84,12 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       : flatNavItems.map((item) => ({ title: item.title, href: item.href }));
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-20 border-b border-border/40 bg-background">
+    <div className="min-h-screen bg-(--bg-base)">
+      <header className="sticky top-0 z-20 border-b border-(--border-muted) bg-(--bg-base)/95 backdrop-blur-sm supports-backdrop-filter:bg-(--bg-base)/80">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-10">
             <Link href="/" className="text-base font-semibold tracking-tight">
-              AICSER <span className="text-primary">Admin</span>
+              AICSER <span className="text-(--accent-primary)">Admin</span>
             </Link>
 
             <nav className="hidden items-center gap-6 md:flex">
@@ -104,8 +104,8 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
                     href={item.href}
                     className={`text-sm font-medium motion-standard ${
                       isActive
-                        ? "text-primary"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "text-(--accent-primary)"
+                        : "text-(--text-secondary) hover:text-(--text-primary)"
                     }`}
                   >
                     {item.title}
@@ -120,7 +120,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
               <Input
                 type="search"
                 placeholder="Search..."
-                className="h-10 rounded-full border-border bg-card shadow-[var(--shadow-card)]"
+                className="h-10 rounded-full border-(--border-muted) bg-(--bg-surface) shadow-(--shadow-card)"
               />
             </div>
             {isMounted && (
@@ -175,7 +175,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         {(title || subtitle) && (
           <div className="mb-6">
             {subtitle ? (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
+              <p className="text-sm text-(--text-secondary)">{subtitle}</p>
             ) : null}
             <h1 className="text-2xl font-semibold tracking-tight">
               {pageTitle}
