@@ -626,3 +626,66 @@ async def get_service_staff(service_id: str, db: Session = Depends(get_db)):
         }
         for row in result.fetchall()
     ]
+
+
+def _format_customer_name(full_name: str | None) -> str:
+    """Return 'First L.' format for privacy, e.g. 'Jane D.'"""
+    if not full_name:
+        return "Customer"
+    parts = full_name.strip().split()
+    if len(parts) == 1:
+        return parts[0]
+    return f"{parts[0]} {parts[-1][0]}."
+
+
+@router.get("/{service_id}/reviews")
+async def get_service_reviews(service_id: str, db: Session = Depends(get_db)):
+    """Public endpoint: approved review summary for a service."""
+    agg_row = db.execute(
+        text(
+            """
+            SELECT COUNT(*) AS review_count, AVG(r.rating) AS average_rating
+            FROM reviews r
+            JOIN bookings b ON r.booking_id = b.id
+            WHERE b.service_id = :service_id AND r.is_approved = true
+            """
+        ),
+        {"service_id": service_id},
+    ).fetchone()
+
+    review_count = int(agg_row[0]) if agg_row else 0
+    raw_avg = agg_row[1] if agg_row else None
+    average_rating = round(float(raw_avg), 1) if raw_avg is not None else None
+
+    rows = db.execute(
+        text(
+            """
+            SELECT r.rating, r.comment, r.created_at, c.full_name
+            FROM reviews r
+            JOIN bookings b ON r.booking_id = b.id
+            JOIN customers c ON b.customer_id = c.id
+            WHERE b.service_id = :service_id AND r.is_approved = true
+            ORDER BY r.created_at DESC
+            LIMIT 10
+            """
+        ),
+        {"service_id": service_id},
+    ).fetchall()
+
+    reviews = [
+        {
+            "rating": row[0],
+            "comment": row[1],
+            "created_at": (
+                row[2].isoformat() if hasattr(row[2], "isoformat") else str(row[2])
+            ),
+            "customer_name": _format_customer_name(row[3]),
+        }
+        for row in rows
+    ]
+
+    return {
+        "average_rating": average_rating,
+        "review_count": review_count,
+        "reviews": reviews,
+    }

@@ -976,11 +976,13 @@ async def get_bookings(
     """Get bookings with filters"""
     query = """
         SELECT b.*, s.name as service_name, s.price as service_price,
-               u.full_name as staff_name, c.full_name as customer_name
+               u.full_name as staff_name, c.full_name as customer_name,
+               r.id as review_id, r.rating as review_rating
         FROM bookings b
         LEFT JOIN services s ON b.service_id = s.id
         LEFT JOIN users u ON b.staff_id = u.id
         LEFT JOIN customers c ON b.customer_id = c.id
+        LEFT JOIN reviews r ON r.booking_id = b.id
         WHERE 1=1
     """
     params = {}
@@ -1020,7 +1022,18 @@ async def get_bookings(
     
     result = db.execute(query, params)
     bookings = result.fetchall()
-    return [dict(row._mapping) for row in bookings]
+    rows = []
+    for row in bookings:
+        d = dict(row._mapping)
+        review_id = d.pop("review_id", None)
+        review_rating = d.pop("review_rating", None)
+        d["review"] = (
+            {"id": str(review_id), "rating": int(review_rating)}
+            if review_id is not None
+            else None
+        )
+        rows.append(d)
+    return rows
 
 @router.put("/{booking_id}", response_model=BookingResponse)
 async def update_booking(
