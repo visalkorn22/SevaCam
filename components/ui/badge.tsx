@@ -6,32 +6,32 @@ import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
   // Base: all-caps Inter label-md, no border, radius-sm
-  'inline-flex items-center justify-center rounded-[var(--radius-sm)] px-2 py-0.5 text-[0.6875rem] font-semibold tracking-[0.10em] uppercase w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none overflow-hidden',
+  'inline-flex items-center justify-center rounded-(--radius-sm) px-2 py-0.5 text-[0.6875rem] font-semibold tracking-[0.10em] uppercase w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none overflow-hidden',
   {
     variants: {
       variant: {
         // Booking status variants — use these in booking/account flows
         pending:
-          'bg-[var(--accent-subtle)] text-[var(--accent-primary)]',
+          'bg-(--accent-subtle) text-(--accent-primary)',
         confirmed:
-          'bg-[var(--state-success-subtle)] text-[var(--state-success)]',
+          'bg-(--state-success-subtle) text-(--state-success)',
         cancelled:
-          'bg-[var(--state-error-subtle)] text-[var(--state-error)]',
+          'bg-(--state-error-subtle) text-(--state-error)',
         completed:
-          'bg-[var(--bg-elevated)] text-[var(--text-secondary)]',
+          'bg-(--bg-elevated) text-(--text-secondary)',
         'no-show':
-          'bg-[var(--bg-inset)] text-[var(--text-disabled)]',
+          'bg-(--bg-inset) text-(--text-disabled)',
         warning:
-          'bg-[var(--state-warning-subtle)] text-[var(--state-warning)]',
+          'bg-(--state-warning-subtle) text-(--state-warning)',
         // Legacy variants — kept for shadcn compatibility during migration
         default:
-          'bg-[var(--accent-primary)] text-[var(--text-on-accent)]',
+          'bg-(--accent-primary) text-(--text-on-accent)',
         secondary:
-          'bg-[var(--bg-elevated)] text-[var(--text-secondary)]',
+          'bg-(--bg-elevated) text-(--text-secondary)',
         destructive:
-          'bg-[var(--state-error-subtle)] text-[var(--state-error)]',
+          'bg-(--state-error-subtle) text-(--state-error)',
         outline:
-          'border border-[var(--border-subtle)] text-[var(--text-primary)]',
+          'border border-(--border-subtle) text-(--text-primary)',
       },
     },
     defaultVariants: {
