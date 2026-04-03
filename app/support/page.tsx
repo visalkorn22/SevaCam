@@ -44,7 +44,7 @@ export default async function SupportPage() {
         <p className="text-muted-foreground">We are here to help.</p>
       </div>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <div className="flex items-center gap-2">
             <HelpCircle className="size-5 text-muted-foreground" />

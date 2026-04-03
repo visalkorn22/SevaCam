@@ -790,11 +790,11 @@ export default function EnhancedServiceForm({
   };
 
   return (
-    <div className="space-y-8 rounded-3xl border border-border/40 bg-card/80 p-6 shadow-sm">
-      {/* Progress Steps */}
-      <div className="border-b border-border/30 pb-6">
+    <div className="sevacam-rail overflow-hidden">
+      {/* Step navigator */}
+      <div className="border-b border-(--border-subtle) bg-(--bg-base) px-6 py-5 sm:px-8">
         <nav aria-label="Progress">
-          <ol className="flex flex-wrap items-center justify-center gap-6">
+          <ol className="flex flex-wrap items-center gap-1">
             {steps.map((step, index) => {
               const Icon = step.icon;
               const isActive = index === currentStep;
@@ -802,36 +802,43 @@ export default function EnhancedServiceForm({
 
               return (
                 <li key={step.id} className="flex items-center">
-                  <div className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(index)}
-                      className={`flex h-14 w-14 items-center justify-center rounded-full border-2 transition ${
-                        isActive
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : isCompleted
-                            ? "border-primary/40 bg-primary/10 text-primary"
-                            : "border-border/60 bg-background text-muted-foreground hover:border-primary/40 hover:text-primary"
-                      }`}
-                      aria-label={step.title}
-                      title={step.title}
-                    >
-                      <Icon className="h-6 w-6" />
-                    </button>
-                    <div className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground opacity-0 shadow-sm transition group-hover:opacity-100">
-                      {step.title}
-                    </div>
-                  </div>
-
+                  {index > 0 && (
+                    <div className={`mx-1 h-px w-6 transition-colors ${isCompleted ? "bg-(--accent-primary)" : "bg-(--border-subtle)"}`} />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(index)}
+                    className={`group relative flex items-center gap-2.5 rounded-full px-3.5 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] transition-all duration-200 ${
+                      isActive
+                        ? "bg-(--accent-primary) text-(--text-on-accent) shadow-[0_4px_16px_rgba(122,213,221,0.25)]"
+                        : isCompleted
+                          ? "bg-(--accent-primary)/15 text-(--accent-primary)"
+                          : "bg-(--bg-elevated) text-(--text-secondary) hover:text-(--text-primary)"
+                    }`}
+                    aria-label={step.title}
+                  >
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    <span className="hidden sm:inline">{step.title}</span>
+                  </button>
                 </li>
               );
             })}
           </ol>
         </nav>
+
+        {/* Current step info */}
+        <div className="mt-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--accent-primary)">
+            Step {currentStep + 1} of {steps.length}
+          </p>
+          <p className="mt-1 text-[0.82rem] text-(--text-secondary)">
+            {steps[currentStep]?.description}
+          </p>
+        </div>
       </div>
 
       {/* Form Content */}
-      <div className="min-h-96">
+      <div className="min-h-96 px-6 py-7 sm:px-8">
         {steps[currentStep]?.id === "basic" && (
           <EnhancedBasicInformation
             formData={formData}
@@ -895,18 +902,19 @@ export default function EnhancedServiceForm({
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4">
-          <p className="text-sm text-destructive">{error}</p>
+        <div className="mx-6 mb-2 rounded-[0.75rem] border border-(--state-warning)/20 bg-(--state-warning-subtle) px-4 py-4 sm:mx-8">
+          <p className="text-sm text-(--state-warning)">{error}</p>
         </div>
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between pt-6 border-t border-border/30">
+      <div className="flex items-center justify-between border-t border-(--border-subtle) px-6 py-5 sm:px-8">
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
           disabled={currentStep === 0}
+          className="sevacam-secondary-button h-10 rounded-[0.22rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.18em] disabled:opacity-30"
         >
           Previous
         </Button>
@@ -916,7 +924,7 @@ export default function EnhancedServiceForm({
             <Button
               onClick={handleSubmit}
               disabled={isSaving || uniqueStaffIds.length === 0}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="sevacam-primary-button h-10 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
             >
               {isSaving ? "Saving..." : "Update Service"}
             </Button>
@@ -925,10 +933,8 @@ export default function EnhancedServiceForm({
           {currentStep < steps.length - 1 ? (
             <Button
               type="button"
-              onClick={() =>
-                setCurrentStep(Math.min(steps.length - 1, currentStep + 1))
-              }
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={() => setCurrentStep(Math.min(steps.length - 1, currentStep + 1))}
+              className="sevacam-primary-button h-10 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
             >
               Next Step
             </Button>
@@ -936,9 +942,9 @@ export default function EnhancedServiceForm({
             <Button
               onClick={handleSubmit}
               disabled={isSaving || uniqueStaffIds.length === 0}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="sevacam-primary-button h-10 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em] disabled:opacity-40"
             >
-              {isSaving ? "Saving..." : "Create Service"}
+              {isSaving ? "Creating..." : "Create Service"}
             </Button>
           ) : null}
         </div>

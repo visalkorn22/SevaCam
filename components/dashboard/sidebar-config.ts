@@ -93,16 +93,16 @@ const staffSections: SidebarSection[] = [
 
 const adminSections: SidebarSection[] = [
   {
-    title: "Admin",
+    title: "Core",
     items: [
       {
-        title: "Admin Dashboard",
+        title: "Overview",
         icon: LayoutDashboard,
         href: "/admin/dashboard",
       },
-      { title: "User Management", icon: Users, href: "/admin/staff" },
+      { title: "Staff", icon: Users, href: "/admin/staff" },
       {
-        title: "Role & Permission Management",
+        title: "Roles",
         icon: ShieldCheck,
         href: "/admin/roles",
       },
@@ -121,28 +121,28 @@ const adminSections: SidebarSection[] = [
   {
     title: "Insights",
     items: [
-      { title: "Reports & Analytics", icon: BarChart3, href: "/admin/reports" },
+      { title: "Reports", icon: BarChart3, href: "/admin/reports" },
     ],
   },
   {
     title: "System",
     items: [
-      { title: "System Settings", icon: Settings, href: "/admin/settings" },
+      { title: "Settings", icon: Settings, href: "/admin/settings" },
     ],
   },
 ];
 
 const superAdminSections: SidebarSection[] = [
   {
-    title: "SuperAdmin",
+    title: "Core",
     items: [
       {
-        title: "SuperAdmin Dashboard",
+        title: "Overview",
         icon: LayoutDashboard,
         href: "/admin/dashboard",
       },
-      { title: "Admin Management", icon: ShieldCheck, href: "/admin/admins" },
-      { title: "Full User Management", icon: Users, href: "/admin/staff" },
+      { title: "Admins", icon: ShieldCheck, href: "/admin/admins" },
+      { title: "Staff", icon: Users, href: "/admin/staff" },
     ],
   },
   {
@@ -159,13 +159,13 @@ const superAdminSections: SidebarSection[] = [
     title: "System",
     items: [
       {
-        title: "Global System Settings",
+        title: "Settings",
         icon: Settings,
         href: "/admin/system-settings",
       },
-      { title: "Audit Logs", icon: FileText, href: "/admin/audit-logs" },
+      { title: "Audit", icon: FileText, href: "/admin/audit-logs" },
       {
-        title: "Analytics & Monitoring",
+        title: "Monitoring",
         icon: ClipboardList,
         href: "/admin/monitoring",
       },

@@ -23,6 +23,13 @@ export function AnalyticsCharts() {
   const [serviceStats, setServiceStats] = useState<any[]>([]);
   const [dailyStats, setDailyStats] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const tooltipStyle = {
+    backgroundColor: "#181818",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: "18px",
+    color: "#f0eeeb",
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,30 +67,34 @@ export function AnalyticsCharts() {
 
   if (isLoading) {
     return (
-      <Card className="">
-        <CardContent className="flex h-96 items-center justify-center">
-          <p className="text-muted-foreground">Loading analytics...</p>
+      <Card className="border-white/6 bg-[var(--seva-surface)] text-[var(--seva-text)] shadow-none">
+        <CardContent className="flex h-56 items-center justify-center">
+          <p className="text-white/52">Loading analytics...</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Revenue by Service</CardTitle>
-          <CardDescription>Total revenue generated per service</CardDescription>
+    <div className="grid gap-3 lg:grid-cols-2">
+      <Card className="border-white/6 bg-[var(--seva-surface)] text-[var(--seva-text)] shadow-none">
+        <CardHeader className="pb-0">
+          <CardTitle className="text-[0.92rem] text-[var(--seva-text)]">
+            Revenue by Service
+          </CardTitle>
+          <CardDescription className="text-[0.8rem] text-white/48">
+            Total revenue generated per service
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+        <CardContent className="pt-3">
+          <ResponsiveContainer width="100%" height={190}>
             <BarChart data={serviceStats}>
-              <XAxis dataKey="service_name" fontSize={12} />
-              <YAxis fontSize={12} />
-              <Tooltip />
+              <XAxis dataKey="service_name" fontSize={12} stroke="rgba(240,238,235,0.42)" />
+              <YAxis fontSize={12} stroke="rgba(240,238,235,0.42)" />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
               <Bar
                 dataKey="total_revenue"
-                fill="hsl(var(--primary))"
+                fill="#7ad5dd"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
@@ -91,21 +102,25 @@ export function AnalyticsCharts() {
         </CardContent>
       </Card>
 
-      <Card className="">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Daily Bookings</CardTitle>
-          <CardDescription>Bookings over the last 7 days</CardDescription>
+      <Card className="border-white/6 bg-[var(--seva-surface)] text-[var(--seva-text)] shadow-none">
+        <CardHeader className="pb-0">
+          <CardTitle className="text-[0.92rem] text-[var(--seva-text)]">
+            Daily Bookings
+          </CardTitle>
+          <CardDescription className="text-[0.8rem] text-white/48">
+            Bookings over the last 7 days
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+        <CardContent className="pt-3">
+          <ResponsiveContainer width="100%" height={190}>
             <LineChart data={dailyStats}>
-              <XAxis dataKey="date" fontSize={12} />
-              <YAxis fontSize={12} />
-              <Tooltip />
+              <XAxis dataKey="date" fontSize={12} stroke="rgba(240,238,235,0.42)" />
+              <YAxis fontSize={12} stroke="rgba(240,238,235,0.42)" />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: "rgba(122,213,221,0.18)" }} />
               <Line
                 type="monotone"
                 dataKey="total_bookings"
-                stroke="hsl(var(--primary))"
+                stroke="#7ad5dd"
                 strokeWidth={2}
               />
             </LineChart>

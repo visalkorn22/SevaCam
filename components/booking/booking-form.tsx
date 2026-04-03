@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addMinutes,
   addMonths,
@@ -146,71 +146,186 @@ const getInitials = (name: string) => {
 
 // --- StepIndicator ------------------------------------------------------------
 
-function StepIndicator({ currentStep }: { currentStep: number }) {
+function StepIndicator({
+  currentStep,
+  canGoStep2,
+  canGoStep3,
+  onStepChange,
+}: {
+  currentStep: number;
+  canGoStep2: boolean;
+  canGoStep3: boolean;
+  onStepChange: (step: 1 | 2 | 3) => void;
+}) {
   const steps = [
-    { label: "Provider", Icon: User },
-    { label: "Date & Time", Icon: CalendarDays },
-    { label: "Confirm", Icon: Check },
+    {
+      label: "Provider",
+      helper: "Choose the curator first. Price and availability update instantly.",
+      Icon: User,
+    },
+    {
+      label: "Date & Time",
+      helper: "Select a day, then choose the time window that fits your schedule.",
+      Icon: CalendarDays,
+    },
+    {
+      label: "Confirm",
+      helper: "Review the reservation summary, then continue to payment.",
+      Icon: Check,
+    },
   ];
+
   return (
-    <div className="mb-6 flex items-center gap-0">
-      {steps.map(({ label, Icon }, i) => {
-        const step = i + 1;
-        const isDone = step < currentStep;
-        const isActive = step === currentStep;
-        return (
-          <div key={step} className="flex flex-1 flex-col items-center gap-1.5">
-            <div className="relative flex w-full items-center">
-              {i > 0 && (
-                <div
-                  className={cn(
-                    "h-px flex-1 transition-colors duration-500",
-                    isDone || isActive
-                      ? "bg-(--accent-primary)/60"
-                      : "bg-(--bg-inset)",
-                  )}
-                />
-              )}
-              <div
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300",
-                  isDone
-                    ? "border-(--accent-primary) bg-(--accent-primary) text-(--text-primary)"
-                    : isActive
-                      ? "border-(--accent-primary) bg-(--accent-primary)/15 text-(--accent-primary)"
-                      : "border-(--border-muted) bg-(--bg-elevated) text-(--text-secondary)/80",
+    <div className="mb-6 space-y-3">
+      <div className="flex items-center gap-0">
+        {steps.map(({ label, Icon }, i) => {
+          const step = (i + 1) as 1 | 2 | 3;
+          const isDone = step < currentStep;
+          const isActive = step === currentStep;
+          const isReachable =
+            step === 1 || (step === 2 && canGoStep2) || (step === 3 && canGoStep3);
+
+          return (
+            <div key={step} className="flex flex-1 flex-col items-center gap-1.5">
+              <div className="relative flex w-full items-center">
+                {i > 0 && (
+                  <div
+                    className={cn(
+                      "h-px flex-1 transition-colors duration-500",
+                      isDone || isActive
+                        ? "bg-(--accent-primary)/60"
+                        : "bg-(--bg-inset)",
+                    )}
+                  />
                 )}
-              >
-                {isDone ? (
-                  <Check className="h-3.5 w-3.5" />
-                ) : (
-                  <Icon className="h-3.5 w-3.5" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isReachable) onStepChange(step);
+                  }}
+                  disabled={!isReachable}
+                  aria-current={isActive ? "step" : undefined}
+                  className={cn(
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+                    isDone
+                      ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_10px_22px_rgba(122,213,221,0.18)]"
+                      : isActive
+                        ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_10px_22px_rgba(122,213,221,0.18)]"
+                        : "border-(--border-subtle) bg-(--bg-inset) text-(--text-primary)/70",
+                    isReachable &&
+                      !isActive &&
+                      "hover:-translate-y-0.5 hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
+                    !isReachable && "cursor-not-allowed opacity-45",
+                  )}
+                >
+                  {isDone ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    <Icon className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                {i < steps.length - 1 && (
+                  <div
+                    className={cn(
+                      "h-px flex-1 transition-colors duration-500",
+                      isDone ? "bg-(--accent-primary)/60" : "bg-(--bg-inset)",
+                    )}
+                  />
                 )}
               </div>
-              {i < steps.length - 1 && (
-                <div
-                  className={cn(
-                    "h-px flex-1 transition-colors duration-500",
-                    isDone ? "bg-(--accent-primary)/60" : "bg-(--bg-inset)",
-                  )}
-                />
-              )}
+              <span
+                className={cn(
+                  "text-[9px] font-semibold uppercase tracking-widest transition-colors",
+                  isActive
+                    ? "text-(--text-primary)/90"
+                    : isDone
+                      ? "text-(--accent-primary)/70"
+                      : "text-(--text-secondary)/60",
+                )}
+              >
+                {label}
+              </span>
             </div>
-            <span
+          );
+        })}
+      </div>
+
+      <div
+        aria-live="polite"
+        className="rounded-[0.45rem] border border-(--border-subtle) bg-(--bg-inset) px-3.5 py-3"
+      >
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-secondary)">
+          Current guidance
+        </p>
+        <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
+          <span className="font-semibold text-(--text-primary)">
+            Step {currentStep}:
+          </span>{" "}
+          {steps[currentStep - 1].helper}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SelectionSnapshot({
+  step,
+  staffName,
+  dateLabel,
+  slotLabel,
+}: {
+  step: 1 | 2 | 3;
+  staffName: string | null;
+  dateLabel: string | null;
+  slotLabel: string | null;
+}) {
+  const items = [
+    { label: "Curator", value: staffName, isActive: step === 1 },
+    { label: "Date", value: dateLabel, isActive: step === 2 },
+    { label: "Time", value: slotLabel, isActive: step >= 2 },
+  ];
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mb-6 grid gap-2 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) p-3"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
+          Reservation Path
+        </p>
+        <span className="rounded-full bg-(--accent-primary)/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--accent-primary)">
+          Step {step} of 3
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className={cn(
+              "rounded-[0.45rem] px-3 py-3 transition-colors",
+              item.value
+                ? "bg-(--accent-primary)/8 text-(--text-primary)"
+                : "bg-black/10 text-(--text-secondary)",
+              item.isActive && "bg-(--accent-primary)/12",
+            )}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+              {item.label}
+            </p>
+            <p
               className={cn(
-                "text-[9px] font-semibold uppercase tracking-widest transition-colors",
-                isActive
-                  ? "text-(--text-primary)/90"
-                  : isDone
-                    ? "text-(--accent-primary)/70"
-                    : "text-(--text-secondary)/60",
+                "mt-1 text-sm font-medium leading-5",
+                item.value ? "text-(--text-primary)" : "text-(--text-secondary)",
               )}
             >
-              {label}
-            </span>
+              {item.value ?? "Waiting for selection"}
+            </p>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
@@ -265,17 +380,19 @@ function SlotPeriodSection({
               type="button"
               onClick={() => onSelect(slot.start_time)}
               className={cn(
-                "flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all duration-200",
+                "group sevacam-interactive-card flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                 isSelected
-                  ? "border-(--accent-primary) bg-(--accent-primary)/15 shadow-[0_0_0_1px_var(--accent-primary)]"
-                  : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--border-interactive) hover:bg-(--bg-elevated)",
+                  ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_16px_28px_rgba(122,213,221,0.16)]"
+                  : "border-white/5 bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
               )}
               aria-pressed={isSelected}
             >
               <span
                 className={cn(
                   "text-sm font-bold leading-tight",
-                  isSelected ? "text-(--text-primary)" : "text-(--text-primary)",
+                  isSelected
+                    ? "text-[#07292d]"
+                    : "text-(--text-primary) group-hover:text-[#07292d]",
                 )}
               >
                 {startLabel}
@@ -283,10 +400,22 @@ function SlotPeriodSection({
               <span
                 className={cn(
                   "mt-0.5 text-[10px] leading-none",
-                  isSelected ? "text-(--accent-primary)" : "text-(--text-secondary)/80",
+                  isSelected
+                    ? "text-[#07292d]/70"
+                    : "text-(--text-secondary)/80 group-hover:text-[#07292d]/70",
                 )}
               >
                 ends {endLabel}
+              </span>
+              <span
+                className={cn(
+                  "mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] transition-colors",
+                  isSelected
+                    ? "text-[#07292d]/82"
+                    : "text-(--text-secondary)/55 group-hover:text-[#07292d]/82",
+                )}
+              >
+                {isSelected ? "Selected time" : "Tap to select"}
               </span>
             </button>
           );
@@ -328,7 +457,7 @@ function BookingCalendar({
           type="button"
           onClick={onPrevMonth}
           disabled={isLoadingCalendar}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:text-(--text-primary) disabled:opacity-40"
+          className="sevacam-interactive-card flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:bg-(--bg-overlay) hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20 disabled:opacity-40"
           aria-label="Previous month"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -345,7 +474,7 @@ function BookingCalendar({
           type="button"
           onClick={onNextMonth}
           disabled={isLoadingCalendar}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:text-(--text-primary) disabled:opacity-40"
+          className="sevacam-interactive-card flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:bg-(--bg-overlay) hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20 disabled:opacity-40"
           aria-label="Next month"
         >
           <ChevronRight className="h-4 w-4" />
@@ -383,9 +512,9 @@ function BookingCalendar({
                 onClick={() => onDateSelect(day)}
                 disabled={isDisabled}
                 className={cn(
-                  "relative flex h-9 w-9 flex-col items-center justify-center rounded-full text-[13px] font-medium transition-all duration-150",
+                  "sevacam-interactive-card relative flex h-9 w-9 flex-col items-center justify-center rounded-full text-[13px] font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20",
                   isSelected
-                    ? "bg-(--accent-primary) font-bold text-(--text-primary) shadow-lg"
+                    ? "bg-(--accent-primary) font-bold text-[#07292d] shadow-[0_12px_24px_rgba(122,213,221,0.18)]"
                     : isToday && !isDisabled
                       ? "text-(--accent-primary) ring-1 ring-(--accent-primary)/50"
                       : "text-(--text-primary)/90",
@@ -393,11 +522,11 @@ function BookingCalendar({
                   !isDisabled &&
                     isUnavailable &&
                     !isSelected &&
-                    "text-(--text-secondary)/80 hover:bg-(--bg-elevated) hover:text-(--text-primary)/80",
+                    "text-(--text-secondary)/80 hover:-translate-y-0.5 hover:bg-(--bg-elevated) hover:text-(--text-primary)/80",
                   !isDisabled &&
                     !isUnavailable &&
                     !isSelected &&
-                    "hover:bg-(--bg-inset) hover:text-(--text-primary)",
+                    "hover:-translate-y-0.5 hover:bg-(--accent-primary) hover:text-[#07292d]",
                   !isInMonth && "pointer-events-none opacity-0",
                 )}
                 aria-pressed={isSelected}
@@ -474,11 +603,30 @@ export function BookingForm({
       : DEFAULT_BOOKING_TIMEZONE;
   const isStaffAccount = customer.role === "staff";
   const today = useMemo(() => startOfDay(new Date()), []);
+  const providerSectionRef = useRef<HTMLDivElement>(null);
+  const calendarSectionRef = useRef<HTMLDivElement>(null);
+  const timesSectionRef = useRef<HTMLDivElement>(null);
+  const confirmSectionRef = useRef<HTMLDivElement>(null);
 
   const selectedStaff = useMemo(
     () => staff.find((m) => m.id === selectedStaffId) ?? null,
     [staff, selectedStaffId],
   );
+
+  const scrollToSection = (target: HTMLDivElement | null) => {
+    if (typeof window === "undefined" || !target) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    requestAnimationFrame(() => {
+      target.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+  };
 
   const effectiveDuration = useMemo(() => {
     if (
@@ -530,6 +678,13 @@ export function BookingForm({
     return effectiveDeposit > 0 ? effectiveDeposit : effectivePrice;
   }, [effectiveDeposit, effectivePrice]);
 
+  const selectedDateLabel = selectedDate
+    ? format(selectedDate, "EEE, MMM d")
+    : null;
+  const selectedSlotLabel = selectedSlot
+    ? formatTimeInTimeZone(selectedSlot, timezone)
+    : null;
+
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(calendarMonth);
     const monthEnd = endOfMonth(calendarMonth);
@@ -552,7 +707,7 @@ export function BookingForm({
       else groups.evening.push(slot);
     }
     return groups;
-  }, [availableSlots]);
+  }, [availableSlots, timezone]);
 
   const availableDayCount = useMemo(
     () => Object.values(monthAvailability).filter(Boolean).length,
@@ -638,6 +793,18 @@ export function BookingForm({
     fetchMonthAvailability(calendarMonth, selectedStaffId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [calendarMonth, selectedStaffId]);
+
+  useEffect(() => {
+    if (step === 1) scrollToSection(providerSectionRef.current);
+    if (step === 2) scrollToSection(calendarSectionRef.current);
+    if (step === 3) scrollToSection(confirmSectionRef.current);
+  }, [step]);
+
+  useEffect(() => {
+    if (step === 2 && selectedDate) {
+      scrollToSection(timesSectionRef.current);
+    }
+  }, [selectedDate, step]);
 
   useEffect(() => {
     if (!selectedStaffId || !selectedDate) return;
@@ -801,7 +968,20 @@ export function BookingForm({
   // -- Step 1: Staff ----------------------------------------------------------
 
   const renderStep1 = () => (
-    <div className="space-y-5">
+    <div ref={providerSectionRef} className="sevacam-section-anchor space-y-5">
+      <div className="rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
+          Step 01
+        </p>
+        <h3 className="mt-2 text-base font-semibold text-(--text-primary)">
+          Select your curator
+        </h3>
+        <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
+          Hover or tap a profile to preview the option you want. The next step
+          opens as soon as one curator is selected.
+        </p>
+      </div>
+
       {staff.length === 0 ? (
         <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-8 text-center">
           <User className="mx-auto mb-3 h-8 w-8 text-(--text-secondary)/80" />
@@ -822,24 +1002,24 @@ export function BookingForm({
                 type="button"
                 onClick={() => handleStaffSelect(member.id)}
                 className={cn(
-                  "group relative flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200",
+                  "group sevacam-interactive-card relative flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                   isSelected
-                    ? "border-(--accent-primary) bg-(--accent-primary)/10 shadow-[0_0_0_1px_var(--accent-primary)]"
-                    : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--border-interactive) hover:bg-(--bg-elevated)",
+                    ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_18px_30px_rgba(122,213,221,0.16)]"
+                    : "border-white/5 bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
                 )}
                 aria-pressed={isSelected}
               >
                 {isSelected && (
-                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)">
-                    <Check className="h-3 w-3 text-(--text-primary)" />
+                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-[#07292d]/12">
+                    <Check className="h-3 w-3 text-[#07292d]" />
                   </span>
                 )}
                 <div
                   className={cn(
                     "flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 transition-all",
                     isSelected
-                      ? "border-(--accent-primary)"
-                      : "border-(--border-muted) group-hover:border-(--border-interactive)",
+                      ? "border-[#07292d]/18"
+                      : "border-white/8 group-hover:border-[#07292d]/18",
                   )}
                 >
                   {member.avatar_url ? (
@@ -849,13 +1029,20 @@ export function BookingForm({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-lg font-bold text-(--text-primary)/90">
+                    <span className="text-lg font-bold text-(--text-primary)/90 group-hover:text-[#07292d]">
                       {getInitials(member.name || "?")}
                     </span>
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-(--text-primary)">
+                  <p
+                    className={cn(
+                      "text-sm font-semibold",
+                      isSelected
+                        ? "text-[#07292d]"
+                        : "text-(--text-primary) group-hover:text-[#07292d]",
+                    )}
+                  >
                     {member.name}
                   </p>
                   {member.price_override ? (
@@ -863,17 +1050,27 @@ export function BookingForm({
                       className={cn(
                         "mt-0.5 text-xs",
                         isSelected
-                          ? "text-(--accent-primary)"
-                          : "text-(--text-secondary)",
+                          ? "text-[#07292d]/75"
+                          : "text-(--text-secondary) group-hover:text-[#07292d]/75",
                       )}
                     >
                       {formatCurrency(toNumber(member.price_override))}
                     </p>
                   ) : (
-                    <p className="mt-0.5 text-xs text-(--text-secondary)/80">
+                    <p className="mt-0.5 text-xs text-(--text-secondary)/80 group-hover:text-[#07292d]/75">
                       Standard rate
                     </p>
                   )}
+                  <p
+                    className={cn(
+                      "mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition-colors",
+                      isSelected
+                        ? "text-[#07292d]/82"
+                        : "text-(--text-secondary)/55 group-hover:text-[#07292d]/82",
+                    )}
+                  >
+                    {isSelected ? "Selected curator" : "Tap to select"}
+                  </p>
                 </div>
               </button>
             );
@@ -886,13 +1083,13 @@ export function BookingForm({
           onClick={() => setStep(2)}
           disabled={!canGoStep2}
           className={cn(
-            "flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold transition-all duration-200",
+            "sevacam-primary-button flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.22rem] px-5 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
             canGoStep2
-              ? "bg-(--accent-primary) text-(--text-primary) hover:opacity-90"
+              ? "text-[#07292d]"
               : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
           )}
         >
-          Choose Date & Time <ArrowRight className="h-4 w-4" />
+          Continue to Date & Time <ArrowRight className="h-4 w-4" />
         </button>
       )}
     </div>
@@ -901,7 +1098,20 @@ export function BookingForm({
   // -- Step 2: Date + Time ----------------------------------------------------
 
   const renderStep2 = () => (
-    <div className="space-y-5">
+    <div ref={calendarSectionRef} className="sevacam-section-anchor space-y-5">
+      <div className="rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
+          Step 02
+        </p>
+        <h3 className="mt-2 text-base font-semibold text-(--text-primary)">
+          Choose date and time
+        </h3>
+        <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
+          Start with the calendar, then move into the times below. When a date is
+          chosen, the view scrolls to the open slots automatically.
+        </p>
+      </div>
+
       <div className="flex items-center gap-2 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-2.5">
         <CalendarDays className="h-4 w-4 shrink-0 text-(--accent-primary)" />
         <span className="text-xs text-(--text-secondary)">
@@ -979,7 +1189,7 @@ export function BookingForm({
                 setSelectedDate(nextAvailableDate);
                 setCalendarMonth(startOfMonth(nextAvailableDate));
               }}
-              className="inline-flex items-center gap-1.5 self-start rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/20"
+              className="sevacam-primary-button inline-flex min-h-10 items-center gap-1.5 self-start rounded-[0.22rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
             >
               <CalendarDays className="h-3.5 w-3.5" />
               Next available: {format(nextAvailableDate, "MMM d")}
@@ -1001,7 +1211,7 @@ export function BookingForm({
         onDateSelect={handleDateSelect}
       />
 
-      <div className="space-y-3">
+      <div ref={timesSectionRef} className="sevacam-section-anchor space-y-3">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-(--text-secondary)" />
           <p className="text-xs font-semibold uppercase tracking-wider text-(--text-secondary)">
@@ -1013,6 +1223,13 @@ export function BookingForm({
             </span>
           )}
         </div>
+
+        {selectedDate && availableSlots.length > 6 ? (
+          <p className="text-[11px] text-(--text-secondary)/70">
+            More times are available below. Scroll the list to review the full
+            day.
+          </p>
+        ) : null}
 
         {!selectedDate ? (
           <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-6 text-center">
@@ -1036,7 +1253,11 @@ export function BookingForm({
         ) : availableSlots.length > 0 ? (
           <div
             key={`${selectedStaffId}-${selectedDate.toDateString()}`}
-            className="space-y-4"
+            className={cn(
+              "space-y-4",
+              availableSlots.length > 6 &&
+                "sevacam-scroll-panel max-h-[24rem] overflow-y-auto pr-1",
+            )}
           >
             {TIME_PERIODS.map((period) => (
               <SlotPeriodSection
@@ -1067,7 +1288,7 @@ export function BookingForm({
                     setSelectedDate(nextAvailableDate);
                     setCalendarMonth(startOfMonth(nextAvailableDate));
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/20"
+                  className="sevacam-primary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.22rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
                 >
                   <CalendarDays className="h-3.5 w-3.5" />
                   Next available: {format(nextAvailableDate, "MMM d")}
@@ -1077,7 +1298,7 @@ export function BookingForm({
                 type="button"
                 onClick={handleJoinWaitlist}
                 disabled={isJoiningWaitlist}
-                className="inline-flex items-center gap-1.5 rounded-full border border-(--border-muted) bg-(--bg-elevated) px-4 py-2 text-xs font-semibold text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:bg-(--bg-inset) disabled:opacity-60"
+                className="sevacam-secondary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.22rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em] disabled:opacity-60"
               >
                 {isJoiningWaitlist ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1097,13 +1318,13 @@ export function BookingForm({
         onClick={() => setStep(3)}
         disabled={!canGoStep3}
         className={cn(
-          "flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold transition-all duration-200",
+          "sevacam-primary-button flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.22rem] px-5 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
           canGoStep3
-            ? "bg-(--accent-primary) text-(--text-primary) hover:opacity-90"
+            ? "text-[#07292d]"
             : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
         )}
-      >
-        Review Booking <ArrowRight className="h-4 w-4" />
+        >
+          Review Booking <ArrowRight className="h-4 w-4" />
       </button>
     </div>
   );
@@ -1115,7 +1336,20 @@ export function BookingForm({
     const slotEnd = slotStart ? addMinutes(slotStart, effectiveDuration) : null;
 
     return (
-      <div className="space-y-5">
+      <div ref={confirmSectionRef} className="sevacam-section-anchor space-y-5">
+      <div className="rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
+            Step 03
+          </p>
+          <h3 className="mt-2 text-base font-semibold text-(--text-primary)">
+            Review and continue
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
+            Check the summary below. If everything looks right, continue to
+            payment with confidence.
+          </p>
+        </div>
+
         <div className="overflow-hidden rounded-2xl border border-(--border-muted)">
           <div className="bg-(--bg-elevated) px-5 py-3">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-(--text-secondary)">
@@ -1225,10 +1459,10 @@ export function BookingForm({
           onClick={handleBooking}
           disabled={isBooking}
           className={cn(
-            "flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-bold tracking-wide transition-all duration-200",
+            "sevacam-primary-button flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.22rem] px-5 py-3.5 text-[0.62rem] font-bold uppercase tracking-[0.2em] transition-all duration-200",
             isBooking
               ? "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)"
-              : "bg-(--accent-primary) text-(--text-primary) hover:opacity-90",
+              : "text-[#07292d]",
           )}
         >
           {isBooking ? (
@@ -1259,13 +1493,25 @@ export function BookingForm({
         </div>
       )}
 
-      <StepIndicator currentStep={step} />
+      <StepIndicator
+        currentStep={step}
+        canGoStep2={canGoStep2}
+        canGoStep3={canGoStep3}
+        onStepChange={setStep}
+      />
+
+      <SelectionSnapshot
+        step={step}
+        staffName={selectedStaff?.name ?? null}
+        dateLabel={selectedDateLabel}
+        slotLabel={selectedSlotLabel}
+      />
 
       {step > 1 && (
         <button
           type="button"
           onClick={() => setStep((prev) => (prev - 1) as 1 | 2 | 3)}
-          className="mb-4 flex items-center gap-1.5 text-xs text-(--text-secondary) transition hover:text-(--text-primary)/90"
+          className="mb-4 flex items-center gap-1.5 text-xs text-(--text-secondary) transition hover:text-(--text-primary)/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20"
         >
           <ChevronLeft className="h-3.5 w-3.5" /> Back
         </button>

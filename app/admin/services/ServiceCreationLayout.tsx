@@ -78,13 +78,11 @@ export function ServiceCreationLayout({
     <div className="space-y-8 motion-page">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Services / {title}
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <p className="sevacam-eyebrow">Admin / Services / {title}</p>
+          <h1 className="sevacam-display text-[clamp(2.4rem,4vw,3.8rem)] leading-[0.92] tracking-[-0.04em] text-(--text-primary)">
             {title}
           </h1>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-sm leading-6 text-(--text-secondary)">{description}</p>
         </div>
       </div>
 
@@ -97,7 +95,7 @@ export function ServiceCreationLayout({
           staffOptions={staffOptions}
           assignedStaff={assignedStaff}
         />
-        <div className="lg:sticky lg:top-6 self-start">
+        <div className="self-start lg:sticky lg:top-6">
           <ServicePreviewCard service={previewData} />
         </div>
       </div>

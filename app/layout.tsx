@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Inter, Noto_Serif } from "next/font/google";
+import { Be_Vietnam_Pro, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
@@ -12,10 +12,9 @@ const inter = Inter({
   display: "swap",
 });
 
-const notoSerif = Noto_Serif({
+const beVietnamPro = Be_Vietnam_Pro({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-serif",
   display: "swap",
 });
@@ -50,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${notoSerif.variable}`}>
+    <html lang="en" className={`${inter.variable} ${beVietnamPro.variable}`}>
       <body
         style={
           {

@@ -1,4 +1,6 @@
-﻿import { headers } from "next/headers";
+import { headers } from "next/headers";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { ServicesClient } from "@/components/booking/services-client";
 
 type ServiceRow = {
@@ -27,7 +29,9 @@ async function getActiveServices(): Promise<ServiceRow[]> {
     });
     if (!res.ok) return [];
     const data = (await res.json()) as ServiceRow[];
-    return data.filter((s) => s.is_active).sort((a, b) => a.name.localeCompare(b.name));
+    return data
+      .filter((s) => s.is_active)
+      .sort((a, b) => a.name.localeCompare(b.name));
   } catch {
     return [];
   }
@@ -35,26 +39,66 @@ async function getActiveServices(): Promise<ServiceRow[]> {
 
 export default async function ServicesPage() {
   const services = await getActiveServices();
-  const categories = Array.from(new Set(services.map((s) => s.category).filter(Boolean)));
+  const categories = Array.from(
+    new Set(services.map((s) => s.category).filter(Boolean)),
+  );
+  const totalDeposits = services.filter(
+    (service) => service.deposit_amount > 0,
+  ).length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container py-10 sm:py-16">
-        {/* Page header */}
-        <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Services</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            Book your next appointment
-          </h1>
-          <p className="mt-3 max-w-xl text-base text-muted-foreground">
-            Browse our {services.length} curated service{services.length !== 1 ? "s" : ""} across{" "}
-            {categories.length} categor{categories.length !== 1 ? "ies" : "y"}.
-            Filter instantly and book in minutes.
-          </p>
+    <div className="sevacam-home min-h-screen bg-[var(--seva-base)] text-[var(--seva-text)]">
+      <div className="mx-auto max-w-[86rem] px-6 py-10 sm:px-8 lg:px-10 lg:py-12">
+        <div className="mb-6 flex items-center justify-start">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-[0.38rem] border border-white/10 bg-[var(--seva-elevated)] px-4 py-2.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-text-soft)] transition-colors hover:border-[rgba(122,213,221,0.2)] hover:bg-[rgba(122,213,221,0.08)] hover:text-[var(--seva-text)]"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
         </div>
 
-        {/* Client-side filterable grid */}
-        <ServicesClient initialServices={services} />
+        <section className="grid gap-8 border-b border-white/5 pb-12 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+          <div>
+            <p className="sevacam-eyebrow text-[var(--seva-warm)]">
+              Curated services
+            </p>
+            <h1 className="sevacam-display mt-4 max-w-4xl text-[clamp(3rem,7vw,5.4rem)] leading-[0.92] tracking-[-0.05em] text-[var(--seva-text)]">
+              Choose a service with less friction.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--seva-text-soft)] sm:text-lg">
+              Browse {services.length} active service
+              {services.length !== 1 ? "s" : ""} across {categories.length}{" "}
+              categor{categories.length !== 1 ? "ies" : "y"}, compare duration
+              and price clearly, then move directly into booking.
+            </p>
+          </div>
+
+          <div className="sevacam-rail px-6 py-6">
+            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+              Service notes
+            </p>
+            <div className="mt-5 space-y-3">
+              <div className="sevacam-side-stat">
+                <span>Collections</span>
+                <span>{categories.length}</span>
+              </div>
+              <div className="sevacam-side-stat">
+                <span>Bookable now</span>
+                <span>{services.length}</span>
+              </div>
+              <div className="sevacam-side-stat">
+                <span>Deposit required</span>
+                <span>{totalDeposits}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="pt-10">
+          <ServicesClient initialServices={services} />
+        </div>
       </div>
     </div>
   );

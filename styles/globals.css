@@ -33,69 +33,43 @@
   --_color-success-subtle:  #15241c;
   --_color-warning-subtle:  #2b1d14;
 
-  /* ═════════════════════════════════════════════════════════════════════════
-     LAYER 2 — SEMANTIC TOKENS (public — what all components consume)
-     ═════════════════════════════════════════════════════════════════════════ */
+  /* ── Dynamic computed tokens (use var() refs — cannot go in @theme directly) */
+  --color-accent-primary-hover:  color-mix(in srgb, var(--_color-teal-primary) 92%, white);
+  --color-accent-primary-active: color-mix(in srgb, var(--_color-teal-primary) 84%, black);
 
-  /* ─── Surfaces ────────────────────────────────────────────────────────────
-     --bg-base      = app/page background (Layer 0)
-     --bg-surface   = default cards, panels, sections (Layer 1)
-     --bg-elevated  = emphasized or active grouped content (Layer 2)
-     --bg-overlay   = modals, sheets, dropdowns (Layer 3)
-     --bg-inset     = nested containers, table bodies, inset areas
-     --bg-dim       = scrims, backdrops, de-emphasis zones
-     --bg-hover     = transient row/item hover wash — NOT a structural layer
-  */
-  --bg-base:                var(--_color-charcoal-base);
-  --bg-surface:             var(--_color-charcoal-low);
-  --bg-elevated:            var(--_color-charcoal-mid);
-  --bg-overlay:             var(--_color-charcoal-high);
-  --bg-inset:               var(--_color-charcoal-inset);
-  --bg-dim:                 var(--_color-charcoal-dim);
-  --bg-hover:               rgba(240, 238, 235, 0.04);
+  /* ── Backward-compat aliases — kept until all deferred components migrate ── */
+  --bg-base:                var(--color-bg-base);
+  --bg-surface:             var(--color-bg-surface);
+  --bg-elevated:            var(--color-bg-elevated);
+  --bg-overlay:             var(--color-bg-overlay);
+  --bg-inset:               var(--color-bg-inset);
+  --bg-dim:                 var(--color-bg-dim);
+  --bg-hover:               var(--color-bg-hover);
+  --text-primary:           var(--color-text-primary);
+  --text-secondary:         var(--color-text-secondary);
+  --text-disabled:          var(--color-text-disabled);
+  --text-on-accent:         var(--color-text-on-accent);
+  --text-on-dark:           var(--color-text-on-dark);
+  --accent-primary:         var(--color-accent-primary);
+  --accent-on:              var(--color-accent-on);
+  --accent-subtle:          var(--color-accent-subtle);
+  --accent-warm:            var(--color-accent-warm);
+  --accent-primary-hover:   var(--color-accent-primary-hover);
+  --accent-primary-active:  var(--color-accent-primary-active);
+  --ghost-hover-bg:         var(--color-ghost-hover-bg);
+  --ghost-hover-text:       var(--color-ghost-hover-text);
+  --border-muted:           var(--color-border-muted);
+  --border-subtle:          var(--color-border-subtle);
+  --border-interactive:     var(--color-border-interactive);
+  --border-focus:           var(--color-border-focus);
+  --state-error:            var(--color-state-error);
+  --state-error-subtle:     var(--color-state-error-subtle);
+  --state-success:          var(--color-state-success);
+  --state-success-subtle:   var(--color-state-success-subtle);
+  --state-warning:          var(--color-state-warning);
+  --state-warning-subtle:   var(--color-state-warning-subtle);
 
-  /* ─── Text ──────────────────────────────────────────────────────────────── */
-  --text-primary:           var(--_color-white);
-  --text-secondary:         var(--_color-white-muted);
-  --text-disabled:          var(--_color-white-faint);
-  --text-on-accent:         var(--_color-teal-on);
-  --text-on-dark:           var(--_color-white);
-
-  /* ─── Accent ────────────────────────────────────────────────────────────── */
-  --accent-primary:         var(--_color-teal-primary);
-  --accent-on:              var(--_color-teal-on);
-  --accent-subtle:          var(--_color-teal-subtle);
-  --accent-warm:            var(--_color-amber);
-
-  /* Button state tokens */
-  --accent-primary-hover:   color-mix(in srgb, var(--_color-teal-primary) 92%, white);
-  --accent-primary-active:  color-mix(in srgb, var(--_color-teal-primary) 84%, black);
-  --ghost-hover-bg:         rgba(122, 213, 221, 0.06);
-  --ghost-hover-text:       var(--_color-teal-primary);
-
-  /* ─── Borders ─────────────────────────────────────────────────────────────
-     --border-muted       = table row separators, low-emphasis dividers (faintest)
-     --border-subtle      = card outlines, container boundaries (default)
-     --border-interactive = hover/selected state on cards, slots
-     --border-focus       = keyboard focus ring — must be unmistakable
-  */
-  --border-muted:           rgba(240, 238, 235, 0.05);
-  --border-subtle:          rgba(240, 238, 235, 0.08);
-  --border-interactive:     rgba(122, 213, 221, 0.25);
-  --border-focus:           rgba(122, 213, 221, 0.40);
-
-  /* ─── State / Status ────────────────────────────────────────────────────── */
-  --state-error:            var(--_color-error);
-  --state-error-subtle:     var(--_color-error-subtle);
-  --state-success:          var(--_color-success);
-  --state-success-subtle:   var(--_color-success-subtle);
-  --state-warning:          var(--_color-amber);
-  --state-warning-subtle:   var(--_color-warning-subtle);
-
-  /* ─── Spacing Tiers ───────────────────────────────────────────────────────
-     comfortable = customer-facing flows
-     compact     = admin operational surfaces
-  */
+  /* ── Spacing tiers (layout-only, no Tailwind utilities needed) ───────────── */
   --spacing-comfortable-x:  1.25rem;
   --spacing-comfortable-y:  1.5rem;
   --spacing-compact-x:      0.75rem;
@@ -109,107 +83,109 @@
   --space-compact-2:        0.75rem;
   --space-compact-3:        1rem;
 
-  /* ─── Radius ─────────────────────────────────────────────────────────────── */
-  --radius-sm:              0.5rem;
-  --radius-md:              0.75rem;
-  --radius-lg:              1rem;
-  --radius-xl:              1.5rem;
-
-  /* ─── Elevation ──────────────────────────────────────────────────────────── */
-  --shadow-sm:              0 1px 2px rgba(0, 0, 0, 0.24);
-  --shadow-md:              0 8px 24px rgba(0, 0, 0, 0.28);
-  --shadow-lg:              0 16px 48px rgba(0, 0, 0, 0.36);
-
-  /* ─── Blur ───────────────────────────────────────────────────────────────── */
+  /* ── Blur & Motion ───────────────────────────────────────────────────────── */
   --blur-sm:                8px;
   --blur-md:                16px;
-
-  /* ─── Motion ─────────────────────────────────────────────────────────────── */
   --ease-standard:          cubic-bezier(0.4, 0, 0.2, 1);
   --duration-fast:          150ms;
   --duration-base:          250ms;
 
-  /* ─── Shadcn bridge (legacy compatibility — do not delete until all components migrated) ─── */
-  --background:             var(--bg-base);
-  --foreground:             var(--text-primary);
-  --card:                   var(--bg-surface);
-  --card-foreground:        var(--text-primary);
-  --popover:                var(--bg-overlay);
-  --popover-foreground:     var(--text-primary);
-  --primary:                var(--accent-primary);
-  --primary-foreground:     var(--text-on-accent);
-  --secondary:              var(--bg-elevated);
-  --secondary-foreground:   var(--text-primary);
-  --muted:                  var(--bg-inset);
-  --muted-foreground:       var(--text-secondary);
-  --accent:                 var(--accent-subtle);
-  --accent-foreground:      var(--accent-primary);
-  --destructive:            var(--state-error);
-  --destructive-foreground: var(--text-on-dark);
-  --border:                 var(--border-subtle);
-  --input:                  var(--border-subtle);
-  --ring:                   var(--border-focus);
+  /* ── Shadcn bridge (references --color-* so it resolves via @theme output) ─ */
+  --background:             var(--color-bg-base);
+  --foreground:             var(--color-text-primary);
+  --card:                   var(--color-bg-surface);
+  --card-foreground:        var(--color-text-primary);
+  --popover:                var(--color-bg-overlay);
+  --popover-foreground:     var(--color-text-primary);
+  --primary:                var(--color-accent-primary);
+  --primary-foreground:     var(--color-text-on-accent);
+  --secondary:              var(--color-bg-elevated);
+  --secondary-foreground:   var(--color-text-primary);
+  --muted:                  var(--color-bg-inset);
+  --muted-foreground:       var(--color-text-secondary);
+  --accent:                 var(--color-accent-subtle);
+  --accent-foreground:      var(--color-accent-primary);
+  --destructive:            var(--color-state-error);
+  --destructive-foreground: var(--color-text-on-dark);
+  --border:                 var(--color-border-subtle);
+  --input:                  var(--color-border-subtle);
+  --ring:                   var(--color-border-focus);
   --radius:                 var(--radius-md);
-  --sidebar:                var(--bg-surface);
-  --sidebar-foreground:     var(--text-primary);
-  --sidebar-primary:        var(--accent-primary);
-  --sidebar-primary-foreground: var(--text-on-accent);
-  --sidebar-accent:         var(--bg-elevated);
-  --sidebar-accent-foreground: var(--text-primary);
-  --sidebar-border:         var(--border-subtle);
-  --sidebar-ring:           var(--border-focus);
+  --sidebar:                var(--color-bg-surface);
+  --sidebar-foreground:     var(--color-text-primary);
+  --sidebar-primary:        var(--color-accent-primary);
+  --sidebar-primary-foreground: var(--color-text-on-accent);
+  --sidebar-accent:         var(--color-bg-elevated);
+  --sidebar-accent-foreground: var(--color-text-primary);
+  --sidebar-border:         var(--color-border-subtle);
+  --sidebar-ring:           var(--color-border-focus);
 }
 
-/* ─── Tailwind Bridge ─────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 2 — SEMANTIC DESIGN TOKENS → TAILWIND UTILITIES
+   @theme emits these as real CSS custom properties on :root AND generates
+   native utility classes: bg-bg-base, text-text-primary, ring-border-focus …
+   ═══════════════════════════════════════════════════════════════════════════ */
+@theme {
+  /* ─── Surfaces ─────────────────────────────────────────────────────────── */
+  --color-bg-base:             #131313;
+  --color-bg-surface:          #1c1b1b;
+  --color-bg-elevated:         #252524;
+  --color-bg-overlay:          #353534;
+  --color-bg-inset:            #101010;
+  --color-bg-dim:              #0e0e0e;
+  --color-bg-hover:            rgba(240, 238, 235, 0.04);
+
+  /* ─── Text ──────────────────────────────────────────────────────────────── */
+  --color-text-primary:        #f0eeeb;
+  --color-text-secondary:      #a8a49e;
+  --color-text-disabled:       #6b6762;
+  --color-text-on-accent:      #00363a;
+  --color-text-on-dark:        #f0eeeb;
+
+  /* ─── Accent ────────────────────────────────────────────────────────────── */
+  --color-accent-primary:      #7ad5dd;
+  --color-accent-on:           #00363a;
+  --color-accent-subtle:       #1a3e41;
+  --color-accent-warm:         #ffb785;
+  --color-ghost-hover-bg:      rgba(122, 213, 221, 0.06);
+  --color-ghost-hover-text:    #7ad5dd;
+
+  /* ─── Borders ───────────────────────────────────────────────────────────── */
+  --color-border-muted:        rgba(240, 238, 235, 0.05);
+  --color-border-subtle:       rgba(240, 238, 235, 0.08);
+  --color-border-interactive:  rgba(122, 213, 221, 0.25);
+  --color-border-focus:        rgba(122, 213, 221, 0.40);
+
+  /* ─── State / Status ────────────────────────────────────────────────────── */
+  --color-state-error:          #e57373;
+  --color-state-error-subtle:   #2a1515;
+  --color-state-success:        #7fd1a5;
+  --color-state-success-subtle: #15241c;
+  --color-state-warning:        #ffb785;
+  --color-state-warning-subtle: #2b1d14;
+
+  /* ─── Radius — overrides Tailwind defaults with design system values ─────── */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* ─── Elevation ──────────────────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.36);
+}
+
+/* Dynamic tokens (var() refs) and font aliases — must use @theme inline ────── */
 @theme inline {
-  --font-sans:                  var(--font-inter);
-  --font-display:               var(--font-serif);
-  --font-mono:                  'Geist Mono', 'Geist Mono Fallback';
+  --font-sans:    var(--font-inter);
+  --font-display: var(--font-serif);
+  --font-mono:    'Geist Mono', 'Geist Mono Fallback';
 
-  --color-background:           var(--bg-base);
-  --color-foreground:           var(--text-primary);
-  --color-surface:              var(--bg-surface);
-  --color-elevated:             var(--bg-elevated);
-  --color-overlay:              var(--bg-overlay);
-  --color-inset:                var(--bg-inset);
-  --color-dim:                  var(--bg-dim);
-
-  --color-card:                 var(--bg-surface);
-  --color-card-foreground:      var(--text-primary);
-  --color-popover:              var(--bg-overlay);
-  --color-popover-foreground:   var(--text-primary);
-
-  --color-primary:              var(--accent-primary);
-  --color-primary-foreground:   var(--text-on-accent);
-  --color-secondary:            var(--bg-elevated);
-  --color-secondary-foreground: var(--text-primary);
-  --color-muted:                var(--bg-inset);
-  --color-muted-foreground:     var(--text-secondary);
-  --color-accent:               var(--accent-subtle);
-  --color-accent-foreground:    var(--accent-primary);
-  --color-destructive:          var(--state-error);
-  --color-destructive-foreground: var(--text-on-dark);
-
-  --color-border:               var(--border-subtle);
-  --color-border-muted:         var(--border-muted);
-  --color-border-focus:         var(--border-focus);
-  --color-border-interactive:   var(--border-interactive);
-  --color-input:                var(--border-subtle);
-  --color-ring:                 var(--border-focus);
-
-  --color-sidebar:              var(--bg-surface);
-  --color-sidebar-foreground:   var(--text-primary);
-  --color-sidebar-primary:      var(--accent-primary);
-  --color-sidebar-primary-foreground: var(--text-on-accent);
-  --color-sidebar-accent:       var(--bg-elevated);
-  --color-sidebar-accent-foreground: var(--text-primary);
-  --color-sidebar-border:       var(--border-subtle);
-  --color-sidebar-ring:         var(--border-focus);
-
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
+  /* Hover/active button states — computed via color-mix, registered as utilities */
+  --color-accent-primary-hover:  var(--color-accent-primary-hover);
+  --color-accent-primary-active: var(--color-accent-primary-active);
 }
 
 /* ─── Base ────────────────────────────────────────────────────────────────── */
@@ -222,8 +198,8 @@
     font-family: var(--font-body, sans-serif);
     font-size: 0.875rem;
     line-height: 1.5;
-    color: var(--text-primary);
-    background: var(--bg-base);
+    color: var(--color-text-primary);
+    background: var(--color-bg-base);
     -webkit-font-smoothing: antialiased;
   }
 

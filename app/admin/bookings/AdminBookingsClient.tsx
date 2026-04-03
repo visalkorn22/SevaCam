@@ -26,7 +26,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -141,18 +140,6 @@ const formatMoney = (value: number | string | null | undefined) => {
 const isTerminalStatus = (status: string) =>
   ["cancelled", "completed", "no-show"].includes(status);
 
-const statusBadgeVariant = (status: string) => {
-  if (status === "confirmed" || status === "completed") return "default";
-  if (status === "cancelled" || status === "no-show") return "destructive";
-  return "secondary";
-};
-
-const paymentBadgeVariant = (status: string) => {
-  if (status === "paid") return "default";
-  if (status === "failed" || status === "refunded") return "destructive";
-  return "outline";
-};
-
 const formatDetailKey = (value: string) =>
   value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
@@ -161,6 +148,53 @@ const formatDetailValue = (value: unknown) => {
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
+};
+
+const panelClass =
+  "rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
+const insetPanelClass =
+  "rounded-[0.8rem] border border-(--border-subtle) bg-(--bg-inset)";
+const fieldClass =
+  "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary)/40 focus-visible:ring-1 focus-visible:ring-(--accent-primary)";
+const triggerClass =
+  "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) data-[placeholder]:text-(--text-disabled)";
+const primaryButtonClass =
+  "sevacam-primary-button h-10 rounded-[0.45rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.16em]";
+const secondaryButtonClass =
+  "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-primary) transition-colors hover:border-(--accent-primary)/30 hover:text-(--accent-primary)";
+const actionButtonClass =
+  "h-8 rounded-[0.5rem] border border-(--border-subtle) bg-(--bg-inset) px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-secondary) transition-colors hover:border-(--accent-primary)/30 hover:text-(--accent-primary)";
+const actionPrimaryClass =
+  "sevacam-primary-button h-8 rounded-[0.5rem] px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] shadow-none";
+const actionWarmClass =
+  "h-8 rounded-[0.5rem] border border-[#ffb785]/30 bg-[#ffb785]/10 px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-[#ffcfaf] transition-colors hover:bg-[#ffb785]/14";
+const actionDangerClass =
+  "h-8 rounded-[0.5rem] border border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-[#ff9c9c] transition-colors hover:bg-[rgba(255,125,125,0.14)]";
+
+const statusChipClass = (status: string) => {
+  if (status === "confirmed" || status === "completed") {
+    return "border-(--accent-primary)/30 bg-(--accent-primary)/10 text-(--accent-primary)";
+  }
+  if (status === "pending") {
+    return "border-[#ffb785]/30 bg-[#ffb785]/10 text-[#ffb785]";
+  }
+  if (status === "cancelled" || status === "no-show") {
+    return "border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] text-[#ff9c9c]";
+  }
+  return "border-(--border-subtle) bg-(--bg-inset) text-(--text-secondary)";
+};
+
+const paymentChipClass = (status: string) => {
+  if (status === "paid") {
+    return "border-(--accent-primary)/30 bg-(--accent-primary)/10 text-(--accent-primary)";
+  }
+  if (status === "failed") {
+    return "border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] text-[#ff9c9c]";
+  }
+  if (status === "refunded") {
+    return "border-[#ffb785]/30 bg-[#ffb785]/10 text-[#ffb785]";
+  }
+  return "border-(--border-subtle) bg-(--bg-inset) text-(--text-secondary)";
 };
 
 export default function AdminBookingsClient({
@@ -538,7 +572,8 @@ export default function AdminBookingsClient({
       <div className="flex flex-wrap gap-2">
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
+          className={actionButtonClass}
           onClick={() => void openDetails(booking)}
         >
           View Details
@@ -547,6 +582,8 @@ export default function AdminBookingsClient({
         {booking.status === "pending" ? (
           <Button
             size="sm"
+            variant="ghost"
+            className={actionPrimaryClass}
             onClick={() => void handleStatusUpdate(booking, "confirmed")}
             disabled={isStatusUpdating}
           >
@@ -563,6 +600,8 @@ export default function AdminBookingsClient({
           <>
             <Button
               size="sm"
+              variant="ghost"
+              className={actionPrimaryClass}
               onClick={() => void handleStatusUpdate(booking, "completed")}
               disabled={isStatusUpdating}
             >
@@ -575,7 +614,8 @@ export default function AdminBookingsClient({
             </Button>
             <Button
               size="sm"
-              variant="secondary"
+              variant="ghost"
+              className={actionWarmClass}
               onClick={() => void handleStatusUpdate(booking, "no-show")}
               disabled={isStatusUpdating}
             >
@@ -592,7 +632,8 @@ export default function AdminBookingsClient({
         {canReschedule ? (
           <Button
             size="sm"
-            variant="secondary"
+            variant="ghost"
+            className={actionButtonClass}
             onClick={() => openReschedule(booking)}
             disabled={rescheduleLoading && rescheduleBooking?.id === booking.id}
           >
@@ -603,7 +644,8 @@ export default function AdminBookingsClient({
         {canCancel ? (
           <Button
             size="sm"
-            variant="destructive"
+            variant="ghost"
+            className={actionDangerClass}
             onClick={() => setCancelBooking(booking)}
             disabled={cancelLoading && cancelBooking?.id === booking.id}
           >
@@ -617,78 +659,96 @@ export default function AdminBookingsClient({
   return (
     <div className="space-y-6">
       {error ? (
-        <div className="rounded-(--radius-md) bg-(--state-error-subtle) px-4 py-3 text-sm text-(--state-error)">
+        <div className="rounded-[0.8rem] border border-[#ffb785]/25 bg-[#ffb785]/10 px-4 py-3 text-sm text-[#ffcfaf]">
           {error}
         </div>
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <Card className="">
+        <Card className={insetPanelClass}>
           <CardHeader className="pb-2">
-            <CardDescription>Total Bookings</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-2xl">
+            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+              Total Bookings
+            </CardDescription>
+            <CardTitle className="flex items-center gap-2 text-[1.65rem] tracking-[-0.05em] text-(--text-primary)">
               <Calendar className="size-5 text-(--accent-primary)" />
               {summary.total}
             </CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="">
+        <Card className={insetPanelClass}>
           <CardHeader className="pb-2">
-            <CardDescription>Pending</CardDescription>
-            <CardTitle className="text-2xl">{summary.pending}</CardTitle>
+            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+              Pending
+            </CardDescription>
+            <CardTitle className="text-[1.65rem] tracking-[-0.05em] text-[#ffb785]">
+              {summary.pending}
+            </CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="">
+        <Card className={insetPanelClass}>
           <CardHeader className="pb-2">
-            <CardDescription>Confirmed</CardDescription>
-            <CardTitle className="text-2xl">{summary.confirmed}</CardTitle>
+            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+              Confirmed
+            </CardDescription>
+            <CardTitle className="text-[1.65rem] tracking-[-0.05em] text-(--text-primary)">
+              {summary.confirmed}
+            </CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="">
+        <Card className={insetPanelClass}>
           <CardHeader className="pb-2">
-            <CardDescription>Paid</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-2xl">
+            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+              Paid
+            </CardDescription>
+            <CardTitle className="flex items-center gap-2 text-[1.65rem] tracking-[-0.05em] text-(--text-primary)">
               <Wallet className="size-5 text-(--accent-primary)" />
               {summary.paid}
             </CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="">
+        <Card className={insetPanelClass}>
           <CardHeader className="pb-2">
-            <CardDescription>Needs Attention</CardDescription>
-            <CardTitle className="text-2xl">{summary.attention}</CardTitle>
+            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+              Needs Attention
+            </CardDescription>
+            <CardTitle className="text-[1.65rem] tracking-[-0.05em] text-[#ffb785]">
+              {summary.attention}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
 
-      <Card className="">
+      <Card className={panelClass}>
         <CardHeader className="pb-4">
-          <CardTitle className="text-base">Filters</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-[1.15rem] tracking-[-0.03em] text-(--text-primary)">
+            Filters
+          </CardTitle>
+          <CardDescription className="text-(--text-secondary)">
             Search by service, customer, staff, or booking ID.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_220px_220px_auto]">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-(--text-secondary)" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-(--text-disabled)" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search bookings..."
-                className="pl-9"
+                className={`${fieldClass} pl-9`}
               />
             </div>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
+              <SelectTrigger className={triggerClass}>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary)">
                 <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="confirmed">Confirmed</SelectItem>
@@ -699,10 +759,10 @@ export default function AdminBookingsClient({
             </Select>
 
             <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-              <SelectTrigger>
+              <SelectTrigger className={triggerClass}>
                 <SelectValue placeholder="Payment" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary)">
                 <SelectItem value="all">All payments</SelectItem>
                 {paymentStatuses.map((status) => (
                   <SelectItem key={status} value={status}>
@@ -713,7 +773,8 @@ export default function AdminBookingsClient({
             </Select>
 
             <Button
-              variant="outline"
+              variant="ghost"
+              className={secondaryButtonClass}
               onClick={() => void loadBookings()}
               disabled={isRefreshing}
             >
@@ -733,7 +794,7 @@ export default function AdminBookingsClient({
             {(search || statusFilter !== "all" || paymentFilter !== "all") && (
               <button
                 type="button"
-                className="font-medium text-primary hover:underline"
+                className="font-medium text-(--accent-primary) hover:underline"
                 onClick={() => {
                   setSearch("");
                   setStatusFilter("all");
@@ -757,30 +818,38 @@ export default function AdminBookingsClient({
               <Card
                 key={booking.id}
                 className={cn(
-                  "border-border/50 bg-card/80 transition-colors",
+                  `${panelClass} transition-colors`,
                   isPast &&
                     booking.status === "pending" &&
-                    "border-amber-500/40",
+                    "border-[#ffb785]/30",
                 )}
               >
                 <CardHeader className="gap-4">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <CardTitle className="text-xl">
+                        <CardTitle className="text-[1.2rem] tracking-[-0.03em] text-(--text-primary)">
                           {booking.service?.name || "Service"}
                         </CardTitle>
-                        <Badge variant={statusBadgeVariant(booking.status)}>
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
+                            statusChipClass(booking.status),
+                          )}
+                        >
                           {formatStatusLabel(booking.status)}
-                        </Badge>
-                        <Badge
-                          variant={paymentBadgeVariant(booking.payment_status)}
+                        </span>
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
+                            paymentChipClass(booking.payment_status),
+                          )}
                         >
                           {formatStatusLabel(booking.payment_status)}
-                        </Badge>
+                        </span>
                       </div>
 
-                      <CardDescription className="flex flex-wrap items-center gap-3 text-sm">
+                      <CardDescription className="flex flex-wrap items-center gap-3 text-sm text-(--text-secondary)">
                         <span className="inline-flex items-center gap-1.5">
                           <Calendar className="size-4" />
                           {formatDateTime(booking.start_time_utc)}
@@ -789,15 +858,15 @@ export default function AdminBookingsClient({
                           <Clock3 className="size-4" />
                           {booking.service?.duration_minutes || 0} mins
                         </span>
-                        <span className="font-medium text-foreground">
+                        <span className="font-medium text-(--accent-primary)">
                           {formatMoney(booking.service?.price)}
                         </span>
                       </CardDescription>
                     </div>
 
-                    <div className="rounded-2xl border border-border/60 bg-background/70 px-3 py-2 text-right text-xs text-(--text-secondary)">
+                    <div className="rounded-[0.7rem] bg-(--bg-inset) px-3 py-2 text-right text-xs text-(--text-disabled) ring-1 ring-(--border-subtle)">
                       <div>Booking ID</div>
-                      <div className="mt-1 font-mono text-foreground">
+                      <div className="mt-1 font-mono text-(--text-primary)">
                         {booking.id.slice(0, 8)}
                       </div>
                     </div>
@@ -806,13 +875,13 @@ export default function AdminBookingsClient({
 
                 <CardContent className="space-y-5">
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                    <div className={`${insetPanelClass} p-4`}>
+                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                         Customer
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
-                        <p className="flex items-center gap-2 font-medium text-foreground">
-                          <UserRound className="size-4 text-(--text-secondary)" />
+                        <p className="flex items-center gap-2 font-medium text-(--text-primary)">
+                          <UserRound className="size-4 text-(--text-disabled)" />
                           {booking.customer?.full_name || "Customer"}
                         </p>
                         {booking.customer?.email ? (
@@ -830,13 +899,13 @@ export default function AdminBookingsClient({
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                    <div className={`${insetPanelClass} p-4`}>
+                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                         Staff
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
-                        <p className="flex items-center gap-2 font-medium text-foreground">
-                          <UserRound className="size-4 text-(--text-secondary)" />
+                        <p className="flex items-center gap-2 font-medium text-(--text-primary)">
+                          <UserRound className="size-4 text-(--text-disabled)" />
                           {booking.staff?.full_name || "Unassigned"}
                         </p>
                         <p className="text-(--text-secondary)">
@@ -845,12 +914,12 @@ export default function AdminBookingsClient({
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                    <div className={`${insetPanelClass} p-4`}>
+                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                         Service
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
-                        <p className="font-medium text-foreground">
+                        <p className="font-medium text-(--text-primary)">
                           {booking.service?.name || "Service"}
                         </p>
                         <p className="text-(--text-secondary)">
@@ -863,12 +932,12 @@ export default function AdminBookingsClient({
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                    <div className={`${insetPanelClass} p-4`}>
+                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                         Workflow
                       </p>
                       <div className="mt-3 space-y-2 text-sm">
-                        <p className="font-medium text-foreground">
+                        <p className="font-medium text-(--text-primary)">
                           {isPast ? "Past booking" : "Upcoming booking"}
                         </p>
                         <p className="text-(--text-secondary)">
@@ -888,18 +957,18 @@ export default function AdminBookingsClient({
           })}
         </div>
       ) : (
-        <Card className="">
+        <Card className={panelClass}>
           <CardContent className="flex flex-col items-center justify-center py-14 text-center">
-            <Calendar className="mb-4 size-12 text-(--text-secondary)" />
-            <p className="text-lg font-semibold">
+            <Calendar className="mb-4 size-12 text-(--text-disabled)" />
+            <p className="text-lg font-semibold text-(--text-primary)">
               No bookings match these filters
             </p>
             <p className="mt-2 text-sm text-(--text-secondary)">
               Try widening the search or clearing the active filters.
             </p>
             <Button
-              variant="outline"
-              className="mt-4"
+              variant="ghost"
+              className={`mt-4 ${secondaryButtonClass}`}
               onClick={() => {
                 setSearch("");
                 setStatusFilter("all");
@@ -925,11 +994,13 @@ export default function AdminBookingsClient({
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto sm:max-w-xl"
+          className="w-full overflow-y-auto border-l border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) sm:max-w-xl"
         >
-          <SheetHeader>
-            <SheetTitle>Booking Details</SheetTitle>
-            <SheetDescription>
+          <SheetHeader className="border-b border-(--border-subtle) pb-4">
+            <SheetTitle className="text-[1.2rem] tracking-[-0.03em] text-(--text-primary)">
+              Booking Details
+            </SheetTitle>
+            <SheetDescription className="text-(--text-secondary)">
               Review customer info, service details, and the full booking
               timeline.
             </SheetDescription>
@@ -937,29 +1008,37 @@ export default function AdminBookingsClient({
 
           {detailsBooking ? (
             <div className="space-y-6 px-4 pb-8">
-              <div className="rounded-3xl border border-border/60 bg-muted/30 p-5">
+              <div className={`${panelClass} p-5`}>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-xl font-semibold">
+                  <h2 className="text-xl font-semibold text-(--text-primary)">
                     {detailsBooking.service?.name || "Service"}
                   </h2>
-                  <Badge variant={statusBadgeVariant(detailsBooking.status)}>
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
+                      statusChipClass(detailsBooking.status),
+                    )}
+                  >
                     {formatStatusLabel(detailsBooking.status)}
-                  </Badge>
-                  <Badge
-                    variant={paymentBadgeVariant(detailsBooking.payment_status)}
+                  </span>
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
+                      paymentChipClass(detailsBooking.payment_status),
+                    )}
                   >
                     {formatStatusLabel(detailsBooking.payment_status)}
-                  </Badge>
+                  </span>
                 </div>
                 <p className="mt-3 text-sm text-(--text-secondary)">
                   {formatDateTime(detailsBooking.start_time_utc)}
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4 text-sm">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                  <div className={`${insetPanelClass} p-4 text-sm`}>
+                    <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                       Customer
                     </p>
-                    <p className="mt-2 font-medium">
+                    <p className="mt-2 font-medium text-(--text-primary)">
                       {detailsBooking.customer?.full_name || "Customer"}
                     </p>
                     {detailsBooking.customer?.email ? (
@@ -974,11 +1053,11 @@ export default function AdminBookingsClient({
                     ) : null}
                   </div>
 
-                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4 text-sm">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                  <div className={`${insetPanelClass} p-4 text-sm`}>
+                    <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                       Service Info
                     </p>
-                    <p className="mt-2 font-medium">
+                    <p className="mt-2 font-medium text-(--accent-primary)">
                       {formatMoney(detailsBooking.service?.price)}
                     </p>
                     <p className="mt-1 text-(--text-secondary)">
@@ -992,19 +1071,23 @@ export default function AdminBookingsClient({
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-semibold">Actions</p>
+                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+                  Actions
+                </p>
                 {renderActionButtons(detailsBooking)}
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-semibold">Change History</p>
+                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+                  Change History
+                </p>
                 {detailsLoading ? (
                   <p className="flex items-center gap-2 text-sm text-(--text-secondary)">
                     <LoaderCircle className="size-4 animate-spin" />
                     Loading timeline...
                   </p>
                 ) : detailsError ? (
-                  <p className="text-sm text-destructive">{detailsError}</p>
+                  <p className="text-sm text-[#ffcfaf]">{detailsError}</p>
                 ) : detailsChanges.length === 0 ? (
                   <p className="text-sm text-(--text-secondary)">
                     No reschedule or cancellation history yet.
@@ -1014,7 +1097,7 @@ export default function AdminBookingsClient({
                     {detailsChanges.map((change) => (
                       <div
                         key={change.id}
-                        className="rounded-2xl border border-border/60 bg-background/70 p-4 text-sm"
+                        className={`${insetPanelClass} p-4 text-sm`}
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="font-semibold">
@@ -1044,7 +1127,9 @@ export default function AdminBookingsClient({
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-semibold">Activity Log</p>
+                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+                  Activity Log
+                </p>
                 {detailsLoading ? null : detailsLogs.length === 0 ? (
                   <p className="text-sm text-(--text-secondary)">
                     No activity log recorded yet.
@@ -1054,7 +1139,7 @@ export default function AdminBookingsClient({
                     {detailsLogs.map((log) => (
                       <div
                         key={log.id}
-                        className="rounded-2xl border border-border/60 bg-background/70 p-4 text-sm"
+                        className={`${insetPanelClass} p-4 text-sm`}
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="font-semibold">
@@ -1069,7 +1154,7 @@ export default function AdminBookingsClient({
                           <div className="mt-3 space-y-1 text-xs text-(--text-secondary)">
                             {Object.entries(log.details).map(([key, value]) => (
                               <p key={key}>
-                                <span className="font-medium text-foreground">
+                                <span className="font-medium text-(--text-primary)">
                                   {formatDetailKey(key)}:
                                 </span>{" "}
                                 {formatDetailValue(value)}
@@ -1101,19 +1186,21 @@ export default function AdminBookingsClient({
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto sm:max-w-lg"
+          className="w-full overflow-y-auto border-l border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) sm:max-w-lg"
         >
-          <SheetHeader>
-            <SheetTitle>Reschedule Booking</SheetTitle>
-            <SheetDescription>
+          <SheetHeader className="border-b border-(--border-subtle) pb-4">
+            <SheetTitle className="text-[1.2rem] tracking-[-0.03em] text-(--text-primary)">
+              Reschedule Booking
+            </SheetTitle>
+            <SheetDescription className="text-(--text-secondary)">
               Choose a new date and one of the available appointment slots.
             </SheetDescription>
           </SheetHeader>
 
           {rescheduleBooking ? (
             <div className="space-y-5 px-4 pb-8">
-              <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
-                <p className="text-sm font-semibold">
+              <div className={`${panelClass} p-4`}>
+                <p className="text-sm font-semibold text-(--text-primary)">
                   {rescheduleBooking.service?.name || "Service"}
                 </p>
                 <p className="mt-1 text-sm text-(--text-secondary)">
@@ -1123,16 +1210,21 @@ export default function AdminBookingsClient({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">New date</label>
+                <label className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+                  New date
+                </label>
                 <Input
                   type="date"
                   value={rescheduleDate}
                   onChange={(event) => setRescheduleDate(event.target.value)}
+                  className={fieldClass}
                 />
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-medium">Available times</p>
+                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+                  Available times
+                </p>
                 {rescheduleLoading ? (
                   <p className="flex items-center gap-2 text-sm text-(--text-secondary)">
                     <LoaderCircle className="size-4 animate-spin" />
@@ -1150,10 +1242,10 @@ export default function AdminBookingsClient({
                         type="button"
                         onClick={() => setSelectedSlot(slot.start_time)}
                         className={cn(
-                          "rounded-full border px-3 py-2 text-sm font-semibold transition",
+                          "rounded-[0.55rem] border px-3 py-2 text-sm font-semibold transition-colors",
                           selectedSlot === slot.start_time
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-background hover:border-primary",
+                            ? "border-(--accent-primary)/30 bg-(--accent-primary) text-[#06292d]"
+                            : "border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) hover:border-(--accent-primary)/30",
                         )}
                       >
                         {formatTime(slot.start_time)}
@@ -1164,13 +1256,14 @@ export default function AdminBookingsClient({
               </div>
 
               {rescheduleError ? (
-                <p className="text-sm text-destructive">{rescheduleError}</p>
+                <p className="text-sm text-[#ffcfaf]">{rescheduleError}</p>
               ) : null}
 
               <SheetFooter>
                 <Button
                   onClick={submitReschedule}
                   disabled={!selectedSlot || rescheduleLoading}
+                  className={primaryButtonClass}
                 >
                   {rescheduleLoading ? (
                     <LoaderCircle className="size-4 animate-spin" />
@@ -1192,10 +1285,13 @@ export default function AdminBookingsClient({
           }
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent
+          className="w-[min(92vw,30rem)] rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.48)]"
+          overlayClassName="bg-black/78 backdrop-blur-sm"
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="leading-6">
               This will mark the booking as cancelled and store the optional
               reason in the audit history.
             </AlertDialogDescription>
@@ -1203,8 +1299,8 @@ export default function AdminBookingsClient({
 
           <div className="space-y-4">
             {cancelBooking ? (
-              <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 text-sm">
-                <p className="font-medium">
+              <div className={`${insetPanelClass} p-4 text-sm`}>
+                <p className="font-medium text-(--text-primary)">
                   {cancelBooking.service?.name || "Service"}
                 </p>
                 <p className="mt-1 text-(--text-secondary)">
@@ -1218,17 +1314,22 @@ export default function AdminBookingsClient({
               value={cancelReason}
               onChange={(event) => setCancelReason(event.target.value)}
               placeholder="Optional cancellation reason"
+              className="min-h-28 rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary)/40 focus-visible:ring-1 focus-visible:ring-(--accent-primary)"
             />
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={cancelLoading}>
+          <AlertDialogFooter className="mt-5 gap-2">
+            <AlertDialogCancel
+              disabled={cancelLoading}
+              className="!mt-0 !h-10 !rounded-[0.55rem] !border-[var(--border-subtle)] !bg-[var(--bg-inset)] !px-4 !text-[0.62rem] !font-semibold !uppercase !tracking-[0.16em] !text-[var(--text-primary)] hover:!border-[rgba(122,213,221,0.3)] hover:!text-[var(--accent-primary)]"
+            >
               Keep booking
             </AlertDialogCancel>
             <Button
-              variant="destructive"
+              variant="ghost"
               onClick={submitCancel}
               disabled={cancelLoading}
+              className="h-10 rounded-[0.55rem] border border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[#ff9c9c] hover:bg-[rgba(255,125,125,0.14)]"
             >
               {cancelLoading ? (
                 <LoaderCircle className="size-4 animate-spin" />

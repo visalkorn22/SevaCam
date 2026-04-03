@@ -32,26 +32,32 @@ export default function AdminServicesListClient({
 
   const handleDeleted = (serviceId: string) => {
     setItems((prev) =>
-      prev.filter((service) => String(service.id) !== String(serviceId)),
+      prev.filter((service) => String(service.id) !== String(serviceId))
     );
   };
 
   const emptyState = useMemo(
     () => (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
-          <Plus className="size-8 text-muted-foreground" />
+      <div className="sevacam-rail flex flex-col items-center justify-center py-20 text-center">
+        <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-(--bg-elevated) ring-1 ring-white/8">
+          <Plus className="size-7 text-(--accent-primary)" />
         </div>
-        <h3 className="mb-2 text-lg font-semibold">No services yet</h3>
-        <p className="mb-6 max-w-md text-sm text-muted-foreground">
-          Create your first service to start accepting bookings.
+        <h3 className="text-lg font-semibold text-(--text-primary)">No services yet</h3>
+        <p className="mt-2 mb-8 max-w-sm text-sm leading-6 text-(--text-secondary)">
+          Create your first service offering to start accepting bookings from customers.
         </p>
-        <Button asChild>
-          <Link href="/admin/services/new">Create First Service</Link>
+        <Button
+          asChild
+          className="sevacam-primary-button min-h-11 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
+        >
+          <Link href="/admin/services/new">
+            <Plus className="mr-2 size-3.5" />
+            Create First Service
+          </Link>
         </Button>
       </div>
     ),
-    [],
+    []
   );
 
   if (!hasItems) {

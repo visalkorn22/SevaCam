@@ -345,7 +345,7 @@ export default async function PaymentsPage({
         <p className="text-muted-foreground">Review your payment history.</p>
       </div>
 
-      <Card className="glass-card">
+      <Card className="">
         <CardHeader>
           <div className="flex items-center gap-2">
             <CreditCard className="size-5 text-muted-foreground" />

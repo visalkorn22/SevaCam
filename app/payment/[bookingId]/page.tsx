@@ -1,18 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
-import Link from "next/link";
-import {
-  ArrowRight,
-  Calendar,
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  User,
-} from "lucide-react";
 import { addMinutes } from "date-fns";
 import { PaymentForm } from "@/components/payment/payment-form";
+import { PaymentReceiptActions } from "@/components/payment/payment-receipt-actions";
 import { PaymentReturnStatus } from "@/components/payment/payment-return-status";
 import {
+  formatDateTimeInTimeZone,
   formatLongDateInTimeZone,
   formatTimeInTimeZone,
   parseDateValue,
@@ -102,142 +95,278 @@ async function getPayment(
   }
 }
 
+async function getBookingPayments(bookingId: string): Promise<PaymentRecord[]> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const cookie = (await headers()).get("cookie") ?? "";
+  try {
+    const res = await fetch(`${apiUrl}/api/payments/booking/${bookingId}`, {
+      method: "GET",
+      headers: { Cookie: cookie },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as PaymentRecord[];
+  } catch {
+    return [];
+  }
+}
+
+function formatMoney(amount: number | string, currency = "USD") {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return String(amount);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function formatProviderLabel(provider?: string | null) {
+  const normalized = (provider || "").trim().toLowerCase();
+  if (!normalized) return "Recorded payment";
+  if (normalized === "aba_payway") return "ABA PayWay";
+  if (normalized === "bakong_khqr") return "Bakong KHQR";
+  if (normalized === "stripe") return "Stripe";
+  return normalized
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function ConfirmedView({
   booking,
+  payment,
+  customerEmail,
   timeZone,
 }: {
   booking: BookingRow;
+  payment: PaymentRecord | null;
+  customerEmail: string;
   timeZone?: string | null;
 }) {
   const staffName = booking.staff?.full_name || "Staff Member";
   const startDate =
     parseDateValue(booking.start_time_utc) ?? new Date(booking.start_time_utc);
   const endDate = addMinutes(startDate, booking.services.duration_minutes);
-  const formatPrice = (amount: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(amount);
+  const issuedDate = payment?.created_at
+    ? parseDateValue(payment.created_at) ?? new Date(payment.created_at)
+    : new Date();
+  const currency = payment?.currency ?? "USD";
+  const totalPrice = Number(booking.services.price);
+  const parsedPaid = Number(payment?.amount);
+  const amountPaid = Number.isFinite(parsedPaid) ? parsedPaid : totalPrice;
+  const balanceRemaining = Math.max(totalPrice - amountPaid, 0);
+  const providerLabel = formatProviderLabel(payment?.provider);
+  const paymentStatus =
+    payment?.status?.replace(/_/g, " ") ??
+    booking.payment_status?.replace(/_/g, " ") ??
+    "paid";
+  const receiptId = `RCPT-${(payment?.id ?? booking.id).slice(0, 8).toUpperCase()}`;
+  const bookingReference = `BKG-${booking.id.slice(0, 8).toUpperCase()}`;
+  const paymentReference =
+    payment?.provider_reference || payment?.id || "Captured securely";
+  const receiptRows = [
+    {
+      label: "Service",
+      value: booking.services.name,
+      amount: formatMoney(totalPrice, "USD"),
+    },
+    {
+      label: "Provider",
+      value: staffName,
+      amount: "",
+    },
+    {
+      label: "Schedule",
+      value: `${formatLongDateInTimeZone(startDate, timeZone)} ${formatTimeInTimeZone(startDate, timeZone)}`,
+      amount: "",
+    },
+    {
+      label: "Duration",
+      value: `${booking.services.duration_minutes} min`,
+      amount: "",
+    },
+    {
+      label: "Payment",
+      value: providerLabel,
+      amount: formatMoney(amountPaid, currency),
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-(--bg-base) relative overflow-hidden">
-      {/* Soft success glow behind the card */}
-      <div className="absolute inset-x-0 top-0 h-96 bg-(--state-success)/5 blur-[100px] pointer-events-none" />
+    <div className="sevacam-home relative min-h-screen overflow-hidden bg-(--bg-base) text-(--text-primary) print:bg-white print:text-black">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-(--accent-primary)/8 blur-[120px] print:hidden" />
 
-      <div className="container relative py-16 sm:py-24">
-        <div className="mx-auto max-w-lg">
-          <div className="mb-10 text-center motion-preset-slide-up-sm motion-duration-500">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-(--state-success-subtle) ring-1 ring-(--state-success)/20">
-              <CheckCircle2 className="h-8 w-8 text-(--state-success)" />
-            </div>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl text-(--text-primary)">
-              You&apos;re all set
+      <div className="relative flex w-full justify-center px-4 py-12 sm:px-6 sm:py-16 print:px-0 print:py-0">
+        <div className="w-full max-w-3xl">
+          <div className="mb-10 text-center motion-preset-slide-up-sm motion-duration-500 print:hidden">
+            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-(--accent-primary)">
+              Payment Receipt
+            </p>
+            <h1 className="sevacam-display mt-4 text-[clamp(2.8rem,7vw,5rem)] leading-[0.92] tracking-[-0.05em] text-(--text-primary)">
+              Reservation secured
             </h1>
-            <p className="mt-3 text-base text-(--text-secondary)">
-              Your appointment is confirmed and secured.
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-(--text-secondary)">
+              A clean printable receipt with the booking details your customer
+              actually needs to keep.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl bg-(--bg-surface) shadow-(--shadow-lg) motion-preset-slide-up-sm motion-delay-100 duration-500">
-            <div className="border-b border-(--border-muted) bg-(--bg-elevated) px-6 py-5">
-              <p className="text-[11px] font-medium uppercase tracking-widest text-(--text-secondary)">
-                Booking Confirmed
-              </p>
-              <p className="mt-1 text-lg font-medium text-(--text-primary)">
-                {booking.services.name}
-              </p>
-            </div>
+          <div className="mx-auto max-w-md motion-preset-slide-up-sm motion-delay-100 duration-500 print:max-w-[28rem]">
+            <div className="relative px-5 sm:px-0">
+              <div
+                className="absolute inset-x-7 -top-3 h-4 print:hidden sm:inset-x-2"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(-45deg, transparent 8px, #f4efe7 0), linear-gradient(45deg, transparent 8px, #f4efe7 0)",
+                  backgroundPosition: "0 0, 8px 0",
+                  backgroundSize: "16px 16px",
+                  backgroundRepeat: "repeat-x",
+                }}
+              />
 
-            <div className="divide-y divide-(--border-muted)">
-              <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-elevated)">
-                  <User className="h-4 w-4 text-(--text-secondary)" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-(--text-secondary)">
-                    Provider
+              <article className="relative bg-[#f4efe7] px-7 pb-8 pt-9 text-[#1c2740] shadow-[0_32px_90px_rgba(0,0,0,0.42)] print:shadow-none sm:px-9">
+                <div className="text-center font-mono">
+                  <p className="text-[0.72rem] font-bold uppercase tracking-[0.45em] text-[#1f3453]">
+                    SevaCam
                   </p>
-                  <p className="text-sm font-medium mt-0.5">{staffName}</p>
+                  <h2 className="mt-4 text-[2.15rem] font-black uppercase tracking-[0.34em] text-[#1c2740] sm:text-[2.55rem]">
+                    Receipt
+                  </h2>
+                  <p className="mx-auto mt-3 max-w-[18rem] text-[0.76rem] leading-5 text-[#2b3d5f]/78">
+                    Premium booking confirmation and payment record.
+                  </p>
+                  <p className="mt-4 text-[0.82rem] font-semibold text-[#1f3453]">
+                    Ref: {receiptId}
+                  </p>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-elevated)">
-                  <Calendar className="h-4 w-4 text-(--text-secondary)" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-(--text-secondary)">
-                    Date
-                  </p>
-                  <p className="text-sm font-medium mt-0.5">
-                    {formatLongDateInTimeZone(startDate, timeZone)}
-                  </p>
-                </div>
-              </div>
+                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
 
-              <div className="flex items-center gap-4 px-6 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-elevated)">
-                  <Clock className="h-4 w-4 text-(--text-secondary)" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-(--text-secondary)">
-                    Time
-                  </p>
-                  <p className="text-sm font-medium mt-0.5">
-                    {formatTimeInTimeZone(startDate, timeZone)} &rarr;{" "}
-                    {formatTimeInTimeZone(endDate, timeZone)}
-                    <span className="ml-2 font-normal text-(--text-secondary)">
-                      ({booking.services.duration_minutes} min)
+                <div className="space-y-1.5 font-mono text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-[#223552]">
+                  <div className="flex items-start justify-between gap-4">
+                    <span>Date</span>
+                    <span className="text-right normal-case tracking-[0.08em]">
+                      {formatDateTimeInTimeZone(issuedDate, timeZone)}
                     </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <span>Status</span>
+                    <span className="text-right capitalize tracking-[0.08em]">
+                      {paymentStatus}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <span>Booking</span>
+                    <span className="text-right tracking-[0.08em]">
+                      {bookingReference}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
+
+                <div className="space-y-1 font-mono text-[0.74rem] leading-5 text-[#2c3f61]">
+                  <p className="break-all">Customer: {customerEmail}</p>
+                  <p>Provider: {staffName}</p>
+                  <p>When: {formatLongDateInTimeZone(startDate, timeZone)}</p>
+                  <p>
+                    Time: {formatTimeInTimeZone(startDate, timeZone)} -{" "}
+                    {formatTimeInTimeZone(endDate, timeZone)}
+                  </p>
+                  <p>Time zone: {timeZone || DEFAULT_CUSTOMER_TIMEZONE}</p>
+                  <p className="break-all">Payment ref: {paymentReference}</p>
+                </div>
+
+                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
+
+                <div className="space-y-3 font-mono text-[0.78rem] text-[#1d2c47]">
+                  {receiptRows.map((row) => (
+                    <div
+                      key={row.label}
+                      className="grid grid-cols-[minmax(0,1fr)_5.5rem] gap-4"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-bold uppercase tracking-[0.12em]">
+                          {row.label}
+                        </p>
+                        <p className="mt-0.5 break-words leading-5 text-[#2c3f61]">
+                          {row.value}
+                        </p>
+                      </div>
+                      <p className="text-right font-bold tracking-[0.06em]">
+                        {row.amount || "--"}
+                      </p>
+                    </div>
+                  ))}
+                  {balanceRemaining > 0 && (
+                    <div className="grid grid-cols-[minmax(0,1fr)_5.5rem] gap-4">
+                      <div>
+                        <p className="font-bold uppercase tracking-[0.12em]">
+                          Remaining
+                        </p>
+                        <p className="mt-0.5 leading-5 text-[#2c3f61]">
+                          Outstanding after this payment
+                        </p>
+                      </div>
+                      <p className="text-right font-bold tracking-[0.06em]">
+                        {formatMoney(balanceRemaining, "USD")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
+
+                <div className="flex items-end justify-between gap-4 font-mono">
+                  <div>
+                    <p className="text-[0.82rem] font-bold uppercase tracking-[0.14em] text-[#2b3d5f]/72">
+                      Total Paid
+                    </p>
+                    <p className="mt-2 text-[2.2rem] font-black tracking-[0.04em] text-[#1c2740]">
+                      {formatMoney(amountPaid, currency)}
+                    </p>
+                  </div>
+                  <p className="pb-2 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-[#2b3d5f]/72">
+                    {providerLabel}
                   </p>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between px-6 py-5 bg-(--bg-inset)">
-                <p className="text-sm font-medium text-(--text-secondary)">
-                  Total
-                </p>
-                <p className="text-lg font-semibold text-(--text-primary)">
-                  {formatPrice(booking.services.price)}
-                </p>
-              </div>
+                <div className="mt-6 flex items-center justify-center gap-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-[#2b3d5f]/75">
+                  <span>Paid</span>
+                  <span className="h-1 w-1 rounded-full bg-[#2b3d5f]/45" />
+                  <span>{booking.services.duration_minutes} min</span>
+                  <span className="h-1 w-1 rounded-full bg-[#2b3d5f]/45" />
+                  <span>{booking.id.slice(0, 6).toUpperCase()}</span>
+                </div>
+
+                <div className="mt-7">
+                  <div
+                    className="h-20 w-full"
+                    style={{
+                      backgroundImage:
+                        "repeating-linear-gradient(90deg, #192744 0 3px, transparent 3px 5px, #192744 5px 8px, transparent 8px 10px, #192744 10px 13px, transparent 13px 15px)",
+                    }}
+                  />
+                </div>
+              </article>
+
+              <div
+                className="absolute inset-x-7 -bottom-3 h-4 rotate-180 print:hidden sm:inset-x-2"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(-45deg, transparent 8px, #f4efe7 0), linear-gradient(45deg, transparent 8px, #f4efe7 0)",
+                  backgroundPosition: "0 0, 8px 0",
+                  backgroundSize: "16px 16px",
+                  backgroundRepeat: "repeat-x",
+                }}
+              />
             </div>
           </div>
 
-          <div className="mt-8 rounded-2xl bg-(--bg-elevated) p-5 motion-preset-slide-up-sm motion-delay-200 duration-500">
-            <p className="mb-3 text-sm font-medium">What&apos;s next?</p>
-            <ul className="space-y-2.5 text-sm text-(--text-secondary)">
-              <li className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)/60" />
-                You&apos;ll receive a confirmation email shortly.
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)/60" />
-                We&apos;ll send a reminder before your appointment.
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)/60" />
-                Manage your booking anytime from your dashboard.
-              </li>
-            </ul>
-          </div>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row motion-preset-slide-up-sm motion-delay-300 duration-500">
-            <Link
-              href="/bookings"
-              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-md) bg-(--bg-surface) border border-(--border-muted) px-4 py-3.5 text-sm font-medium transition-colors hover:bg-(--bg-elevated) hover:border-(--border-interactive) text-(--text-primary)"
-            >
-              <CalendarDays className="h-4 w-4 text-(--text-secondary)" />
-              My Bookings
-            </Link>
-            <Link
-              href="/services"
-              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-md) bg-(--accent-primary) px-4 py-3.5 text-sm font-medium text-(--text-on-accent) transition-colors hover:bg-(--accent-primary-hover)"
-            >
-              Book Another
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <div className="mx-auto mt-10 max-w-md motion-preset-slide-up-sm motion-delay-200 duration-500 print:hidden">
+            <PaymentReceiptActions />
           </div>
         </div>
       </div>
@@ -267,15 +396,26 @@ export default async function PaymentPage({
       : DEFAULT_CUSTOMER_TIMEZONE;
 
   // Returning from a payment provider (Stripe redirect or ABA sandbox confirm).
-  // Always render PaymentReturnStatus so the success modal can fire — even when
+  // Always render PaymentReturnStatus so the success modal can fire - even when
   // the payment is already completed server-side (e.g. Stripe webhook fires before
   // the user is redirected back). ConfirmedView is only shown at the clean URL
   // (no payment_id param), which the modal CTA navigates to.
   if (paymentId) {
     const payment = await getPayment(paymentId, stripeSessionId);
 
+    if ((payment?.status ?? "").toLowerCase() === "completed") {
+      return (
+        <PaymentReturnStatus
+          paymentId={paymentId}
+          initialPayment={payment}
+          stripeSessionId={stripeSessionId ?? null}
+          autoRefresh
+        />
+      );
+    }
+
     return (
-      <div className="min-h-screen bg-(--bg-base)">
+      <div className="sevacam-home min-h-screen bg-(--bg-base) text-(--text-primary)">
         <div className="container py-12">
           <div className="mx-auto max-w-2xl">
             <PaymentReturnStatus
@@ -290,20 +430,28 @@ export default async function PaymentPage({
     );
   }
 
-  // No payment_id — load booking to determine state
+  // No payment_id - load booking to determine state
   const booking = await getBooking(bookingId);
   if (!booking?.services) notFound();
 
   // Already paid (direct URL visit or back-navigation after completion)
   if ((booking.payment_status ?? "").toLowerCase() === "paid") {
-    return <ConfirmedView booking={booking} timeZone={displayTimeZone} />;
+    const payments = await getBookingPayments(booking.id);
+    return (
+      <ConfirmedView
+        booking={booking}
+        payment={payments[0] ?? null}
+        customerEmail={me.email}
+        timeZone={displayTimeZone}
+      />
+    );
   }
 
-  // Needs payment — show payment form
+  // Needs payment - show payment form
   return (
-    <div className="min-h-screen bg-(--bg-base)">
-      <div className="container motion-page py-12">
-        <div className="mx-auto max-w-2xl">
+    <div className="sevacam-home min-h-screen bg-(--bg-base) text-(--text-primary)">
+      <div className="container motion-page py-10 sm:py-12">
+        <div className="mx-auto w-full">
           <PaymentForm booking={booking} timeZone={displayTimeZone} />
         </div>
       </div>

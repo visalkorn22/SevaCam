@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -48,18 +48,9 @@ export function PaymentReturnStatus({
     stripeSessionId,
   });
 
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  useEffect(() => {
-    if (payment?.status !== "completed") return;
-    const key = `payment_success_shown_${paymentId}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-    setShowSuccess(true);
-  }, [payment?.status, paymentId]);
-
   const status: PaymentStatus = payment?.status || "pending";
   const isTerminal = ["completed", "failed", "refunded"].includes(status);
+  const showSuccessExperience = status === "completed";
 
   const statusMeta = useMemo(() => {
     if (status === "completed") {
@@ -109,132 +100,131 @@ export function PaymentReturnStatus({
   const StatusIcon = statusMeta.icon;
 
   return (
-    <div className="mx-auto max-w-lg space-y-5 motion-preset-slide-up-sm motion-duration-500">
-      {/* Page heading */}
-      <div className="pb-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Payment Status
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Checking your payment with{" "}
-          {payment?.provider?.replace("_", " ") || "the provider"}&hellip;
-        </p>
-      </div>
+    <>
+      {!showSuccessExperience && (
+        <div className="mx-auto max-w-lg space-y-5 motion-preset-slide-up-sm motion-duration-500">
+          <div className="pb-1">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Payment Status
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Checking your payment with{" "}
+              {payment?.provider?.replace("_", " ") || "the provider"}&hellip;
+            </p>
+          </div>
 
-      {/* Status card */}
-      <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
-        {/* Status banner */}
-        <div className={`px-6 py-6 ${statusMeta.barClass}`}>
-          <div className="flex items-center gap-4">
-            <div
-              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ring-1 ${statusMeta.ringClass} ${statusMeta.iconClass}`}
-            >
-              <StatusIcon className="h-6 w-6" />
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+            <div className={`px-6 py-6 ${statusMeta.barClass}`}>
+              <div className="flex items-center gap-4">
+                <div
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ring-1 ${statusMeta.ringClass} ${statusMeta.iconClass}`}
+                >
+                  <StatusIcon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-foreground">
+                    {statusMeta.title}
+                  </p>
+                  <p className="mt-0.5 max-w-75 text-sm text-muted-foreground">
+                    {statusMeta.description}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-base font-semibold text-foreground">
-                {statusMeta.title}
-              </p>
-              <p className="mt-0.5 text-sm text-muted-foreground max-w-75">
-                {statusMeta.description}
-              </p>
+
+            <div className="bg-background px-6 py-5">
+              {isLoading && (
+                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                  Syncing latest status&hellip;
+                </div>
+              )}
+
+              {error && (
+                <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
+
+              {payment && (
+                <div className="space-y-2.5 rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Payment ID</span>
+                    <span className="font-mono text-xs text-foreground/70">
+                      {payment.id}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Amount</span>
+                    <span className="font-semibold text-foreground">
+                      {usd.format(Number(payment.amount || 0))}{" "}
+                      {payment.currency}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Provider</span>
+                    <span className="font-medium capitalize text-foreground">
+                      {payment.provider.replace("_", " ")}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+                {!isTerminal && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => refetch()}
+                    className="h-11 flex-1 rounded-xl border-border/60 hover:bg-muted/50"
+                  >
+                    <RefreshCw
+                      className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+                    />
+                    Refresh Status
+                  </Button>
+                )}
+                {payment?.booking_id && status === "completed" && (
+                  <Button asChild className="h-11 flex-1 rounded-xl shadow-sm">
+                    <Link href={`/payment/${payment.booking_id}`}>
+                      View Confirmation
+                    </Link>
+                  </Button>
+                )}
+                {payment?.booking_id && status !== "completed" && (
+                  <Button
+                    asChild
+                    variant="secondary"
+                    className="h-11 flex-1 rounded-xl"
+                  >
+                    <Link href={`/payment/${payment.booking_id}`}>
+                      Try Payment Again
+                    </Link>
+                  </Button>
+                )}
+              </div>
+
+              <div className="mt-3 text-center">
+                <Button
+                  asChild
+                  variant="link"
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <Link href="/bookings">Return to My Bookings</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Body */}
-        <div className="px-6 py-5 bg-background">
-          {isLoading && (
-            <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-              Syncing latest status&hellip;
-            </div>
-          )}
-
-          {error && (
-            <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-
-          {payment && (
-            <div className="space-y-2.5 rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Payment ID</span>
-                <span className="font-mono text-xs text-foreground/70">
-                  {payment.id}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Amount</span>
-                <span className="font-semibold text-foreground">
-                  {usd.format(Number(payment.amount || 0))}{" "}
-                  {payment.currency}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Provider</span>
-                <span className="font-medium capitalize text-foreground">
-                  {payment.provider.replace("_", " ")}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
-            {!isTerminal && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => refetch()}
-                className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/50"
-              >
-                <RefreshCw
-                  className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-                />
-                Refresh Status
-              </Button>
-            )}
-            {payment?.booking_id && status === "completed" && (
-              <Button asChild className="flex-1 h-11 rounded-xl shadow-sm">
-                <Link href={`/payment/${payment.booking_id}`}>
-                  View Confirmation
-                </Link>
-              </Button>
-            )}
-            {payment?.booking_id && status !== "completed" && (
-              <Button
-                asChild
-                variant="secondary"
-                className="flex-1 h-11 rounded-xl"
-              >
-                <Link href={`/payment/${payment.booking_id}`}>
-                  Try Payment Again
-                </Link>
-              </Button>
-            )}
-          </div>
-
-          <div className="mt-3 text-center">
-            <Button
-              asChild
-              variant="link"
-              className="text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Link href="/bookings">Return to My Bookings</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
+      )}
 
       <PaymentSuccessModal
-        open={showSuccess}
+        open={showSuccessExperience}
         bookingId={payment?.booking_id ?? ""}
         amount={Number(payment?.amount ?? 0)}
         currency={payment?.currency}
         onConfirm={() => router.replace(`/payment/${payment?.booking_id}`)}
       />
-    </div>
+    </>
   );
 }

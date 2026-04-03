@@ -45,7 +45,7 @@ export default async function SettingsPage() {
       </div>
 
       <div className="space-y-6">
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle>Notifications</CardTitle>
             <CardDescription>
@@ -71,7 +71,7 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card className="">
           <CardHeader>
             <CardTitle>Account</CardTitle>
             <CardDescription>Manage your account security</CardDescription>

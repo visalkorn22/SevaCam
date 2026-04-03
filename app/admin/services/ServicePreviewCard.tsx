@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Eye, Star, Clock, Users } from "lucide-react";
+import { Clock, Star, Users } from "lucide-react";
 
 type ServicePreviewData = {
   name: string;
@@ -21,125 +19,111 @@ type ServicePreviewCardProps = {
   onDataChange?: (data: ServicePreviewData) => void;
 };
 
-export function ServicePreviewCard({
-  service,
-  onDataChange,
-}: ServicePreviewCardProps) {
-  const [failedImages, setFailedImages] = useState<Set<string>>(
-    () => new Set(),
-  );
+export function ServicePreviewCard({ service }: ServicePreviewCardProps) {
+  const [failedImages, setFailedImages] = useState<Set<string>>(() => new Set());
 
-  // Default image when no image is provided
   const defaultImage =
     "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop";
 
-  const displayImage =
-    service.image_url || service.image_urls?.[0] || defaultImage;
-  const displayName = service.name || "Full System Optimization";
+  const displayImage = service.image_url || service.image_urls?.[0] || defaultImage;
+  const displayName = service.name || "Service Name";
   const displayDescription =
     service.description ||
-    "Perfect your routine by switching your digital ecosystem. We streamline peak performance and productivity by hardening and reduce inefficiency.";
+    "Your service description will appear here. Add a compelling description to attract customers.";
   const priceValue = Number(service.price ?? 0);
   const displayPrice = Number.isFinite(priceValue) ? priceValue : 0;
   const displayDuration = service.duration_minutes || 60;
   const displayCategory = service.category || "WELLNESS";
-
   const imageError = failedImages.has(displayImage);
 
-  const handleImageError = () => {
-    if (failedImages.has(displayImage)) return;
-    setFailedImages((prev) => {
-      const next = new Set(prev);
-      next.add(displayImage);
-      return next;
-    });
-  };
-
   return (
-    <div className="mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
+    <div className="overflow-hidden rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) shadow-[0_8px_32px_rgba(0,0,0,0.22)]">
+      {/* Label */}
+      <div className="border-b border-(--border-subtle) px-5 py-3">
+        <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
+          Customer preview
+        </p>
+      </div>
+
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden bg-(--bg-base)">
         <img
           src={imageError ? defaultImage : displayImage}
           alt={displayName}
           className="h-full w-full object-cover"
-          onError={handleImageError}
+          onError={() => {
+            if (!failedImages.has(displayImage))
+              setFailedImages((p) => { const n = new Set(p); n.add(displayImage); return n; });
+          }}
         />
+        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
 
-        {/* Featured Badge */}
-        <div className="absolute top-3 left-3">
-          <Badge className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
-            FEATURED
-          </Badge>
+        {/* Category chip */}
+        <div className="absolute left-3 top-3">
+          <span className="inline-flex items-center rounded-full bg-black/40 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.15em] text-white/80 backdrop-blur-sm">
+            {displayCategory}
+          </span>
         </div>
 
-        {/* Status Badge */}
-        <div className="absolute top-3 right-3">
-          <Badge
-            className={`text-xs font-medium px-3 py-1 rounded-full border ${
-              service.is_active
-                ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                : "bg-amber-100 text-amber-700 border-amber-200"
-            }`}
-          >
-            {service.is_active ? "ACTIVE" : "DRAFT"}
-          </Badge>
+        {/* Status chip */}
+        <div className="absolute right-3 top-3">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.15em] ${
+            service.is_active
+              ? "bg-[rgba(122,213,221,0.18)] text-(--accent-primary)"
+              : "bg-[rgba(255,183,133,0.15)] text-(--state-warning)"
+          }`}>
+            {service.is_active ? "Active" : "Draft"}
+          </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-4">
-        {/* Header */}
-        <div className="space-y-2">
-          <div className="text-xs font-bold uppercase tracking-wider text-primary">
-            {displayCategory}
-          </div>
-          <h3 className="text-lg font-bold text-foreground leading-tight">
+      <div className="space-y-4 p-5">
+        <div className="space-y-1.5">
+          <h3 className="text-base font-semibold leading-snug text-(--text-primary)">
             {displayName}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          <p className="line-clamp-2 text-sm leading-6 text-(--text-secondary)">
             {displayDescription}
           </p>
         </div>
 
-        {/* Price */}
-        <div className="flex items-baseline justify-between">
-          <div className="text-2xl font-bold text-foreground">
+        {/* Price + rating */}
+        <div className="flex items-center justify-between">
+          <p className="text-2xl font-bold tracking-tight text-(--text-primary)">
             ${displayPrice.toFixed(2)}
-          </div>
-          <div className="flex items-center gap-1 text-amber-500">
-            <Star className="h-3 w-3 fill-current" />
-            <Star className="h-3 w-3 fill-current" />
-            <Star className="h-3 w-3 fill-current" />
-            <Star className="h-3 w-3 fill-current" />
-            <Star className="h-3 w-3 fill-current" />
-            <span className="text-xs text-muted-foreground ml-1">5.0</span>
+          </p>
+          <div className="flex items-center gap-1 text-(--accent-primary)">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className="h-3 w-3 fill-current" />
+            ))}
+            <span className="ml-1 text-xs text-(--text-disabled)">5.0</span>
           </div>
         </div>
 
-        {/* Details */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            <span>{displayDuration} mins</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-4 w-4" />
-            <span>1-2 guests</span>
-          </div>
+        {/* Meta */}
+        <div className="flex items-center gap-4 text-sm text-(--text-secondary)">
+          <span className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" />
+            {displayDuration} min
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5" />
+            1–2 guests
+          </span>
         </div>
 
-        {/* Action Button */}
-        <div className="pt-2">
-          <Button className="w-full rounded-full py-2.5 font-semibold shadow-[var(--shadow-card)]">
-            Book Now
-          </Button>
-        </div>
+        {/* CTA */}
+        <button
+          type="button"
+          className="w-full rounded-[0.55rem] bg-(--accent-primary) py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-(--text-on-accent) transition-colors hover:bg-(--accent-primary-hover)"
+        >
+          Book Now
+        </button>
 
-        {/* Bottom Note */}
-        <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border/30">
-          This is how your service will appear to customers
-        </div>
+        <p className="text-center text-[0.65rem] text-(--text-disabled)">
+          This is how your service appears to customers
+        </p>
       </div>
     </div>
   );

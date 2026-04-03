@@ -3,19 +3,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ServicesLoading() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container motion-page space-y-12 py-10 sm:py-16">
-        <div className="grid gap-8 rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-card)] md:grid-cols-[1.5fr_1fr]">
+    <div className="sevacam-home min-h-screen bg-[var(--seva-base)] text-[var(--seva-text)]">
+      <div className="mx-auto max-w-[86rem] space-y-12 px-6 py-10 sm:px-8 lg:px-10 lg:py-12">
+        <div className="grid gap-8 border-b border-white/5 pb-12 md:grid-cols-[1.5fr_1fr]">
           <div className="space-y-4">
             <Skeleton className="h-3 w-32" />
             <Skeleton className="h-10 w-80" />
             <Skeleton className="h-5 w-full max-w-2xl" />
-            <div className="flex gap-3">
-              <Skeleton className="h-9 w-32 rounded-full" />
-              <Skeleton className="h-9 w-32 rounded-full" />
-            </div>
           </div>
-          <div className="space-y-3 rounded-xl border border-border bg-muted/50 p-6 shadow-[var(--shadow-card)]">
+          <div className="sevacam-rail space-y-3 p-6">
             <Skeleton className="h-5 w-32" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-11/12" />
@@ -23,24 +19,33 @@ export default function ServicesLoading() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
+        <div className="grid gap-8 lg:grid-cols-[19rem_minmax(0,1fr)]">
+          <div className="sevacam-rail p-6">
+            <div className="space-y-5">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-10">
+            <div className="space-y-3">
+              <Skeleton className="h-11 w-full rounded-lg" />
+              <Skeleton className="h-4 w-44" />
+            </div>
+
+            {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-5 w-40" />
+                <ServiceCardSkeleton />
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <ServiceCardSkeleton key={index} />
-          ))}
         </div>
       </div>
     </div>
   );
 }
-

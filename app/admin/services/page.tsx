@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import AdminServicesListClient from "./AdminServicesListClient";
 
 type MeUser = {
@@ -72,20 +72,25 @@ export default async function AdminServicesPage() {
   return (
     <DashboardLayout>
       <div className="space-y-8 motion-page">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Services
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-2">
+            <p className="sevacam-eyebrow">Admin / Services</p>
+            <h1 className="sevacam-display text-[clamp(2.4rem,4vw,3.8rem)] leading-[0.92] tracking-[-0.04em] text-(--text-primary)">
+              Service Catalogue
             </h1>
-            <p className="text-muted-foreground">
-              Manage all service offerings
+            <p className="text-sm leading-6 text-(--text-secondary)">
+              {services.length > 0
+                ? `${services.length} service${services.length !== 1 ? "s" : ""} - manage offerings visible to customers`
+                : "No services yet - create your first to start accepting bookings"}
             </p>
           </div>
-
-          <Button asChild className="rounded-xl shadow-[var(--shadow-card)]">
+          <Button
+            asChild
+            className="sevacam-primary-button min-h-11 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
+          >
             <Link href="/admin/services/new">
-              <Plus className="mr-2 size-4" />
-              Add Service
+              <Plus className="mr-2 size-3.5" />
+              New Service
             </Link>
           </Button>
         </div>

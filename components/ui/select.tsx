@@ -33,15 +33,15 @@ function SelectTrigger({
   size?: 'sm' | 'default'
 }) {
   return (
-    <SelectPrimitive.Trigger
-      data-slot="select-trigger"
-      data-size={size}
-      className={cn(
-        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-background px-3 py-2 text-sm whitespace-nowrap shadow-sm motion-standard motion-safe:active:scale-[0.98] motion-reduce:active:scale-100 motion-reduce:transition-none outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
-      {...props}
-    >
+      <SelectPrimitive.Trigger
+        data-slot="select-trigger"
+        data-size={size}
+        className={cn(
+          "border-[color:var(--border-subtle,rgba(240,238,235,0.08))] data-placeholder:text-[var(--text-disabled,#8a837c)] [&_svg:not([class*='text-'])]:text-[var(--text-disabled,#8a837c)] aria-invalid:ring-destructive/20 aria-invalid:border-destructive flex w-fit items-center justify-between gap-2 rounded-md border bg-[var(--bg-inset,#171717)] px-3 py-2 text-sm text-[var(--text-primary,#f0eeeb)] whitespace-nowrap shadow-sm motion-standard motion-safe:active:scale-[0.98] motion-reduce:active:scale-100 motion-reduce:transition-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary,#7ad5dd)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base,#131313)] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
+        )}
+        {...props}
+      >
       {children}
       <SelectPrimitive.Icon asChild>
         <ChevronDownIcon className="size-4 opacity-50" />
@@ -61,7 +61,7 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          'motion-surface relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover text-popover-foreground data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none shadow-[var(--shadow-overlay)]',
+          'motion-surface relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-[0.7rem] border border-[color:var(--border-subtle,rgba(240,238,235,0.08))] bg-[var(--bg-elevated,#1c1b1b)] text-[var(--text-primary,#f0eeeb)] data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none shadow-[0_20px_40px_rgba(0,0,0,0.4)]',
           className,
         )}
         position={position}
@@ -105,7 +105,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none motion-standard focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex w-full cursor-default items-center gap-2 rounded-[0.4rem] py-1.5 pr-8 pl-2 text-sm text-[var(--text-primary,#f0eeeb)] outline-hidden select-none motion-standard focus:bg-[rgba(122,213,221,0.12)] focus:text-[var(--accent-primary,#7ad5dd)] data-[state=checked]:bg-[var(--accent-primary,#7ad5dd)] data-[state=checked]:text-[var(--text-on-accent,#07292d)] data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 seva-select-item",
         className,
       )}
       {...props}
