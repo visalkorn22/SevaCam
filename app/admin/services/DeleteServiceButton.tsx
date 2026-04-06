@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -80,11 +80,10 @@ export default function DeleteServiceButton({
     ) : (
       <Button
         type="button"
-        size="sm"
         variant="outline"
         aria-label="Archive service"
         disabled={isDeleting}
-        className="h-9 rounded-[0.45rem] border border-(--border-subtle) bg-(--bg-inset) px-3 text-(--text-secondary) motion-standard motion-press hover:border-[#ffb785]/35 hover:bg-[#ffb785]/10 hover:text-[#ffb785] motion-reduce:transition-none"
+        className="h-10 w-10 shrink-0 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) p-0 text-(--text-secondary) motion-standard motion-press hover:border-[#ffb785]/35 hover:bg-[#ffb785]/10 hover:text-[#ffb785] motion-reduce:transition-none"
       >
         <Trash2 className="size-4" />
       </Button>
@@ -108,35 +107,70 @@ export default function DeleteServiceButton({
     >
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent
-        className="w-[min(92vw,28rem)] rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.48)]"
-        overlayClassName="bg-black/78 backdrop-blur-sm"
+        className="w-[min(92vw,31rem)] rounded-[1.15rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] p-0 text-[#f0eeeb] shadow-[0_24px_70px_rgba(0,0,0,0.55)]"
+        overlayClassName="bg-[rgba(6,8,10,0.78)] backdrop-blur-md"
       >
-        <AlertDialogHeader>
-          <AlertDialogTitle>{titleText}</AlertDialogTitle>
-          <AlertDialogDescription className="leading-6">
-            Customers will no longer see this service in the booking flow. You
-            can restore it later by editing it.
-          </AlertDialogDescription>
+        <AlertDialogHeader className="border-b border-white/5 px-6 pb-5 pt-6">
+          <div className="mb-4 flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.9rem] border border-[#ffb785]/20 bg-[#ffb785]/10 text-[#ffb785]">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <div className="space-y-2">
+              <span className="inline-flex rounded-full border border-[#ffb785]/20 bg-[#ffb785]/8 px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#ffcfaf]">
+                Archive Service
+              </span>
+              <AlertDialogTitle className="text-[1.1rem] font-semibold tracking-[-0.03em] text-[#f0eeeb]">
+                {titleText}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-sm leading-6 text-[#c7c2bb]">
+                Customers will no longer see this service in the booking flow.
+                You can restore it later by editing it.
+              </AlertDialogDescription>
+            </div>
+          </div>
         </AlertDialogHeader>
 
-        {errorMessage ? (
-          <p className="mt-3 rounded-[0.7rem] border border-[#ffb785]/25 bg-[#ffb785]/10 px-3 py-2 text-sm text-[#ffcfaf]">
-            {errorMessage}
-          </p>
-        ) : null}
+        <div className="space-y-4 px-6 py-5">
+          <div className="rounded-[0.9rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] p-4">
+            <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]">
+              Impact
+            </p>
+            <div className="mt-3 space-y-2 text-sm">
+              <p className="text-[#c7c2bb]">
+                Service:
+                <span className="ml-2 font-medium text-[#f0eeeb]">
+                  {serviceName || "Untitled service"}
+                </span>
+              </p>
+              <p className="text-[#c7c2bb]">
+                Archive hides this service from customers immediately.
+              </p>
+              <p className="text-[#c7c2bb]">
+                Existing records stay intact and the service can be restored later.
+              </p>
+            </div>
+          </div>
 
-        <AlertDialogFooter className="mt-5 gap-2">
+          {errorMessage ? (
+            <p className="rounded-[0.8rem] border border-[#ffb785]/25 bg-[#ffb785]/8 px-4 py-3 text-sm text-[#ffcfaf]">
+              {errorMessage}
+            </p>
+          ) : null}
+        </div>
+
+        <AlertDialogFooter className="border-t border-white/5 px-6 pb-6 pt-5 sm:justify-between">
           <AlertDialogCancel
             disabled={isDeleting}
-            className="!mt-0 !h-10 !rounded-[0.55rem] !border-[var(--border-subtle)] !bg-[var(--bg-inset)] !px-4 !text-[0.62rem] !font-semibold !uppercase !tracking-[0.16em] !text-[var(--text-primary)] hover:!border-[rgba(122,213,221,0.3)] hover:!text-[var(--accent-primary)]"
+            className="mt-0 h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] !text-[#f0eeeb] transition-colors hover:border-[rgba(122,213,221,0.3)] hover:!text-[#7ad5dd]"
           >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
-            className="!h-10 !rounded-[0.55rem] !border !border-[#ffb785]/30 !bg-[#ffb785]/12 !px-4 !text-[0.62rem] !font-semibold !uppercase !tracking-[0.16em] !text-[#ffcfaf] hover:!bg-[#ffb785]/18"
+            className="h-10 rounded-[0.55rem] border border-[#ffb785]/28 bg-[#ffb785]/12 px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] !text-[#ffe2cf] transition-colors hover:bg-[#ffb785]/18 hover:!text-[#fff0e5]"
           >
+            <Trash2 className="mr-2 h-4 w-4" />
             {isDeleting ? "Archiving..." : "Archive Service"}
           </AlertDialogAction>
         </AlertDialogFooter>

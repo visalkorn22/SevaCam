@@ -27,13 +27,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -151,19 +144,19 @@ const formatDetailValue = (value: unknown) => {
 };
 
 const panelClass =
-  "rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
+  "rounded-[1.1rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] text-[#f0eeeb] shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
 const insetPanelClass =
-  "rounded-[0.8rem] border border-(--border-subtle) bg-(--bg-inset)";
+  "rounded-[0.8rem] border border-[rgba(240,238,235,0.08)] bg-[#171717]";
 const fieldClass =
-  "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary)/40 focus-visible:ring-1 focus-visible:ring-(--accent-primary)";
+  "h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#f0eeeb] placeholder:text-[#8a837c] focus-visible:border-[rgba(122,213,221,0.4)] focus-visible:ring-1 focus-visible:ring-[#7ad5dd]";
 const triggerClass =
-  "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) data-[placeholder]:text-(--text-disabled)";
+  "h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#f0eeeb] data-[placeholder]:text-[#8a837c]";
 const primaryButtonClass =
   "sevacam-primary-button h-10 rounded-[0.45rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.16em]";
 const secondaryButtonClass =
-  "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-primary) transition-colors hover:border-(--accent-primary)/30 hover:text-(--accent-primary)";
+  "h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[#f0eeeb] transition-colors hover:border-[rgba(122,213,221,0.3)] hover:text-[#7ad5dd]";
 const actionButtonClass =
-  "h-8 rounded-[0.5rem] border border-(--border-subtle) bg-(--bg-inset) px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-secondary) transition-colors hover:border-(--accent-primary)/30 hover:text-(--accent-primary)";
+  "h-8 rounded-[0.5rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-[#c7c2bb] transition-colors hover:border-[rgba(122,213,221,0.3)] hover:text-[#7ad5dd]";
 const actionPrimaryClass =
   "sevacam-primary-button h-8 rounded-[0.5rem] px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] shadow-none";
 const actionWarmClass =
@@ -173,7 +166,7 @@ const actionDangerClass =
 
 const statusChipClass = (status: string) => {
   if (status === "confirmed" || status === "completed") {
-    return "border-(--accent-primary)/30 bg-(--accent-primary)/10 text-(--accent-primary)";
+    return "border-[rgba(122,213,221,0.3)] bg-[rgba(122,213,221,0.10)] text-[#7ad5dd]";
   }
   if (status === "pending") {
     return "border-[#ffb785]/30 bg-[#ffb785]/10 text-[#ffb785]";
@@ -181,12 +174,12 @@ const statusChipClass = (status: string) => {
   if (status === "cancelled" || status === "no-show") {
     return "border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] text-[#ff9c9c]";
   }
-  return "border-(--border-subtle) bg-(--bg-inset) text-(--text-secondary)";
+  return "border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#c7c2bb]";
 };
 
 const paymentChipClass = (status: string) => {
   if (status === "paid") {
-    return "border-(--accent-primary)/30 bg-(--accent-primary)/10 text-(--accent-primary)";
+    return "border-[rgba(122,213,221,0.3)] bg-[rgba(122,213,221,0.10)] text-[#7ad5dd]";
   }
   if (status === "failed") {
     return "border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] text-[#ff9c9c]";
@@ -194,7 +187,7 @@ const paymentChipClass = (status: string) => {
   if (status === "refunded") {
     return "border-[#ffb785]/30 bg-[#ffb785]/10 text-[#ffb785]";
   }
-  return "border-(--border-subtle) bg-(--bg-inset) text-(--text-secondary)";
+  return "border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#c7c2bb]";
 };
 
 export default function AdminBookingsClient({
@@ -560,7 +553,11 @@ export default function AdminBookingsClient({
     });
   }, [bookings, paymentFilter, search, statusFilter]);
 
-  const renderActionButtons = (booking: AdminBooking) => {
+  const renderActionButtons = (
+    booking: AdminBooking,
+    options?: { includeDetails?: boolean },
+  ) => {
+    const includeDetails = options?.includeDetails ?? true;
     const isStatusUpdating = statusLoadingId === booking.id;
     const canReschedule = !isTerminalStatus(booking.status);
     const canCancel =
@@ -570,14 +567,16 @@ export default function AdminBookingsClient({
 
     return (
       <div className="flex flex-wrap gap-2">
-        <Button
-          size="sm"
-          variant="ghost"
-          className={actionButtonClass}
-          onClick={() => void openDetails(booking)}
-        >
-          View Details
-        </Button>
+        {includeDetails ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            className={actionButtonClass}
+            onClick={() => void openDetails(booking)}
+          >
+            View Details
+          </Button>
+        ) : null}
 
         {booking.status === "pending" ? (
           <Button
@@ -664,76 +663,78 @@ export default function AdminBookingsClient({
         </div>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <Card className={insetPanelClass}>
-          <CardHeader className="pb-2">
-            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-              Total Bookings
-            </CardDescription>
-            <CardTitle className="flex items-center gap-2 text-[1.65rem] tracking-[-0.05em] text-(--text-primary)">
-              <Calendar className="size-5 text-(--accent-primary)" />
-              {summary.total}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        {/* Total Bookings — teal */}
+        <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(122,213,221,0.2)] bg-[rgba(122,213,221,0.07)] p-4">
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-accent)]" />
+          <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(122,213,221,0.08)] blur-xl" />
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-accent)]">Total Bookings</p>
+          <div className="mt-3 flex items-center gap-2">
+            <Calendar className="size-4 text-[var(--seva-accent)]" />
+            <span className="text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-(--text-primary)">{summary.total}</span>
+          </div>
+        </div>
 
-        <Card className={insetPanelClass}>
-          <CardHeader className="pb-2">
-            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-              Pending
-            </CardDescription>
-            <CardTitle className="text-[1.65rem] tracking-[-0.05em] text-[#ffb785]">
-              {summary.pending}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        {/* Pending — warm/amber */}
+        <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(255,183,133,0.2)] bg-[rgba(255,183,133,0.07)] p-4">
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-warm)]" />
+          <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(255,183,133,0.08)] blur-xl" />
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-warm)]">Pending</p>
+          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[var(--seva-warm)]">{summary.pending}</span>
+        </div>
 
-        <Card className={insetPanelClass}>
-          <CardHeader className="pb-2">
-            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-              Confirmed
-            </CardDescription>
-            <CardTitle className="text-[1.65rem] tracking-[-0.05em] text-(--text-primary)">
-              {summary.confirmed}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        {/* Confirmed — violet */}
+        <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(196,176,253,0.2)] bg-[rgba(196,176,253,0.07)] p-4">
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-violet)]" />
+          <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(196,176,253,0.08)] blur-xl" />
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-violet)]">Confirmed</p>
+          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[var(--seva-violet)]">{summary.confirmed}</span>
+        </div>
 
-        <Card className={insetPanelClass}>
-          <CardHeader className="pb-2">
-            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-              Paid
-            </CardDescription>
-            <CardTitle className="flex items-center gap-2 text-[1.65rem] tracking-[-0.05em] text-(--text-primary)">
-              <Wallet className="size-5 text-(--accent-primary)" />
-              {summary.paid}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        {/* Paid — teal */}
+        <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(122,213,221,0.2)] bg-[rgba(122,213,221,0.07)] p-4">
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-accent)]" />
+          <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(122,213,221,0.08)] blur-xl" />
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-accent)]">Paid</p>
+          <div className="mt-3 flex items-center gap-2">
+            <Wallet className="size-4 text-[var(--seva-accent)]" />
+            <span className="text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-(--text-primary)">{summary.paid}</span>
+          </div>
+        </div>
 
-        <Card className={insetPanelClass}>
-          <CardHeader className="pb-2">
-            <CardDescription className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-              Needs Attention
-            </CardDescription>
-            <CardTitle className="text-[1.65rem] tracking-[-0.05em] text-[#ffb785]">
-              {summary.attention}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        {/* Needs Attention — rose */}
+        <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(249,168,196,0.2)] bg-[rgba(249,168,196,0.07)] p-4">
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-rose)]" />
+          <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(249,168,196,0.08)] blur-xl" />
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-rose)]">Needs Attention</p>
+          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[var(--seva-rose)]">{summary.attention}</span>
+        </div>
       </div>
 
-      <Card className={panelClass}>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-[1.15rem] tracking-[-0.03em] text-(--text-primary)">
-            Filters
-          </CardTitle>
-          <CardDescription className="text-(--text-secondary)">
-            Search by service, customer, staff, or booking ID.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_220px_220px_auto]">
+      <div className="sevacam-rail overflow-hidden">
+        <div className="flex items-center justify-between gap-4 border-b border-white/5 px-5 py-4">
+          <div>
+            <p className="sevacam-eyebrow">Filters</p>
+            <p className="mt-1 text-[0.76rem] text-(--seva-text-muted)">
+              Search by service, customer, staff, or booking ID.
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            className={secondaryButtonClass}
+            onClick={() => void loadBookings()}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <LoaderCircle className="size-4 animate-spin" />
+            ) : (
+              <RefreshCcw className="size-4" />
+            )}
+            Refresh
+          </Button>
+        </div>
+        <div className="space-y-4 p-5">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_220px_220px]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-(--text-disabled)" />
               <Input
@@ -771,30 +772,16 @@ export default function AdminBookingsClient({
                 ))}
               </SelectContent>
             </Select>
-
-            <Button
-              variant="ghost"
-              className={secondaryButtonClass}
-              onClick={() => void loadBookings()}
-              disabled={isRefreshing}
-            >
-              {isRefreshing ? (
-                <LoaderCircle className="size-4 animate-spin" />
-              ) : (
-                <RefreshCcw className="size-4" />
-              )}
-              Refresh
-            </Button>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-(--text-secondary)">
+          <div className="flex items-center justify-between text-[0.78rem] text-(--text-secondary)">
             <span>
-              Showing {filteredBookings.length} of {bookings.length} bookings
+              Showing <span className="font-semibold text-(--text-primary)">{filteredBookings.length}</span> of {bookings.length} bookings
             </span>
             {(search || statusFilter !== "all" || paymentFilter !== "all") && (
               <button
                 type="button"
-                className="font-medium text-(--accent-primary) hover:underline"
+                className="font-semibold text-(--accent-primary) hover:underline"
                 onClick={() => {
                   setSearch("");
                   setStatusFilter("all");
@@ -805,180 +792,79 @@ export default function AdminBookingsClient({
               </button>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {filteredBookings.length > 0 ? (
-        <div className="grid gap-4">
-          {filteredBookings.map((booking) => {
-            const isPast =
-              new Date(booking.start_time_utc).getTime() < Date.now();
+        <div className="overflow-hidden rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
+          {filteredBookings.map((booking, idx) => {
+            const isPast = new Date(booking.start_time_utc).getTime() < Date.now();
+            const isLast = idx === filteredBookings.length - 1;
 
             return (
-              <Card
+              <button
                 key={booking.id}
+                type="button"
+                onClick={() => void openDetails(booking)}
                 className={cn(
-                  `${panelClass} transition-colors`,
-                  isPast &&
-                    booking.status === "pending" &&
-                    "border-[#ffb785]/30",
+                  "flex w-full cursor-pointer flex-col gap-2 px-5 py-4 text-left transition-colors hover:bg-(--bg-inset)/50 sm:flex-row sm:items-center sm:justify-between",
+                  !isLast && "border-b border-(--border-subtle)",
+                  isPast && booking.status === "pending" && "border-l-2 border-l-[#ffb785]/60",
                 )}
               >
-                <CardHeader className="gap-4">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <CardTitle className="text-[1.2rem] tracking-[-0.03em] text-(--text-primary)">
-                          {booking.service?.name || "Service"}
-                        </CardTitle>
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
-                            statusChipClass(booking.status),
-                          )}
-                        >
-                          {formatStatusLabel(booking.status)}
-                        </span>
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
-                            paymentChipClass(booking.payment_status),
-                          )}
-                        >
-                          {formatStatusLabel(booking.payment_status)}
-                        </span>
-                      </div>
-
-                      <CardDescription className="flex flex-wrap items-center gap-3 text-sm text-(--text-secondary)">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="size-4" />
-                          {formatDateTime(booking.start_time_utc)}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock3 className="size-4" />
-                          {booking.service?.duration_minutes || 0} mins
-                        </span>
-                        <span className="font-medium text-(--accent-primary)">
-                          {formatMoney(booking.service?.price)}
-                        </span>
-                      </CardDescription>
-                    </div>
-
-                    <div className="rounded-[0.7rem] bg-(--bg-inset) px-3 py-2 text-right text-xs text-(--text-disabled) ring-1 ring-(--border-subtle)">
-                      <div>Booking ID</div>
-                      <div className="mt-1 font-mono text-(--text-primary)">
-                        {booking.id.slice(0, 8)}
-                      </div>
-                    </div>
+                {/* Left: identity */}
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-(--text-primary)">
+                      {booking.service?.name || "Service"}
+                    </span>
+                    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em]", statusChipClass(booking.status))}>
+                      {formatStatusLabel(booking.status)}
+                    </span>
+                    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em]", paymentChipClass(booking.payment_status))}>
+                      {formatStatusLabel(booking.payment_status)}
+                    </span>
                   </div>
-                </CardHeader>
-
-                <CardContent className="space-y-5">
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className={`${insetPanelClass} p-4`}>
-                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                        Customer
-                      </p>
-                      <div className="mt-3 space-y-2 text-sm">
-                        <p className="flex items-center gap-2 font-medium text-(--text-primary)">
-                          <UserRound className="size-4 text-(--text-disabled)" />
-                          {booking.customer?.full_name || "Customer"}
-                        </p>
-                        {booking.customer?.email ? (
-                          <p className="flex items-center gap-2 text-(--text-secondary)">
-                            <Mail className="size-4" />
-                            {booking.customer.email}
-                          </p>
-                        ) : null}
-                        {booking.customer?.phone ? (
-                          <p className="flex items-center gap-2 text-(--text-secondary)">
-                            <Phone className="size-4" />
-                            {booking.customer.phone}
-                          </p>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className={`${insetPanelClass} p-4`}>
-                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                        Staff
-                      </p>
-                      <div className="mt-3 space-y-2 text-sm">
-                        <p className="flex items-center gap-2 font-medium text-(--text-primary)">
-                          <UserRound className="size-4 text-(--text-disabled)" />
-                          {booking.staff?.full_name || "Unassigned"}
-                        </p>
-                        <p className="text-(--text-secondary)">
-                          Local timezone: {timezone}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className={`${insetPanelClass} p-4`}>
-                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                        Service
-                      </p>
-                      <div className="mt-3 space-y-2 text-sm">
-                        <p className="font-medium text-(--text-primary)">
-                          {booking.service?.name || "Service"}
-                        </p>
-                        <p className="text-(--text-secondary)">
-                          Duration: {booking.service?.duration_minutes || 0}{" "}
-                          mins
-                        </p>
-                        <p className="text-(--text-secondary)">
-                          Price: {formatMoney(booking.service?.price)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className={`${insetPanelClass} p-4`}>
-                      <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                        Workflow
-                      </p>
-                      <div className="mt-3 space-y-2 text-sm">
-                        <p className="font-medium text-(--text-primary)">
-                          {isPast ? "Past booking" : "Upcoming booking"}
-                        </p>
-                        <p className="text-(--text-secondary)">
-                          Payment: {formatStatusLabel(booking.payment_status)}
-                        </p>
-                        <p className="text-(--text-secondary)">
-                          Status: {formatStatusLabel(booking.status)}
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-(--text-secondary)">
+                    <span className="inline-flex items-center gap-1">
+                      <UserRound className="size-3" />
+                      {booking.customer?.full_name || "—"}
+                    </span>
+                    <span className="text-(--text-disabled)">·</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar className="size-3" />
+                      {formatDateTime(booking.start_time_utc)}
+                    </span>
+                    <span className="text-(--text-disabled)">·</span>
+                    <span>{booking.service?.duration_minutes || 0} min</span>
+                    <span className="text-(--text-disabled)">·</span>
+                    <span className="font-medium text-(--accent-primary)">{formatMoney(booking.service?.price)}</span>
                   </div>
+                </div>
 
-                  {renderActionButtons(booking)}
-                </CardContent>
-              </Card>
+                {/* Right: chevron hint */}
+                <div className="shrink-0 text-xs font-medium text-(--text-disabled)">
+                  View →
+                </div>
+              </button>
             );
           })}
         </div>
       ) : (
-        <Card className={panelClass}>
-          <CardContent className="flex flex-col items-center justify-center py-14 text-center">
+        <div className={panelClass}>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
             <Calendar className="mb-4 size-12 text-(--text-disabled)" />
-            <p className="text-lg font-semibold text-(--text-primary)">
-              No bookings match these filters
-            </p>
-            <p className="mt-2 text-sm text-(--text-secondary)">
-              Try widening the search or clearing the active filters.
-            </p>
+            <p className="text-[1rem] font-semibold text-(--text-primary)">No bookings match these filters</p>
+            <p className="mt-2 text-sm text-(--text-secondary)">Try widening the search or clearing the active filters.</p>
             <Button
               variant="ghost"
-              className={`mt-4 ${secondaryButtonClass}`}
-              onClick={() => {
-                setSearch("");
-                setStatusFilter("all");
-                setPaymentFilter("all");
-              }}
+              className={`mt-5 ${secondaryButtonClass}`}
+              onClick={() => { setSearch(""); setStatusFilter("all"); setPaymentFilter("all"); }}
             >
               Reset filters
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       <Sheet
@@ -994,180 +880,173 @@ export default function AdminBookingsClient({
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto border-l border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) sm:max-w-xl"
+          className="flex w-full flex-col overflow-hidden border-l border-(--border-subtle) bg-(--bg-surface) p-0 text-(--text-primary) sm:max-w-120"
         >
-          <SheetHeader className="border-b border-(--border-subtle) pb-4">
-            <SheetTitle className="text-[1.2rem] tracking-[-0.03em] text-(--text-primary)">
-              Booking Details
-            </SheetTitle>
-            <SheetDescription className="text-(--text-secondary)">
-              Review customer info, service details, and the full booking
-              timeline.
-            </SheetDescription>
-          </SheetHeader>
-
           {detailsBooking ? (
-            <div className="space-y-6 px-4 pb-8">
-              <div className={`${panelClass} p-5`}>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-xl font-semibold text-(--text-primary)">
-                    {detailsBooking.service?.name || "Service"}
-                  </h2>
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
-                      statusChipClass(detailsBooking.status),
-                    )}
-                  >
+            <>
+              {/* ── Header: bg-surface (lifted from page) ── */}
+              <div className="shrink-0 border-b border-(--border-subtle) bg-(--bg-surface) px-6 pb-5 pt-6">
+                <SheetTitle className="sr-only">Booking Details</SheetTitle>
+                <SheetDescription className="sr-only">Booking record detail view</SheetDescription>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em]", statusChipClass(detailsBooking.status))}>
                     {formatStatusLabel(detailsBooking.status)}
                   </span>
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em]",
-                      paymentChipClass(detailsBooking.payment_status),
-                    )}
-                  >
+                  <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em]", paymentChipClass(detailsBooking.payment_status))}>
                     {formatStatusLabel(detailsBooking.payment_status)}
                   </span>
                 </div>
-                <p className="mt-3 text-sm text-(--text-secondary)">
-                  {formatDateTime(detailsBooking.start_time_utc)}
+                <p className="mt-3 text-[1.2rem] font-semibold leading-tight tracking-[-0.03em] text-(--text-primary)">
+                  {detailsBooking.service?.name || "—"}
                 </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className={`${insetPanelClass} p-4 text-sm`}>
-                    <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                      Customer
-                    </p>
-                    <p className="mt-2 font-medium text-(--text-primary)">
-                      {detailsBooking.customer?.full_name || "Customer"}
-                    </p>
-                    {detailsBooking.customer?.email ? (
-                      <p className="mt-1 text-(--text-secondary)">
-                        {detailsBooking.customer.email}
-                      </p>
-                    ) : null}
-                    {detailsBooking.customer?.phone ? (
-                      <p className="mt-1 text-(--text-secondary)">
-                        {detailsBooking.customer.phone}
-                      </p>
-                    ) : null}
-                  </div>
+                <p className="mt-0.5 font-mono text-[0.7rem] text-(--text-disabled)">
+                  #{detailsBooking.id.slice(0, 8).toUpperCase()}
+                </p>
 
-                  <div className={`${insetPanelClass} p-4 text-sm`}>
-                    <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                      Service Info
-                    </p>
-                    <p className="mt-2 font-medium text-(--accent-primary)">
-                      {formatMoney(detailsBooking.service?.price)}
-                    </p>
-                    <p className="mt-1 text-(--text-secondary)">
-                      {detailsBooking.service?.duration_minutes || 0} minutes
-                    </p>
-                    <p className="mt-1 text-(--text-secondary)">
-                      Staff: {detailsBooking.staff?.full_name || "Unassigned"}
-                    </p>
-                  </div>
+                {/* Schedule strip — elevated card inside surface header */}
+                <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[0.7rem] bg-(--bg-elevated) px-4 py-3 text-sm">
+                  <span className="flex items-center gap-1.5 font-medium text-(--text-primary)">
+                    <Calendar className="size-3.5 text-(--accent-primary)" />
+                    {formatDateOnly(detailsBooking.start_time_utc)}
+                  </span>
+                  <span className="text-(--border-subtle)">·</span>
+                  <span className="flex items-center gap-1.5 text-(--text-secondary)">
+                    <Clock3 className="size-3.5 text-(--text-disabled)" />
+                    {formatTime(detailsBooking.start_time_utc)}
+                  </span>
+                  <span className="text-(--border-subtle)">·</span>
+                  <span className="text-(--text-secondary)">{detailsBooking.service?.duration_minutes || 0} min</span>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                  Actions
-                </p>
-                {renderActionButtons(detailsBooking)}
-              </div>
+              {/* ── Scrollable body ── */}
+              <div className="flex-1 overflow-y-auto bg-(--bg-surface) px-5 py-5">
+                <div className="space-y-3">
 
-              <div className="space-y-3">
-                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                  Change History
-                </p>
-                {detailsLoading ? (
-                  <p className="flex items-center gap-2 text-sm text-(--text-secondary)">
-                    <LoaderCircle className="size-4 animate-spin" />
-                    Loading timeline...
-                  </p>
-                ) : detailsError ? (
-                  <p className="text-sm text-[#ffcfaf]">{detailsError}</p>
-                ) : detailsChanges.length === 0 ? (
-                  <p className="text-sm text-(--text-secondary)">
-                    No reschedule or cancellation history yet.
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {detailsChanges.map((change) => (
-                      <div
-                        key={change.id}
-                        className={`${insetPanelClass} p-4 text-sm`}
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="font-semibold">
-                            {formatStatusLabel(change.change_type)}
-                          </p>
-                          <p className="text-xs text-(--text-secondary)">
-                            {formatDateTime(change.created_at)}
-                          </p>
-                        </div>
-                        {change.old_start_time && change.new_start_time ? (
-                          <p className="mt-2 text-(--text-secondary)">
-                            {formatDateOnly(change.old_start_time)}{" "}
-                            {formatTime(change.old_start_time)} to{" "}
-                            {formatDateOnly(change.new_start_time)}{" "}
-                            {formatTime(change.new_start_time)}
-                          </p>
-                        ) : null}
-                        {change.reason ? (
-                          <p className="mt-2 text-(--text-secondary)">
-                            Reason: {change.reason}
-                          </p>
-                        ) : null}
+                  {/* Customer card */}
+                  <div className="rounded-[0.75rem] bg-(--bg-elevated) px-4 py-4">
+                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">Customer</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2.5 text-sm">
+                        <UserRound className="size-4 shrink-0 text-(--text-disabled)" />
+                        <span className="font-medium text-(--text-primary)">{detailsBooking.customer?.full_name || "—"}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
-                  Activity Log
-                </p>
-                {detailsLoading ? null : detailsLogs.length === 0 ? (
-                  <p className="text-sm text-(--text-secondary)">
-                    No activity log recorded yet.
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {detailsLogs.map((log) => (
-                      <div
-                        key={log.id}
-                        className={`${insetPanelClass} p-4 text-sm`}
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="font-semibold">
-                            {formatStatusLabel(log.action)}
-                          </p>
-                          <p className="text-xs text-(--text-secondary)">
-                            {formatDateTime(log.created_at)}
-                          </p>
+                      {detailsBooking.customer?.email && (
+                        <div className="flex items-center gap-2.5 text-sm">
+                          <Mail className="size-4 shrink-0 text-(--text-disabled)" />
+                          <span className="text-(--text-secondary)">{detailsBooking.customer.email}</span>
                         </div>
+                      )}
+                      {detailsBooking.customer?.phone && (
+                        <div className="flex items-center gap-2.5 text-sm">
+                          <Phone className="size-4 shrink-0 text-(--text-disabled)" />
+                          <span className="text-(--text-secondary)">{detailsBooking.customer.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-                        {log.details && Object.keys(log.details).length > 0 ? (
-                          <div className="mt-3 space-y-1 text-xs text-(--text-secondary)">
-                            {Object.entries(log.details).map(([key, value]) => (
-                              <p key={key}>
-                                <span className="font-medium text-(--text-primary)">
-                                  {formatDetailKey(key)}:
-                                </span>{" "}
-                                {formatDetailValue(value)}
+                  {/* Staff + Price cards */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-[0.75rem] bg-(--bg-elevated) px-4 py-4">
+                      <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">Staff</p>
+                      <div className="flex items-center gap-2 text-sm">
+                        <UserRound className="size-4 shrink-0 text-(--text-disabled)" />
+                        <span className="font-medium text-(--text-primary)">{detailsBooking.staff?.full_name || "Unassigned"}</span>
+                      </div>
+                    </div>
+                    <div className="rounded-[0.75rem] bg-(--bg-elevated) px-4 py-4">
+                      <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">Price</p>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Wallet className="size-4 shrink-0 text-(--text-disabled)" />
+                        <span className="font-semibold text-(--accent-primary)">{formatMoney(detailsBooking.service?.price)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions card */}
+                  <div className="rounded-[0.75rem] bg-(--bg-elevated) px-4 py-4">
+                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">Actions</p>
+                    {renderActionButtons(detailsBooking, { includeDetails: false })}
+                  </div>
+
+                  {/* Change History */}
+                  <div className="rounded-[0.75rem] bg-(--bg-elevated) px-4 py-4">
+                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">Change History</p>
+                    {detailsLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-(--text-secondary)">
+                        <LoaderCircle className="size-4 animate-spin" />Loading…
+                      </div>
+                    ) : detailsError ? (
+                      <p className="text-sm text-[#ffcfaf]">{detailsError}</p>
+                    ) : detailsChanges.length === 0 ? (
+                      <p className="text-sm text-(--text-disabled)">No changes recorded.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {detailsChanges.map((change) => (
+                          <div key={change.id} className="relative border-l-2 border-(--accent-primary)/30 pl-4">
+                            <div className="absolute -left-1.25 top-1 h-2.5 w-2.5 rounded-full border-2 border-(--accent-primary) bg-(--bg-elevated)" />
+                            <div className="flex flex-wrap items-baseline justify-between gap-1">
+                              <p className="text-sm font-semibold text-(--text-primary)">{formatStatusLabel(change.change_type)}</p>
+                              <p className="text-xs text-(--text-disabled)">{formatDateTime(change.created_at)}</p>
+                            </div>
+                            {change.old_start_time && change.new_start_time && (
+                              <p className="mt-1 text-xs text-(--text-secondary)">
+                                {formatDateOnly(change.old_start_time)} {formatTime(change.old_start_time)}
+                                {" → "}
+                                {formatDateOnly(change.new_start_time)} {formatTime(change.new_start_time)}
                               </p>
-                            ))}
+                            )}
+                            {change.reason && (
+                              <p className="mt-1 text-xs text-(--text-secondary)">Reason: {change.reason}</p>
+                            )}
                           </div>
-                        ) : null}
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
+
+                  {/* Activity Log */}
+                  <div className="rounded-[0.75rem] bg-(--bg-elevated) px-4 py-4">
+                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">Activity Log</p>
+                    {detailsLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-(--text-secondary)">
+                        <LoaderCircle className="size-4 animate-spin" />Loading…
+                      </div>
+                    ) : detailsLogs.length === 0 ? (
+                      <p className="text-sm text-(--text-disabled)">No activity recorded.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {detailsLogs.map((log) => (
+                          <div key={log.id} className="relative border-l-2 border-(--border-subtle) pl-4">
+                            <div className="absolute -left-1.25 top-1 h-2.5 w-2.5 rounded-full border-2 border-(--border-subtle) bg-(--bg-elevated)" />
+                            <div className="flex flex-wrap items-baseline justify-between gap-1">
+                              <p className="text-sm font-semibold text-(--text-primary)">{formatStatusLabel(log.action)}</p>
+                              <p className="text-xs text-(--text-disabled)">{formatDateTime(log.created_at)}</p>
+                            </div>
+                            {log.performed_by && (
+                              <p className="mt-0.5 text-xs text-(--text-secondary)">by {log.performed_by}</p>
+                            )}
+                            {log.details && Object.keys(log.details).length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {Object.entries(log.details).map(([key, value]) => (
+                                  <span key={key} className="inline-flex items-baseline gap-1 rounded-[0.4rem] border border-(--border-subtle) bg-(--bg-inset) px-2 py-1 text-xs">
+                                    <span className="text-(--text-disabled)">{formatDetailKey(key)}:</span>
+                                    <span className="text-(--text-secondary)">{formatDetailValue(value)}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                </div>
               </div>
-            </div>
+            </>
           ) : null}
         </SheetContent>
       </Sheet>

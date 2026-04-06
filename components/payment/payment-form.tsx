@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Loader2,
   QrCode,
-  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePaymentPoller } from "@/hooks/use-payment-poller";
@@ -497,7 +496,6 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
   const startDate =
     parseDateValue(booking.start_time_utc) ?? new Date(booking.start_time_utc);
   const deposit = Number(booking.services.deposit_amount || 0);
-  const price = Number(booking.services.price || 0);
   const staffName = booking.staff?.full_name || "Assigned curator";
   const activeQrStatus = (
     polledPayment?.status ||
@@ -526,126 +524,49 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
 
   return (
     <>
-      <div className="mx-auto max-w-[84rem] space-y-8 text-(--text-primary) motion-preset-slide-up-sm motion-duration-500">
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_21rem]">
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <p className="sevacam-eyebrow">Payment Atelier</p>
-              <h1 className="sevacam-display text-[clamp(2.7rem,5vw,4.8rem)] leading-[0.92] tracking-[-0.05em]">
-                Complete your booking
-              </h1>
-              <p className="max-w-2xl text-sm leading-7 text-(--text-secondary)">
-                Review the reservation details, choose the payment rail you
-                prefer, and secure the appointment with a calm, trusted
-                checkout.
-              </p>
-            </div>
-
+      <div className="mx-auto max-w-2xl space-y-6 text-(--text-primary) motion-preset-slide-up-sm motion-duration-500">
             <div className="sevacam-rail overflow-hidden shadow-[0_24px_54px_rgba(0,0,0,0.22)]">
-              <div className="border-b border-(--border-subtle) bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.12),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))] px-6 py-6 sm:px-8 sm:py-8">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex min-h-8 items-center rounded-full bg-(--accent-subtle) px-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--accent-primary)">
-                    Reservation Summary
-                  </span>
-                  <span className="inline-flex min-h-8 items-center rounded-full bg-(--bg-elevated) px-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-secondary)">
-                    {deposit > 0 ? "Deposit due today" : "Full payment due today"}
-                  </span>
-                </div>
-
-                <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-end">
-                  <div>
-                    <h2 className="sevacam-display max-w-[14ch] text-[clamp(2.2rem,4vw,3.6rem)] leading-[0.94] tracking-[-0.05em] text-(--text-primary)">
-                      {booking.services.name}
-                    </h2>
-                    <p className="mt-4 max-w-2xl text-sm leading-7 text-(--text-secondary)">
-                      Reserved with {staffName} on{" "}
-                      {formatDateInTimeZone(startDate, timeZone)} at{" "}
-                      {formatTimeInTimeZone(startDate, timeZone)}. Choose the
-                      payment method that matches how you want to complete the
-                      booking today.
-                    </p>
+              {/* Booking summary */}
+              <div className="px-6 py-5 sm:px-8">
+                <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">Your Booking</p>
+                <div className="mt-3 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-(--text-primary)">{booking.services.name}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-(--text-secondary)">
+                      <span>{staffName}</span>
+                      <span className="text-(--border-subtle)">·</span>
+                      <span>{formatDateInTimeZone(startDate, timeZone)}</span>
+                      <span className="text-(--border-subtle)">·</span>
+                      <span>{formatTimeInTimeZone(startDate, timeZone)}</span>
+                      <span className="text-(--border-subtle)">·</span>
+                      <span>{booking.services.duration_minutes} min</span>
+                    </div>
                   </div>
-
-                  <div className="rounded-[0.7rem] bg-(--bg-elevated)/90 p-5 text-left shadow-[0_16px_30px_rgba(0,0,0,0.12)] lg:text-right">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                      Due Now
-                    </p>
-                    <p className="mt-3 text-[2.3rem] font-semibold tracking-[-0.04em] text-(--text-primary)">
-                      {usd.format(amount)}
-                    </p>
-                    <p className="mt-2 text-xs leading-6 text-(--text-secondary)">
-                      {deposit > 0
-                        ? `${usd.format(Math.max(price - deposit, 0))} settles at appointment`
-                        : "Your full reservation is secured after payment"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-[0.65rem] bg-(--bg-elevated)/88 px-4 py-4">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                      Curator
-                    </p>
-                    <p className="mt-3 text-sm font-medium text-(--text-primary)">
-                      {staffName}
-                    </p>
-                  </div>
-                  <div className="rounded-[0.65rem] bg-(--bg-elevated)/88 px-4 py-4">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                      Date & Time
-                    </p>
-                    <p className="mt-3 text-sm font-medium text-(--text-primary)">
-                      {formatDateInTimeZone(startDate, timeZone)}
-                    </p>
-                    <p className="mt-1 text-xs text-(--text-secondary)">
-                      {formatTimeInTimeZone(startDate, timeZone)}
-                    </p>
-                  </div>
-                  <div className="rounded-[0.65rem] bg-(--bg-elevated)/88 px-4 py-4">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                      Session
-                    </p>
-                    <p className="mt-3 text-sm font-medium text-(--text-primary)">
-                      {booking.services.duration_minutes} minutes
-                    </p>
-                    <p className="mt-1 text-xs text-(--text-secondary)">
-                      {deposit > 0 ? `${usd.format(price)} total investment` : "Immediate confirmation"}
+                  <div className="shrink-0 text-right">
+                    <p className="text-xl font-semibold tracking-[-0.03em] text-(--text-primary)">{usd.format(amount)}</p>
+                    <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">
+                      {deposit > 0 ? "deposit" : "due now"}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-6 px-6 py-6 sm:px-8 sm:py-8">
+              <div className="border-t border-(--border-subtle)" />
+
+              {/* Payment method */}
+              <div className="space-y-4 px-6 py-6 sm:px-8">
                 {isAlreadyPaid && (
-                  <div className="flex items-start gap-3 rounded-[0.7rem] bg-[rgba(122,213,221,0.14)] px-4 py-4 text-(--text-primary)">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-(--accent-primary)" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold">Payment already received</p>
-                      <p className="text-sm leading-6 text-(--text-secondary)">
-                        This reservation is already secured. You can review the
-                        confirmation page instead of submitting another payment.
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-3 rounded-[0.7rem] bg-[rgba(122,213,221,0.14)] px-4 py-3 text-(--text-primary)">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-(--accent-primary)" />
+                    <p className="text-sm font-semibold">Payment already received</p>
                   </div>
                 )}
 
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <p className="sevacam-eyebrow">Payment Method</p>
-                    <h3 className="mt-3 text-lg font-semibold text-(--text-primary)">
-                      Choose the checkout rail that works best for you
-                    </h3>
-                  </div>
-                  <p className="max-w-xs text-sm leading-6 text-(--text-secondary) sm:text-right">
-                    QR payment stays on this page. Stripe continues to hosted
-                    card checkout.
-                  </p>
-                </div>
+                <p className="sevacam-eyebrow">Payment Method</p>
 
-                <div className="grid gap-3 md:grid-cols-3">
+                <div className="space-y-2">
                   {providerOptions.map((option) => {
                     const isSelected = provider === option.value;
-
                     return (
                       <button
                         key={option.value}
@@ -655,64 +576,32 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                           setErrorMessage(null);
                         }}
                         className={cn(
-                          "sevacam-interactive-card relative flex min-h-[14rem] flex-col justify-between rounded-[0.85rem] p-5 text-left focus-visible:outline-none",
+                          "sevacam-interactive-card flex w-full items-center gap-4 rounded-[0.75rem] px-4 py-3.5 text-left transition-colors focus-visible:outline-none",
                           isSelected
-                            ? "bg-(--accent-primary) text-(--text-on-accent) shadow-[0_22px_42px_rgba(122,213,221,0.12)]"
-                            : "bg-(--bg-elevated) text-(--text-primary)",
+                            ? "bg-(--bg-elevated) ring-2 ring-(--accent-primary)"
+                            : "bg-(--bg-elevated) ring-1 ring-(--border-subtle)",
                         )}
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="rounded-[0.7rem] bg-white/95 px-3 py-2 shadow-[0_10px_18px_rgba(0,0,0,0.08)]">
-                            <Image
-                              src={option.logo}
-                              alt={option.logoAlt}
-                              width={88}
-                              height={28}
-                              className="h-7 w-auto object-contain"
-                            />
-                          </div>
-
-                          <div
-                            className={cn(
-                              "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-                              isSelected
-                                ? "bg-black/12 text-(--text-on-accent)"
-                                : "bg-(--bg-base) text-(--text-secondary)",
-                            )}
-                          >
-                            {isSelected ? (
-                              <CheckCircle2 className="h-4 w-4" />
-                            ) : (
-                              <span className="h-2.5 w-2.5 rounded-full bg-current/45" />
-                            )}
-                          </div>
+                        <div className="rounded-[0.55rem] bg-white/95 px-2.5 py-1.5 shadow-[0_4px_10px_rgba(0,0,0,0.08)]">
+                          <Image
+                            src={option.logo}
+                            alt={option.logoAlt}
+                            width={72}
+                            height={22}
+                            className="h-5 w-auto object-contain"
+                          />
                         </div>
-
-                        <div className="mt-8 space-y-3">
-                          <div className="space-y-1.5">
-                            <p className="text-lg font-semibold">{option.title}</p>
-                            <p
-                              className={cn(
-                                "text-sm leading-6",
-                                isSelected
-                                  ? "text-(--text-on-accent)/80"
-                                  : "text-(--text-secondary)",
-                              )}
-                            >
-                              {option.description}
-                            </p>
-                          </div>
-
-                          <span
-                            className={cn(
-                              "inline-flex min-h-8 items-center rounded-full px-3 text-[0.58rem] font-semibold uppercase tracking-[0.16em]",
-                              isSelected
-                                ? "bg-black/10 text-(--text-on-accent)"
-                                : "bg-(--bg-base) text-(--text-secondary)",
-                            )}
-                          >
-                            {option.badge}
-                          </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-(--text-primary)">{option.title}</p>
+                          <p className="text-xs text-(--text-secondary)">{option.description}</p>
+                        </div>
+                        <div className={cn(
+                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                          isSelected
+                            ? "border-(--accent-primary) bg-(--accent-primary)/20"
+                            : "border-(--border-subtle)",
+                        )}>
+                          {isSelected && <span className="h-2 w-2 rounded-full bg-(--accent-primary)" />}
                         </div>
                       </button>
                     );
@@ -720,361 +609,177 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                 </div>
 
                 {errorMessage && (
-                  <div className="flex items-start gap-3 rounded-[0.75rem] bg-[rgba(255,183,133,0.12)] px-4 py-4">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 text-(--state-warning)" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-(--text-primary)">
-                        Payment setup needs attention
-                      </p>
-                      <p className="text-sm leading-6 text-(--text-secondary)">
-                        {errorMessage}
-                      </p>
-                    </div>
+                  <div className="flex items-start gap-3 rounded-[0.75rem] bg-[rgba(255,183,133,0.12)] px-4 py-3">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-(--state-warning)" />
+                    <p className="text-sm text-(--text-secondary)">{errorMessage}</p>
                   </div>
                 )}
 
-                <div className="rounded-[0.85rem] bg-(--bg-inset) px-5 py-5 sm:px-6">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="space-y-2">
-                      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                        Next Step
-                      </p>
-                      <p className="max-w-2xl text-sm leading-6 text-(--text-secondary)">
-                        {provider === "stripe"
-                          ? "You'll be redirected to Stripe's hosted checkout to complete card payment securely."
-                          : provider === "bakong_khqr"
-                            ? "We'll generate a Bakong KHQR that can be scanned by compatible banking apps."
-                            : "We'll generate an ABA PayWay QR so you can pay directly from ABA Mobile."}
-                      </p>
-                    </div>
-
-                    <Button
-                      type="button"
-                      onClick={handleStartPayment}
-                      disabled={isProcessing || isAlreadyPaid}
-                      className="sevacam-primary-button min-h-12 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em] disabled:cursor-not-allowed"
-                    >
-                      {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
-                      {paymentActionLabel}
-                    </Button>
-                  </div>
-                </div>
+                <Button
+                  type="button"
+                  onClick={handleStartPayment}
+                  disabled={isProcessing || isAlreadyPaid}
+                  className="sevacam-primary-button w-full min-h-12 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em] disabled:cursor-not-allowed"
+                >
+                  {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {paymentActionLabel}
+                </Button>
               </div>
             </div>
 
             {abaIntent && (
               <div ref={qrSectionRef} className="sevacam-rail overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.16)] scroll-mt-8">
-                <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_18rem]">
-                  <div className="space-y-6 px-6 py-6 sm:px-8 sm:py-8">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <p className="sevacam-eyebrow">{qrProviderMeta.title} Session</p>
-                      <span
-                        className={cn(
-                          "inline-flex min-h-8 items-center rounded-full px-3 text-[0.58rem] font-semibold uppercase tracking-[0.16em]",
-                          activeQrStatus === "completed"
-                            ? "bg-[rgba(122,213,221,0.14)] text-(--accent-primary)"
-                            : activeQrStatus === "failed"
-                              ? "bg-[rgba(255,183,133,0.12)] text-(--state-warning)"
-                              : "bg-(--bg-elevated) text-(--text-secondary)",
+                <div className="px-6 py-6 sm:px-8 sm:py-7">
+
+                  {/* Header: provider + status */}
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="sevacam-eyebrow">{qrProviderMeta.title}</p>
+                    <span
+                      className={cn(
+                        "inline-flex items-center rounded-full px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.16em]",
+                        activeQrStatus === "completed"
+                          ? "bg-[rgba(122,213,221,0.14)] text-(--accent-primary)"
+                          : activeQrStatus === "failed"
+                            ? "bg-[rgba(255,183,133,0.12)] text-(--state-warning)"
+                            : "bg-(--bg-elevated) text-(--text-secondary)",
+                      )}
+                    >
+                      {qrStatusLabel}
+                    </span>
+                  </div>
+
+                  {/* Booking summary strip */}
+                  <div className="mt-4 flex items-start justify-between gap-3 rounded-[0.7rem] bg-(--bg-elevated) px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-(--text-primary)">{booking.services.name}</p>
+                      <p className="mt-0.5 text-xs text-(--text-secondary)">
+                        {staffName} · {formatDateInTimeZone(startDate, timeZone)} · {formatTimeInTimeZone(startDate, timeZone)} · {booking.services.duration_minutes} min
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-base font-semibold text-(--text-primary)">{usd.format(amount)}</p>
+                  </div>
+
+                  {/* QR + info side by side */}
+                  <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-start">
+
+                    {/* QR code */}
+                    <div className="mx-auto w-full max-w-55 shrink-0 rounded-[0.85rem] bg-white p-4 shadow-[0_12px_28px_rgba(0,0,0,0.14)] sm:mx-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-slate-500">Scan to pay</p>
+                        <QrCode className="h-3.5 w-3.5 text-slate-400" />
+                      </div>
+                      <div className="mt-3 flex aspect-square items-center justify-center rounded-xl bg-slate-50 p-2">
+                        {abaQrImageSrc ? (
+                          <img
+                            src={abaQrImageSrc}
+                            alt={`${qrProviderMeta.title} QR code`}
+                            className="h-auto w-full object-contain"
+                          />
+                        ) : isGeneratingQrImage ? (
+                          <div className="flex flex-col items-center gap-2 text-slate-500">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                            <p className="text-xs">Generating…</p>
+                          </div>
+                        ) : (
+                          <p className="text-center text-xs leading-5 text-slate-500">
+                            {hasAbaQrPayload ? "Preview unavailable on this device" : "Use the link below to open checkout"}
+                          </p>
                         )}
-                      >
-                        {qrStatusLabel}
-                      </span>
+                      </div>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-[22rem_minmax(0,1fr)] md:items-start">
-                      <div className="rounded-[0.85rem] bg-white p-5 shadow-[0_18px_38px_rgba(0,0,0,0.16)]">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                            Scan to pay
-                          </p>
-                          <QrCode className="h-4 w-4 text-slate-500" />
-                        </div>
+                    {/* Status + actions */}
+                    <div className="flex flex-1 flex-col gap-4">
 
-                        <div className="mt-4 flex min-h-80 items-center justify-center rounded-[0.65rem] bg-slate-50 p-3">
-                          {abaQrImageSrc ? (
-                            <img
-                              src={abaQrImageSrc}
-                              alt={`${qrProviderMeta.title} QR code`}
-                              className="h-auto w-full object-contain"
-                            />
-                          ) : isGeneratingQrImage ? (
-                            <div className="flex flex-col items-center gap-3 text-center text-slate-600">
-                              <Loader2 className="h-7 w-7 animate-spin" />
-                              <p className="text-sm font-medium">
-                                Rendering secure QR
-                              </p>
-                            </div>
-                          ) : hasAbaQrPayload ? (
-                            <p className="max-w-[12rem] text-center text-sm leading-6 text-slate-600">
-                              The QR payload is ready, but the image preview
-                              could not be drawn on this device.
-                            </p>
-                          ) : (
-                            <p className="max-w-[12rem] text-center text-sm leading-6 text-slate-600">
-                              Use the direct payment link below if your bank
-                              prefers opening the checkout session.
-                            </p>
-                          )}
+                      {/* Status rows */}
+                      <div className="rounded-[0.7rem] bg-(--bg-elevated) px-4 py-3 space-y-2.5">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-(--text-secondary)">Status</span>
+                          <span className="font-medium text-(--text-primary)">{qrStatusLabel}</span>
                         </div>
+                        <div className="border-t border-(--border-subtle)" />
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-(--text-secondary)">Provider</span>
+                          <div className="rounded-[0.4rem] bg-white/95 px-2 py-1 shadow-[0_2px_6px_rgba(0,0,0,0.08)]">
+                            <Image
+                              src={qrProviderMeta.logo}
+                              alt={qrProviderMeta.logoAlt}
+                              width={64}
+                              height={18}
+                              className="h-4 w-auto object-contain"
+                            />
+                          </div>
+                        </div>
+                        {abaExpiresAt && (
+                          <>
+                            <div className="border-t border-(--border-subtle)" />
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-(--text-secondary)">Expires</span>
+                              <span className="font-medium text-(--text-primary)">{abaExpiresAt}</span>
+                            </div>
+                          </>
+                        )}
                       </div>
 
-                      <div className="space-y-5">
-                        <div className="space-y-2">
-                          <h3 className="text-xl font-semibold text-(--text-primary)">
-                            Payment is ready for {qrProviderMeta.title}
-                          </h3>
-                          <p className="max-w-2xl text-sm leading-7 text-(--text-secondary)">
-                            Scan the code with your banking app or open the
-                            payment session directly. We keep watching the
-                            payment and will confirm the reservation as soon as
-                            the provider returns success.
-                          </p>
+                      {qrRenderError && (
+                        <div className="rounded-[0.7rem] bg-[rgba(255,183,133,0.12)] px-4 py-3">
+                          <p className="text-xs leading-5 text-(--text-secondary)">{qrRenderError}</p>
                         </div>
+                      )}
 
-                        {(qrRenderError || abaExpiresAt) && (
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            {abaExpiresAt && (
-                              <div className="rounded-[0.7rem] bg-(--bg-elevated)/88 px-4 py-4">
-                                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                                  Expires
-                                </p>
-                                <p className="mt-3 text-sm font-medium text-(--text-primary)">
-                                  {abaExpiresAt}
-                                </p>
-                              </div>
-                            )}
-                            {qrRenderError && (
-                              <div className="rounded-[0.7rem] bg-[rgba(255,183,133,0.12)] px-4 py-4">
-                                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--state-warning)">
-                                  QR preview
-                                </p>
-                                <p className="mt-3 text-sm leading-6 text-(--text-secondary)">
-                                  {qrRenderError}
-                                </p>
-                              </div>
-                            )}
-                          </div>
+                      {/* Action buttons */}
+                      <div className="flex flex-wrap gap-2">
+                        {abaIntent.deeplink && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => { window.location.href = abaIntent.deeplink!; }}
+                            className="sevacam-primary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                          >
+                            Open in app
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          </Button>
                         )}
-
-                        {abaIntent.references.length > 0 && (
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            {abaIntent.references.map((reference) => (
-                              <div
-                                key={`${reference.label}-${reference.value}`}
-                                className="rounded-[0.7rem] bg-(--bg-elevated)/88 px-4 py-4"
-                              >
-                                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                                  {reference.label}
-                                </p>
-                                <p className="mt-3 break-all text-sm font-medium text-(--text-primary)">
-                                  {reference.value}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
+                        {abaIntent.paymentUrl && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => { window.location.href = abaIntent.paymentUrl!; }}
+                            className="sevacam-secondary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                          >
+                            Open payment page
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          </Button>
                         )}
-
-                        <div className="flex flex-wrap gap-3">
-                          {abaIntent.deeplink && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() => {
-                                window.location.href = abaIntent.deeplink!;
-                              }}
-                              className="sevacam-primary-button min-h-11 rounded-[0.22rem] px-5 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
-                            >
-                              Open in app
-                              <ArrowUpRight className="h-4 w-4" />
-                            </Button>
-                          )}
-
-                          {abaIntent.paymentUrl && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() => {
-                                window.location.href = abaIntent.paymentUrl!;
-                              }}
-                              className="sevacam-secondary-button min-h-11 rounded-[0.22rem] px-5 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
-                            >
-                              Open payment page
-                              <ArrowUpRight className="h-4 w-4" />
-                            </Button>
-                          )}
-
-                          {abaIntent.paymentId && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() =>
-                                router.push(
-                                  `/payment/${booking.id}?payment_id=${abaIntent.paymentId}`,
-                                )
-                              }
-                              className="sevacam-secondary-button min-h-11 rounded-[0.22rem] px-5 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
-                            >
-                              Check status
-                            </Button>
-                          )}
-
-                          {isLocalDev && abaIntent.paymentId && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={handleMarkSandboxPaid}
-                              disabled={isProcessing}
-                              className="sevacam-secondary-button min-h-11 rounded-[0.22rem] px-5 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
-                            >
-                              {isProcessing && (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              )}
-                              Mark sandbox paid
-                            </Button>
-                          )}
-                        </div>
+                        {abaIntent.paymentId && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => router.push(`/payment/${booking.id}?payment_id=${abaIntent.paymentId}`)}
+                            className="sevacam-secondary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                          >
+                            Check status
+                          </Button>
+                        )}
+                        {isLocalDev && abaIntent.paymentId && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={handleMarkSandboxPaid}
+                            disabled={isProcessing}
+                            className="sevacam-secondary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                          >
+                            {isProcessing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                            Mark sandbox paid
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <aside className="border-t border-(--border-subtle) bg-(--bg-elevated)/70 px-6 py-6 sm:px-7 lg:border-l lg:border-t-0">
-                    <div className="rounded-[0.85rem] bg-(--bg-surface) px-5 py-5 shadow-[0_16px_30px_rgba(0,0,0,0.14)]">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                          Reservation secured on payment
-                        </p>
-                        <div className="rounded-[0.55rem] bg-white/95 px-3 py-2">
-                          <Image
-                            src={qrProviderMeta.logo}
-                            alt={qrProviderMeta.logoAlt}
-                            width={84}
-                            height={24}
-                            className="h-6 w-auto object-contain"
-                          />
-                        </div>
-                      </div>
-
-                      <p className="mt-6 text-3xl font-semibold tracking-[-0.04em] text-(--text-primary)">
-                        {usd.format(amount)}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-(--text-secondary)">
-                        {deposit > 0
-                          ? "Deposit captured now. The remaining balance stays attached to your appointment."
-                          : "Full amount is attached to this booking and confirms immediately when payment succeeds."}
-                      </p>
-
-                      <div className="mt-6 space-y-3">
-                        <div className="sevacam-side-stat">
-                          <span>Status</span>
-                          <span>{qrStatusLabel}</span>
-                        </div>
-                        <div className="sevacam-side-stat">
-                          <span>Provider</span>
-                          <span>{qrProviderMeta.title}</span>
-                        </div>
-                        <div className="sevacam-side-stat">
-                          <span>Reference</span>
-                          <span>{abaIntent.paymentId || "Pending"}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </aside>
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-            <div className="sevacam-rail px-6 py-6 sm:px-7">
-              <p className="sevacam-eyebrow">Payment Summary</p>
-              <h2 className="sevacam-display mt-4 text-[clamp(2rem,3vw,2.8rem)] leading-[0.96] text-(--text-primary)">
-                Reserve your window
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-(--text-secondary)">
-                Your details stay attached to this booking only. Payment confirms
-                the reservation instantly.
-              </p>
-
-              <div className="mt-6 space-y-3">
-                <div className="sevacam-side-stat">
-                  <span>Service</span>
-                  <span>{booking.services.name}</span>
-                </div>
-                <div className="sevacam-side-stat">
-                  <span>Curator</span>
-                  <span>{staffName}</span>
-                </div>
-                <div className="sevacam-side-stat">
-                  <span>Date</span>
-                  <span>{formatDateInTimeZone(startDate, timeZone)}</span>
-                </div>
-                <div className="sevacam-side-stat">
-                  <span>Time</span>
-                  <span>{formatTimeInTimeZone(startDate, timeZone)}</span>
-                </div>
-                <div className="sevacam-side-stat">
-                  <span>Duration</span>
-                  <span>{booking.services.duration_minutes} min</span>
-                </div>
-                <div className="sevacam-side-stat">
-                  <span>Due now</span>
-                  <span>{usd.format(amount)}</span>
-                </div>
-                {deposit > 0 && (
-                  <div className="sevacam-side-stat">
-                    <span>Remaining later</span>
-                    <span>{usd.format(Math.max(price - deposit, 0))}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="sevacam-rail px-6 py-6 sm:px-7">
-              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-                Available rails
-              </p>
-
-              <div className="mt-5 space-y-3">
-                {providerOptions.map((option) => (
-                  <div
-                    key={`sidebar-${option.value}`}
-                    className="flex items-center justify-between rounded-[0.7rem] bg-(--bg-elevated)/90 px-4 py-3"
-                  >
-                    <div className="rounded-[0.55rem] bg-white/95 px-3 py-2 shadow-[0_10px_18px_rgba(0,0,0,0.08)]">
-                      <Image
-                        src={option.logo}
-                        alt={option.logoAlt}
-                        width={82}
-                        height={24}
-                        className="h-6 w-auto object-contain"
-                      />
-                    </div>
-                    <span className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-secondary)">
-                      {option.badge}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 rounded-[0.75rem] bg-(--bg-elevated) px-4 py-4">
-                <div className="flex items-start gap-3">
-                  <ShieldCheck className="mt-0.5 h-5 w-5 text-(--accent-primary)" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-(--text-primary)">
-                      Secure payment handling
-                    </p>
-                    <p className="text-sm leading-6 text-(--text-secondary)">
-                      Stripe uses hosted checkout for cards. ABA PayWay and
-                      Bakong keep reference details attached to this booking so
-                      you can track the session clearly.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <PaymentSuccessModal

@@ -45,8 +45,8 @@ export function SuccessAnimation() {
           animation: sa-check-pop 0.55s 1.68s cubic-bezier(0.34, 1.5, 0.64, 1) forwards;
         }
         .sa-check {
-          stroke-dasharray: 58;
-          stroke-dashoffset: 58;
+          stroke-dasharray: 100;
+          stroke-dashoffset: 100;
           animation: sa-check-draw 0.46s 1.92s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         .sa-glow {
@@ -68,13 +68,6 @@ export function SuccessAnimation() {
             <stop offset="100%" stopColor="#4db8c2" />
           </linearGradient>
         </defs>
-        {/* Faint track */}
-        <circle
-          fill="none"
-          stroke="rgba(122,213,221,0.1)"
-          strokeWidth="2"
-          cx="50" cy="50" r="45"
-        />
         {/* Sweeping arc — r=45, circumference ≈ 283 */}
         <circle
           className="sa-ring"
@@ -95,15 +88,15 @@ export function SuccessAnimation() {
           background: "radial-gradient(circle at 45% 38%, #1a2829, #0f1a1b)",
         }}
       >
-        {/* Shutter — top half slides up */}
+        {/* Shutter — top half slides up (1px extra overlap to kill seam) */}
         <div
           className="sa-shutter-top absolute inset-x-0 top-0"
-          style={{ height: "50%", background: "#151515" }}
+          style={{ height: "calc(50% + 1px)", background: "#151515" }}
         />
-        {/* Shutter — bottom half slides down */}
+        {/* Shutter — bottom half slides down (1px extra overlap to kill seam) */}
         <div
           className="sa-shutter-bot absolute inset-x-0 bottom-0"
-          style={{ height: "50%", background: "#151515" }}
+          style={{ height: "calc(50% + 1px)", background: "#151515" }}
         />
         {/* Teal glow that settles after shutters open */}
         <div
@@ -122,8 +115,8 @@ export function SuccessAnimation() {
       >
         <svg
           aria-hidden="true"
-          width="80"
-          height="80"
+          width="100"
+          height="100"
           viewBox="0 0 48 48"
           style={{ marginTop: "2px" }}
         >
@@ -131,10 +124,10 @@ export function SuccessAnimation() {
             className="sa-check"
             fill="none"
             stroke="#7ad5dd"
-            strokeWidth="4"
+            strokeWidth="4.2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M12 24 L21 33 L36 15"
+            d="M11 24 L20 34 L37 14"
           />
         </svg>
       </div>

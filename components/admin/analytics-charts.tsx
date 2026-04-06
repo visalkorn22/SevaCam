@@ -2,131 +2,193 @@
 
 import { useEffect, useState } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Bar,
   BarChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
+  CartesianGrid,
   Line,
   LineChart,
+  XAxis,
+  YAxis,
 } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+
+const revenueConfig = {
+  total_revenue: {
+    label: "Revenue",
+    color: "#7ad5dd",
+  },
+} satisfies ChartConfig;
+
+const bookingsConfig = {
+  total_bookings: {
+    label: "Bookings",
+    color: "#c4b0fd",
+  },
+} satisfies ChartConfig;
+
+type ServiceStat = { service_name: string; total_revenue: number };
+type DailyStat = { date: string; total_bookings: number };
 
 export function AnalyticsCharts() {
-  const [serviceStats, setServiceStats] = useState<any[]>([]);
-  const [dailyStats, setDailyStats] = useState<any[]>([]);
+  const [serviceStats, setServiceStats] = useState<ServiceStat[]>([]);
+  const [dailyStats, setDailyStats] = useState<DailyStat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const tooltipStyle = {
-    backgroundColor: "#181818",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: "18px",
-    color: "#f0eeeb",
-  };
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
         const [servicesRes, dailyRes] = await Promise.all([
-          fetch(`/api/analytics/services/stats`, {
-            credentials: "include",
-          }),
-          fetch(`/api/analytics/daily/stats`, {
-            credentials: "include",
-          }),
+          fetch("/api/analytics/services/stats", { credentials: "include" }),
+          fetch("/api/analytics/daily/stats", { credentials: "include" }),
         ]);
 
-        if (!servicesRes.ok || !dailyRes.ok) {
-          const servicesText = await servicesRes.text().catch(() => "");
-          const dailyText = await dailyRes.text().catch(() => "");
-          throw new Error(
-            `Analytics request failed: services=${servicesRes.status}, daily=${dailyRes.status}. ${servicesText || dailyText}`,
-          );
-        }
+        if (!servicesRes.ok || !dailyRes.ok) throw new Error("fetch failed");
 
-        const servicesData = (await servicesRes.json()) as any[];
-        const dailyData = (await dailyRes.json()) as any[];
+        const servicesData = (await servicesRes.json()) as ServiceStat[];
+        const dailyData = (await dailyRes.json()) as DailyStat[];
 
         setServiceStats(servicesData);
         setDailyStats(dailyData.slice(0, 7).reverse());
-      } catch (error) {
-        console.error("Error fetching analytics:", error);
+      } catch {
+        setError(true);
       } finally {
         setIsLoading(false);
       }
-    };
-
-    fetchData();
+    })();
   }, []);
 
   if (isLoading) {
     return (
-      <Card className="border-white/6 bg-[var(--seva-surface)] text-[var(--seva-text)] shadow-none">
-        <CardContent className="flex h-56 items-center justify-center">
-          <p className="text-white/52">Loading analytics...</p>
-        </CardContent>
-      </Card>
+      <div className="grid gap-3 lg:grid-cols-2">
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            className="sevacam-rail flex h-64 animate-pulse items-center justify-center"
+          >
+            <p className="text-[0.76rem] text-(--text-disabled)">Loading analytics…</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error || (serviceStats.length === 0 && dailyStats.length === 0)) {
+    return (
+      <div className="sevacam-rail flex h-40 items-center justify-center text-center">
+        <div>
+          <p className="text-[0.82rem] font-medium text-(--text-primary)">No analytics data yet</p>
+          <p className="mt-1 text-[0.74rem] text-(--text-disabled)">
+            Charts will appear once bookings and payments are recorded.
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
     <div className="grid gap-3 lg:grid-cols-2">
-      <Card className="border-white/6 bg-[var(--seva-surface)] text-[var(--seva-text)] shadow-none">
-        <CardHeader className="pb-0">
-          <CardTitle className="text-[0.92rem] text-[var(--seva-text)]">
-            Revenue by Service
-          </CardTitle>
-          <CardDescription className="text-[0.8rem] text-white/48">
+
+      {/* ── Revenue by Service ── */}
+      <div className="sevacam-rail overflow-hidden">
+        <div className="border-b border-white/5 px-5 py-4">
+          <p className="sevacam-eyebrow">Revenue by Service</p>
+          <p className="mt-1 text-[0.74rem] text-(--text-disabled)">
             Total revenue generated per service
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-3">
-          <ResponsiveContainer width="100%" height={190}>
-            <BarChart data={serviceStats}>
-              <XAxis dataKey="service_name" fontSize={12} stroke="rgba(240,238,235,0.42)" />
-              <YAxis fontSize={12} stroke="rgba(240,238,235,0.42)" />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+          </p>
+        </div>
+        <div className="p-4">
+          <ChartContainer config={revenueConfig} className="h-45 w-full">
+            <BarChart data={serviceStats} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+              <CartesianGrid vertical={false} stroke="rgba(240,238,235,0.05)" />
+              <XAxis
+                dataKey="service_name"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 10, fill: "rgba(240,238,235,0.38)" }}
+                tickFormatter={(v: string) =>
+                  v.length > 10 ? v.slice(0, 10) + "…" : v
+                }
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 10, fill: "rgba(240,238,235,0.38)" }}
+                tickFormatter={(v: number) =>
+                  v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`
+                }
+              />
+              <ChartTooltip
+                cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                content={
+                  <ChartTooltipContent
+                    formatter={(value) =>
+                      `$${Number(value).toLocaleString()}`
+                    }
+                  />
+                }
+              />
               <Bar
                 dataKey="total_revenue"
-                fill="#7ad5dd"
+                fill="var(--color-total_revenue)"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+          </ChartContainer>
+        </div>
+      </div>
 
-      <Card className="border-white/6 bg-[var(--seva-surface)] text-[var(--seva-text)] shadow-none">
-        <CardHeader className="pb-0">
-          <CardTitle className="text-[0.92rem] text-[var(--seva-text)]">
-            Daily Bookings
-          </CardTitle>
-          <CardDescription className="text-[0.8rem] text-white/48">
+      {/* ── Daily Bookings ── */}
+      <div className="sevacam-rail overflow-hidden">
+        <div className="border-b border-white/5 px-5 py-4">
+          <p className="sevacam-eyebrow">Daily Bookings</p>
+          <p className="mt-1 text-[0.74rem] text-(--text-disabled)">
             Bookings over the last 7 days
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-3">
-          <ResponsiveContainer width="100%" height={190}>
-            <LineChart data={dailyStats}>
-              <XAxis dataKey="date" fontSize={12} stroke="rgba(240,238,235,0.42)" />
-              <YAxis fontSize={12} stroke="rgba(240,238,235,0.42)" />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: "rgba(122,213,221,0.18)" }} />
+          </p>
+        </div>
+        <div className="p-4">
+          <ChartContainer config={bookingsConfig} className="h-45 w-full">
+            <LineChart data={dailyStats} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+              <CartesianGrid vertical={false} stroke="rgba(240,238,235,0.05)" />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 10, fill: "rgba(240,238,235,0.38)" }}
+                tickFormatter={(v: string) => {
+                  const d = new Date(v);
+                  return isNaN(d.getTime())
+                    ? v
+                    : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 10, fill: "rgba(240,238,235,0.38)" }}
+                allowDecimals={false}
+              />
+              <ChartTooltip
+                cursor={{ stroke: "rgba(196,176,253,0.2)", strokeWidth: 1 }}
+                content={<ChartTooltipContent />}
+              />
               <Line
                 type="monotone"
                 dataKey="total_bookings"
-                stroke="#7ad5dd"
+                stroke="var(--color-total_bookings)"
                 strokeWidth={2}
+                dot={{ fill: "var(--color-total_bookings)", r: 3 }}
+                activeDot={{ r: 5, fill: "var(--color-total_bookings)" }}
               />
             </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+          </ChartContainer>
+        </div>
+      </div>
     </div>
   );
 }

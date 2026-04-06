@@ -192,11 +192,10 @@ export default function AdminServiceCard({
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 pt-1">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 pt-1">
           <Button
             asChild
-            size="sm"
-            className="sevacam-primary-button flex-1 rounded-[0.45rem] text-[0.62rem] font-semibold uppercase tracking-[0.14em]"
+            className="sevacam-primary-button h-10 rounded-[0.55rem] px-4 text-[0.62rem] font-semibold uppercase tracking-[0.14em]"
           >
             <Link href={`/admin/services/${service.id}/edit`}>
               <Edit className="mr-1.5 size-3.5" />

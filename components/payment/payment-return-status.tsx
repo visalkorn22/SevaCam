@@ -149,12 +149,6 @@ export function PaymentReturnStatus({
               {payment && (
                 <div className="space-y-2.5 rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Payment ID</span>
-                    <span className="font-mono text-xs text-foreground/70">
-                      {payment.id}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Amount</span>
                     <span className="font-semibold text-foreground">
                       {usd.format(Number(payment.amount || 0))}{" "}

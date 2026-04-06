@@ -1257,6 +1257,8 @@
     --seva-accent-deep: #56aeb6;
     --seva-accent-ink: #07292d;
     --seva-warm: #ffb785;
+    --seva-violet: #c4b0fd;
+    --seva-rose: #f9a8c4;
     --bg-base: var(--seva-base);
     --bg-surface: var(--seva-surface);
     --bg-elevated: var(--seva-elevated);
@@ -1282,6 +1284,17 @@
     --ghost-hover-text: var(--seva-text);
     background: var(--seva-base);
     color: var(--seva-text);
+  }
+
+  /* ── Kill browser autofill light-blue override ── */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #171717 inset !important;
+    -webkit-text-fill-color: #f0eeeb !important;
+    caret-color: #f0eeeb;
+    transition: background-color 9999s ease-in-out 0s;
   }
 
   .sevacam-display {
@@ -1318,8 +1331,9 @@
 
   /* Select item — selected state (Radix sets data-state="checked") */
   .seva-select-item[data-state="checked"] {
-    background: var(--accent-primary, #7ad5dd);
-    color: var(--text-on-accent, #07292d);
+    background: rgba(122, 213, 221, 0.12);
+    color: var(--accent-primary, #7ad5dd);
+    box-shadow: inset 0 0 0 1px rgba(122, 213, 221, 0.18);
   }
 
   .sevacam-rail {

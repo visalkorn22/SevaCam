@@ -2,13 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -19,14 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Search, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { format } from "date-fns";
 
@@ -54,16 +39,12 @@ type StaffManagerProps = {
   users: UserRow[];
 };
 
-const panelClass =
-  "rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
-const statTileClass =
-  "rounded-[0.8rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-3";
 const labelClass =
   "text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
 const fieldClass =
   "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary)/40 focus-visible:ring-1 focus-visible:ring-(--accent-primary)";
 const triggerClass =
-  "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) data-[placeholder]:text-(--text-disabled)";
+  "!h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) data-[placeholder]:text-(--text-disabled)";
 const selectContentClass =
   "border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary)";
 const switchClass =
@@ -95,14 +76,12 @@ const roleMeta: Record<
   },
   admin: {
     label: "Admin",
-    chipClass:
-      "border-[#ffb785]/30 bg-[#ffb785]/10 text-[#ffb785]",
+    chipClass: "border-[#ffb785]/30 bg-[#ffb785]/10 text-[#ffb785]",
     dotClass: "bg-[#ffb785]",
   },
   superadmin: {
     label: "Super Admin",
-    chipClass:
-      "border-[#ffb785]/30 bg-[#ffb785]/12 text-[#ffb785]",
+    chipClass: "border-[#ffb785]/30 bg-[#ffb785]/12 text-[#ffb785]",
     dotClass: "bg-[#ffb785]",
   },
 };
@@ -127,7 +106,7 @@ export default function StaffManager({
   });
 
   const [userList, setUserList] = useState<UserRow[]>(
-    users.map((user) => normalizeUser(user))
+    users.map((user) => normalizeUser(user)),
   );
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionId, setActionId] = useState<string | null>(null);
@@ -201,7 +180,7 @@ export default function StaffManager({
   const totalActive = userList.filter((user) => user.is_active).length;
   const totalStaff = userList.filter((user) => user.role === "staff").length;
   const totalPrivileged = userList.filter(
-    (user) => user.role === "admin" || user.role === "superadmin"
+    (user) => user.role === "admin" || user.role === "superadmin",
   ).length;
 
   const handleCreateUser = async () => {
@@ -250,7 +229,7 @@ export default function StaffManager({
       setActionError(
         error instanceof Error
           ? error.message
-          : "Unable to create staff account"
+          : "Unable to create staff account",
       );
     }
   };
@@ -298,12 +277,12 @@ export default function StaffManager({
 
       const updated = normalizeUser((await res.json()) as UserRow);
       setUserList((prev) =>
-        prev.map((user) => (user.id === updated.id ? updated : user))
+        prev.map((user) => (user.id === updated.id ? updated : user)),
       );
       setSelectedUser(updated);
     } catch (error) {
       setActionError(
-        error instanceof Error ? error.message : "Unable to update staff"
+        error instanceof Error ? error.message : "Unable to update staff",
       );
     } finally {
       setActionId(null);
@@ -336,7 +315,7 @@ export default function StaffManager({
 
       const updated = normalizeUser((await res.json()) as UserRow);
       setUserList((prev) =>
-        prev.map((item) => (item.id === updated.id ? updated : item))
+        prev.map((item) => (item.id === updated.id ? updated : item)),
       );
       if (selectedUser?.id === updated.id) {
         setSelectedUser(updated);
@@ -349,7 +328,7 @@ export default function StaffManager({
       }
     } catch (error) {
       setActionError(
-        error instanceof Error ? error.message : "Unable to update status"
+        error instanceof Error ? error.message : "Unable to update status",
       );
     } finally {
       setActionId(null);
@@ -382,11 +361,11 @@ export default function StaffManager({
 
       const updated = normalizeUser((await res.json()) as UserRow);
       setUserList((prev) =>
-        prev.map((user) => (user.id === userId ? updated : user))
+        prev.map((user) => (user.id === userId ? updated : user)),
       );
     } catch (error) {
       setActionError(
-        error instanceof Error ? error.message : "Unable to update role"
+        error instanceof Error ? error.message : "Unable to update role",
       );
     } finally {
       setActionId(null);
@@ -399,32 +378,48 @@ export default function StaffManager({
       value: userList.length.toString(),
       note: `${sortedUsers.length} visible in current view`,
       icon: Users,
-      tone: "text-(--accent-primary)",
-      badge: "bg-(--accent-primary)/10",
+      tone: "text-(--seva-accent)",
+      badge: "bg-[rgba(122,213,221,0.18)]",
+      bg: "bg-[rgba(122,213,221,0.07)]",
+      border: "border-[rgba(122,213,221,0.2)]",
+      strip: "bg-(--seva-accent)",
+      glow: "rgba(122,213,221,0.08)",
     },
     {
       title: "Active",
       value: totalActive.toString(),
       note: "Accounts currently enabled for access",
       icon: ShieldCheck,
-      tone: "text-(--accent-primary)",
-      badge: "bg-(--accent-primary)/10",
+      tone: "text-(--seva-violet)",
+      badge: "bg-[rgba(196,176,253,0.18)]",
+      bg: "bg-[rgba(196,176,253,0.07)]",
+      border: "border-[rgba(196,176,253,0.2)]",
+      strip: "bg-(--seva-violet)",
+      glow: "rgba(196,176,253,0.08)",
     },
     {
       title: "Staff",
       value: totalStaff.toString(),
       note: "Operational accounts assigned to services",
       icon: UserPlus,
-      tone: "text-[#ffb785]",
-      badge: "bg-[#ffb785]/10",
+      tone: "text-(--seva-warm)",
+      badge: "bg-[rgba(255,183,133,0.18)]",
+      bg: "bg-[rgba(255,183,133,0.07)]",
+      border: "border-[rgba(255,183,133,0.2)]",
+      strip: "bg-(--seva-warm)",
+      glow: "rgba(255,183,133,0.08)",
     },
     {
       title: "Privileged",
       value: totalPrivileged.toString(),
       note: "Admin and superadmin level access",
       icon: ShieldCheck,
-      tone: "text-(--text-primary)",
-      badge: "bg-(--bg-elevated)",
+      tone: "text-(--seva-rose)",
+      badge: "bg-[rgba(249,168,196,0.18)]",
+      bg: "bg-[rgba(249,168,196,0.07)]",
+      border: "border-[rgba(249,168,196,0.2)]",
+      strip: "bg-(--seva-rose)",
+      glow: "rgba(249,168,196,0.08)",
     },
   ];
 
@@ -439,23 +434,34 @@ export default function StaffManager({
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {overviewTiles.map((tile) => {
           const Icon = tile.icon;
-
           return (
-            <div key={tile.title} className={statTileClass}>
+            <div
+              key={tile.title}
+              className={`relative overflow-hidden rounded-[0.9rem] border ${tile.border} ${tile.bg} p-5`}
+            >
+              <div
+                className={`absolute inset-x-0 top-0 h-[2.5px] ${tile.strip}`}
+              />
+              <div
+                className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full blur-xl"
+                style={{ background: tile.glow }}
+              />
               <div className="flex items-start justify-between gap-3">
-                <p className="text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
+                <p
+                  className={`text-[0.56rem] font-semibold uppercase tracking-[0.18em] ${tile.tone}`}
+                >
                   {tile.title}
                 </p>
                 <span
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-[0.7rem] ${tile.badge} ${tile.tone}`}
+                  className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.65rem] ${tile.badge} ${tile.tone}`}
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </span>
               </div>
-              <p className="mt-4 text-[1.7rem] font-semibold leading-none tracking-[-0.05em] text-(--text-primary)">
+              <p className="mt-4 text-[1.9rem] font-medium leading-none tracking-[-0.05em] text-(--text-primary)">
                 {tile.value}
               </p>
-              <p className="mt-2 text-[0.74rem] leading-5 text-(--text-secondary)">
+              <p className={`mt-2 text-[0.74rem] leading-5 ${tile.tone}`}>
                 {tile.note}
               </p>
             </div>
@@ -464,28 +470,22 @@ export default function StaffManager({
       </section>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_22rem]">
-        <Card className={panelClass}>
-          <CardHeader className="border-b border-(--border-subtle) pb-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-(--accent-primary)">
-                  Directory
-                </p>
-                <CardTitle className="mt-2 text-[1.35rem] tracking-[-0.04em] text-(--text-primary)">
-                  Staff directory
-                </CardTitle>
-                <CardDescription className="mt-2 max-w-2xl text-(--text-secondary)">
-                  Search accounts, adjust roles, and review account state from
-                  one smaller operational surface.
-                </CardDescription>
-              </div>
-
-              <div className="rounded-full bg-(--bg-inset) px-3 py-2 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled) ring-1 ring-(--border-subtle)">
-                {sortedUsers.length} visible
-              </div>
+        <div className="sevacam-rail overflow-hidden">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/5 px-5 py-4">
+            <div>
+              <p className="sevacam-eyebrow">Directory</p>
+              <h2 className="sevacam-display mt-2 text-[1.35rem] leading-none text-(--text-primary)">
+                Staff directory
+              </h2>
+              <p className="mt-1.5 text-[0.76rem] text-(--text-disabled)">
+                Search accounts, adjust roles, and review account state.
+              </p>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4 p-4">
+            <div className="rounded-full bg-(--bg-inset) px-3 py-2 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled) ring-1 ring-(--border-subtle)">
+              {sortedUsers.length} visible
+            </div>
+          </div>
+          <div className="space-y-4 p-4">
             <div className="grid gap-3 xl:grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(0,0.72fr))]">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-(--text-disabled)" />
@@ -493,7 +493,7 @@ export default function StaffManager({
                   placeholder="Search by name, email, or phone"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  className={`${fieldClass} pl-11`}
+                  className={`${fieldClass} pl-12 pr-4 focus-visible:pl-12 focus-visible:pr-4`}
                 />
               </div>
 
@@ -534,181 +534,161 @@ export default function StaffManager({
 
             {sortedUsers.length > 0 ? (
               <div className="overflow-hidden rounded-[0.95rem] border border-(--border-subtle) bg-(--bg-inset)">
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-(--border-subtle) hover:bg-transparent">
-                        <TableHead className="h-11 whitespace-nowrap text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
-                          User
-                        </TableHead>
-                        <TableHead className="whitespace-nowrap text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
-                          Role
-                        </TableHead>
-                        <TableHead className="whitespace-nowrap text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
-                          Status
-                        </TableHead>
-                        <TableHead className="whitespace-nowrap text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
-                          Created
-                        </TableHead>
-                        <TableHead className="whitespace-nowrap text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
-                          Last login
-                        </TableHead>
-                        <TableHead className="whitespace-nowrap text-right text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
-                          Actions
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedUsers.map((row) => {
-                        const isSelf = row.id === currentUser.id;
-                        const hasInvalidId = isInvalidId(row.id);
-                        const isLocked =
-                          (row.role === "admin" &&
-                            currentUser.role !== "superadmin") ||
-                          (row.role === "superadmin" &&
-                            currentUser.role !== "superadmin");
-                        const canToggle =
-                          canManageRoles &&
-                          !isLocked &&
-                          !isSelf &&
-                          !hasInvalidId;
+                {/* Column headers */}
+                <div className="hidden grid-cols-[2fr_1fr_1fr_1fr_1fr_2fr] gap-4 border-b border-white/5 px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled) md:grid">
+                  <span>User</span>
+                  <span>Role</span>
+                  <span>Status</span>
+                  <span>Created</span>
+                  <span>Last login</span>
+                  <span className="text-right">Actions</span>
+                </div>
 
-                        return (
-                          <TableRow
-                            key={row.id}
-                            className="border-(--border-subtle) text-(--text-primary) hover:bg-black/10"
+                {/* Rows */}
+                <div className="divide-y divide-white/5">
+                  {sortedUsers.map((row) => {
+                    const isSelf = row.id === currentUser.id;
+                    const hasInvalidId = isInvalidId(row.id);
+                    const isLocked =
+                      (row.role === "admin" &&
+                        currentUser.role !== "superadmin") ||
+                      (row.role === "superadmin" &&
+                        currentUser.role !== "superadmin");
+                    const canToggle =
+                      canManageRoles && !isLocked && !isSelf && !hasInvalidId;
+
+                    return (
+                      <div
+                        key={row.id}
+                        className="grid gap-x-4 gap-y-1.5 px-5 py-3.5 transition-colors hover:bg-(--seva-elevated) md:grid-cols-[2fr_1fr_1fr_1fr_1fr_2fr] md:items-center"
+                      >
+                        {/* User */}
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-elevated) text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
+                            {getInitials(row.full_name, row.email)}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-(--text-primary)">
+                              {row.full_name || "User"}
+                            </p>
+                            <p className="truncate text-xs text-(--text-secondary)">
+                              {row.email}
+                            </p>
+                            <p className="truncate text-xs text-(--text-disabled)">
+                              {row.phone || "No phone"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Role */}
+                        <div>
+                          <span
+                            className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${roleMeta[row.role].chipClass}`}
                           >
-                            <TableCell className="py-4">
-                              <div className="flex min-w-[17rem] items-center gap-3">
-                                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-elevated) text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
-                                  {getInitials(row.full_name, row.email)}
-                                </span>
-                                <div className="min-w-0">
-                                  <p className="truncate text-sm font-medium text-(--text-primary)">
-                                    {row.full_name || "User"}
-                                  </p>
-                                  <p className="truncate text-xs text-(--text-secondary)">
-                                    {row.email}
-                                  </p>
-                                  <p className="truncate text-xs text-(--text-disabled)">
-                                    {row.phone || "No phone"}
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${roleMeta[row.role].dotClass}`}
+                            />
+                            {roleMeta[row.role].label}
+                          </span>
+                        </div>
 
-                            <TableCell>
-                              <span
-                                className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${roleMeta[row.role].chipClass}`}
+                        {/* Status */}
+                        <div>
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${
+                              row.is_active
+                                ? "border-(--accent-primary)/30 bg-(--accent-primary)/10 text-(--accent-primary)"
+                                : "border-(--border-subtle) bg-(--bg-elevated) text-(--text-disabled)"
+                            }`}
+                          >
+                            {row.is_active ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+
+                        {/* Created */}
+                        <span className="whitespace-nowrap text-xs text-(--text-secondary)">
+                          {row.created_at
+                            ? format(new Date(row.created_at), "MMM d, yyyy")
+                            : "--"}
+                        </span>
+
+                        {/* Last login */}
+                        <span className="whitespace-nowrap text-xs text-(--text-secondary)">
+                          --
+                        </span>
+
+                        {/* Actions */}
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={rowButtonClass}
+                            onClick={() => startEdit(row)}
+                            disabled={hasInvalidId}
+                          >
+                            Edit
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={
+                              row.is_active
+                                ? rowButtonClass
+                                : activeRowButtonClass
+                            }
+                            disabled={actionId === row.id || hasInvalidId}
+                            onClick={() => handleStatusToggle(row)}
+                          >
+                            {row.is_active ? "Deactivate" : "Activate"}
+                          </Button>
+
+                          {isLocked || isSelf || hasInvalidId ? (
+                            <span className="inline-flex items-center px-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
+                              {isSelf
+                                ? "You"
+                                : hasInvalidId
+                                  ? "Missing ID"
+                                  : "Locked"}
+                            </span>
+                          ) : (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className={
+                                  row.role === "customer"
+                                    ? activeRowButtonClass
+                                    : rowButtonClass
+                                }
+                                disabled={!canToggle || actionId === row.id}
+                                onClick={() =>
+                                  handleRoleChange(row.id, "customer")
+                                }
                               >
-                                <span
-                                  className={`h-1.5 w-1.5 rounded-full ${roleMeta[row.role].dotClass}`}
-                                />
-                                {roleMeta[row.role].label}
-                              </span>
-                            </TableCell>
-
-                            <TableCell>
-                              <span
-                                className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${
-                                  row.is_active
-                                    ? "border-(--accent-primary)/30 bg-(--accent-primary)/10 text-(--accent-primary)"
-                                    : "border-(--border-subtle) bg-(--bg-elevated) text-(--text-disabled)"
-                                }`}
+                                Customer
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className={
+                                  row.role === "staff"
+                                    ? activeRowButtonClass
+                                    : rowButtonClass
+                                }
+                                disabled={!canToggle || actionId === row.id}
+                                onClick={() =>
+                                  handleRoleChange(row.id, "staff")
+                                }
                               >
-                                {row.is_active ? "Active" : "Inactive"}
-                              </span>
-                            </TableCell>
-
-                            <TableCell className="whitespace-nowrap text-xs text-(--text-secondary)">
-                              {row.created_at
-                                ? format(new Date(row.created_at), "MMM d, yyyy")
-                                : "--"}
-                            </TableCell>
-
-                            <TableCell className="whitespace-nowrap text-xs text-(--text-secondary)">
-                              --
-                            </TableCell>
-
-                            <TableCell className="py-4">
-                              <div className="flex min-w-[19rem] justify-end gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className={rowButtonClass}
-                                  onClick={() => startEdit(row)}
-                                  disabled={hasInvalidId}
-                                >
-                                  Edit
-                                </Button>
-
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className={
-                                    row.is_active
-                                      ? rowButtonClass
-                                      : activeRowButtonClass
-                                  }
-                                  disabled={actionId === row.id || hasInvalidId}
-                                  onClick={() => handleStatusToggle(row)}
-                                >
-                                  {row.is_active ? "Deactivate" : "Activate"}
-                                </Button>
-
-                                {isLocked || isSelf || hasInvalidId ? (
-                                  <span className="inline-flex items-center px-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
-                                    {isSelf
-                                      ? "You"
-                                      : hasInvalidId
-                                        ? "Missing ID"
-                                        : "Locked"}
-                                  </span>
-                                ) : (
-                                  <div className="flex gap-2">
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className={
-                                        row.role === "customer"
-                                          ? activeRowButtonClass
-                                          : rowButtonClass
-                                      }
-                                      disabled={
-                                        !canToggle || actionId === row.id
-                                      }
-                                      onClick={() =>
-                                        handleRoleChange(row.id, "customer")
-                                      }
-                                    >
-                                      Customer
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className={
-                                        row.role === "staff"
-                                          ? activeRowButtonClass
-                                          : rowButtonClass
-                                      }
-                                      disabled={
-                                        !canToggle || actionId === row.id
-                                      }
-                                      onClick={() =>
-                                        handleRoleChange(row.id, "staff")
-                                      }
-                                    >
-                                      Staff
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                                Staff
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
@@ -723,24 +703,22 @@ export default function StaffManager({
                 </p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         <div className="space-y-4">
-          <Card className={panelClass}>
-            <CardHeader className="pb-4">
-              <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-(--accent-primary)">
-                New account
-              </p>
-              <CardTitle className="mt-2 text-[1.18rem] tracking-[-0.03em] text-(--text-primary)">
+          <div className="sevacam-rail overflow-hidden">
+            <div className="border-b border-white/5 px-5 py-4">
+              <p className="sevacam-eyebrow">New account</p>
+              <h2 className="sevacam-display mt-2 text-[1.18rem] leading-none text-(--text-primary)">
                 Create staff account
-              </CardTitle>
-              <CardDescription className="text-(--text-secondary)">
+              </h2>
+              <p className="mt-1.5 text-[0.76rem] text-(--text-disabled)">
                 Add a new team or customer record without leaving the admin
                 workspace.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </p>
+            </div>
+            <div className="space-y-4 p-5">
               <div className="space-y-2">
                 <Label htmlFor="staff-full-name" className={labelClass}>
                   Full name
@@ -754,7 +732,7 @@ export default function StaffManager({
                       full_name: event.target.value,
                     }))
                   }
-                  placeholder="Jane Doe"
+                  placeholder="  Jane Doe"
                   className={fieldClass}
                 />
               </div>
@@ -773,7 +751,7 @@ export default function StaffManager({
                       email: event.target.value,
                     }))
                   }
-                  placeholder="jane@example.com"
+                  placeholder="  jane@example.com"
                   className={fieldClass}
                 />
               </div>
@@ -791,7 +769,7 @@ export default function StaffManager({
                       phone: event.target.value,
                     }))
                   }
-                  placeholder="+1 555 0100"
+                  placeholder=" +855 1234 5678"
                   className={fieldClass}
                 />
               </div>
@@ -836,7 +814,7 @@ export default function StaffManager({
                       password: event.target.value,
                     }))
                   }
-                  placeholder="Set a temporary password"
+                  placeholder="  Set a temporary password"
                   className={fieldClass}
                 />
               </div>
@@ -865,36 +843,35 @@ export default function StaffManager({
               <Button onClick={handleCreateUser} className={primaryButtonClass}>
                 Create account
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {selectedUser ? (
-            <Card className={panelClass}>
-              <CardHeader className="pb-4">
-                <div className="flex items-start gap-3">
-                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-inset) text-sm font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
-                    {getInitials(selectedUser.full_name, selectedUser.email)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-(--accent-primary)">
-                      Selected account
-                    </p>
-                    <CardTitle className="mt-2 text-[1.16rem] tracking-[-0.03em] text-(--text-primary)">
-                      {selectedUser.full_name || "Account details"}
-                    </CardTitle>
-                    <CardDescription className="truncate text-(--text-secondary)">
-                      {selectedUser.email}
-                    </CardDescription>
-                  </div>
+            <div className="sevacam-rail overflow-hidden">
+              <div className="flex items-start gap-3 border-b border-white/5 px-5 py-4">
+                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-inset) text-sm font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
+                  {getInitials(selectedUser.full_name, selectedUser.email)}
+                </span>
+                <div className="min-w-0">
+                  <p className="sevacam-eyebrow">Selected account</p>
+                  <h2 className="sevacam-display mt-2 text-[1.16rem] leading-none text-(--text-primary)">
+                    {selectedUser.full_name || "Account details"}
+                  </h2>
+                  <p className="truncate text-[0.76rem] text-(--text-disabled)">
+                    {selectedUser.email}
+                  </p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              </div>
+              <div className="space-y-4 p-5">
                 <div className="grid gap-2 rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) p-3 text-xs text-(--text-secondary)">
                   <div className="flex items-center justify-between gap-3">
                     <span>Created</span>
                     <span className="text-(--text-primary)">
                       {selectedUser.created_at
-                        ? format(new Date(selectedUser.created_at), "MMM d, yyyy")
+                        ? format(
+                            new Date(selectedUser.created_at),
+                            "MMM d, yyyy",
+                          )
                         : "--"}
                     </span>
                   </div>
@@ -1004,23 +981,21 @@ export default function StaffManager({
                     Save changes
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ) : (
-            <Card className={panelClass}>
-              <CardHeader className="pb-4">
-                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-(--accent-primary)">
-                  Inspector
-                </p>
-                <CardTitle className="mt-2 text-[1.16rem] tracking-[-0.03em] text-(--text-primary)">
+            <div className="sevacam-rail overflow-hidden">
+              <div className="border-b border-white/5 px-5 py-4">
+                <p className="sevacam-eyebrow">Inspector</p>
+                <h2 className="sevacam-display mt-2 text-[1.16rem] leading-none text-(--text-primary)">
                   Review an account
-                </CardTitle>
-                <CardDescription className="text-(--text-secondary)">
+                </h2>
+                <p className="mt-1.5 text-[0.76rem] text-(--text-disabled)">
                   Select Edit on any row to inspect profile details and update
                   role or access state.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                </p>
+              </div>
+              <div className="p-5">
                 <div className="rounded-[0.7rem] border border-dashed border-(--border-subtle) bg-(--bg-inset) px-4 py-10 text-center">
                   <Users className="mx-auto h-8 w-8 text-(--text-disabled)" />
                   <p className="mt-4 text-sm font-medium text-(--text-primary)">
@@ -1031,8 +1006,8 @@ export default function StaffManager({
                     review without leaving the directory.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
         </div>
       </div>

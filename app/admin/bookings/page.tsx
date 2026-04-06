@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import AdminBookingsClient from "./AdminBookingsClient";
 
@@ -84,16 +83,13 @@ export default async function AdminBookingsPage() {
               appointments from one quieter operational surface.
             </p>
           </div>
-          <Button
-            asChild
-            variant="outline"
-            className="h-11 rounded-[0.45rem] border border-(--border-subtle) bg-(--bg-elevated) px-5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-primary) hover:border-(--accent-primary)/30 hover:bg-(--bg-elevated) hover:text-(--accent-primary)"
+          <Link
+            href="/admin/dashboard"
+            className="sevacam-secondary-button inline-flex h-11 items-center rounded-[0.18rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.16em]"
           >
-            <Link href="/admin/dashboard">
-              <ArrowLeft className="mr-2 size-3.5" />
-              Back to Dashboard
-            </Link>
-          </Button>
+            <ArrowLeft className="mr-2 size-3.5" />
+            Back to Dashboard
+          </Link>
         </div>
 
         <AdminBookingsClient initialBookings={bookings} />

@@ -1,7 +1,6 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -9,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { ServiceFormData, UpdateServiceField } from "./types";
 
 type EnhancedBasicInformationProps = {
@@ -24,8 +24,14 @@ const CATEGORIES = [
   { value: "FITNESS", label: "Fitness" },
 ];
 
-const fieldLabel = "block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled) mb-2";
-const fieldInput = "h-11 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:ring-1 focus-visible:ring-(--accent-primary) focus-visible:border-(--accent-primary) transition-colors";
+const fieldLabel =
+  "mb-2 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
+const fieldInput =
+  "h-11 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:ring-1 focus-visible:ring-(--accent-primary) transition-colors";
+const selectContent =
+  "rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) shadow-[0_20px_40px_rgba(0,0,0,0.4)]";
+const selectItem =
+  "text-(--text-primary) data-[highlighted]:!bg-(--bg-inset) data-[highlighted]:!text-(--text-primary) data-[state=checked]:!bg-[rgba(122,213,221,0.12)] data-[state=checked]:!text-(--accent-primary)";
 
 export default function EnhancedBasicInformation({
   formData,
@@ -37,7 +43,6 @@ export default function EnhancedBasicInformation({
 
   return (
     <div className="space-y-6">
-      {/* Service Name */}
       <div>
         <label className={fieldLabel}>Service Name</label>
         <Input
@@ -48,27 +53,29 @@ export default function EnhancedBasicInformation({
         />
       </div>
 
-      {/* Description */}
       <div>
         <label className={fieldLabel}>Description</label>
         <Textarea
           value={formData.description}
           onChange={(e) => updateField("description", e.target.value)}
-          placeholder="Describe your service offering in a way that excites customers…"
+          placeholder="Describe your service offering in a way that excites customers..."
           rows={4}
-          className="resize-none rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:ring-1 focus-visible:ring-(--accent-primary) focus-visible:border-(--accent-primary) transition-colors"
+          className="resize-none rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:ring-1 focus-visible:ring-(--accent-primary) transition-colors"
         />
         <div className="mt-1.5 flex items-center justify-between">
           <p className="text-[0.68rem] text-(--text-disabled)">
             Helps customers understand what to expect
           </p>
-          <p className={`text-[0.68rem] font-medium ${charOver ? "text-[#ffb785]" : "text-(--text-disabled)"}`}>
+          <p
+            className={`text-[0.68rem] font-medium ${
+              charOver ? "text-[#ffb785]" : "text-(--text-disabled)"
+            }`}
+          >
             {charCount}/{charMax}
           </p>
         </div>
       </div>
 
-      {/* Category */}
       <div>
         <label className={fieldLabel}>Category</label>
         <Select
@@ -78,13 +85,9 @@ export default function EnhancedBasicInformation({
           <SelectTrigger className={fieldInput}>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="rounded-[0.7rem] border border-[color:var(--border-subtle,rgba(240,238,235,0.08))] bg-[var(--bg-elevated,#1c1b1b)] text-[var(--text-primary,#f0eeeb)] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <SelectContent className={selectContent}>
             {CATEGORIES.map((cat) => (
-              <SelectItem
-                key={cat.value}
-                value={cat.value}
-                className="text-[var(--text-primary,#f0eeeb)] focus:bg-[rgba(122,213,221,0.12)] focus:text-[var(--accent-primary,#7ad5dd)] data-[state=checked]:bg-[var(--accent-primary,#7ad5dd)] data-[state=checked]:text-[var(--text-on-accent,#07292d)]"
-              >
+              <SelectItem key={cat.value} value={cat.value} className={selectItem}>
                 {cat.label}
               </SelectItem>
             ))}

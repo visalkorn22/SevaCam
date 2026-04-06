@@ -247,11 +247,13 @@ export function DashboardLayout({
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
                   <div className="hidden max-w-[42rem] flex-1 lg:block">
                     <div className="relative">
-                      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/28" />
+                      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--seva-text-muted)]" />
                       <Input
-                        type="search"
+                        type="text"
+                        inputMode="search"
+                        autoComplete="off"
                         placeholder="Search experiences, bookings, or guests..."
-                        className="h-12 rounded-full border-white/8 bg-[var(--seva-surface)] pl-11 text-[var(--seva-text)] placeholder:text-white/28"
+                        className="h-10 appearance-none rounded-[0.55rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)] pl-12 pr-4 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus-visible:border-[rgba(122,213,221,0.4)] focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] focus-visible:pl-12 focus-visible:pr-4"
                       />
                     </div>
                   </div>
