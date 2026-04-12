@@ -113,22 +113,22 @@ def update_location(
     updates = []
     params = {"id": location_id}
 
-    if payload.name is not None:
+    if "name" in payload.model_fields_set:
         updates.append("name = :name")
         params["name"] = payload.name
-    if payload.timezone is not None:
+    if "timezone" in payload.model_fields_set:
         updates.append("timezone = :timezone")
         params["timezone"] = payload.timezone
-    if payload.address is not None:
+    if "address" in payload.model_fields_set:
         updates.append("address = :address")
         params["address"] = payload.address
-    if payload.is_active is not None:
+    if "is_active" in payload.model_fields_set:
         updates.append("is_active = :is_active")
         params["is_active"] = payload.is_active
-    if payload.latitude is not None:
+    if "latitude" in payload.model_fields_set:
         updates.append("latitude = :latitude")
         params["latitude"] = payload.latitude
-    if payload.longitude is not None:
+    if "longitude" in payload.model_fields_set:
         updates.append("longitude = :longitude")
         params["longitude"] = payload.longitude
 
@@ -139,6 +139,10 @@ def update_location(
         text(f"UPDATE locations SET {', '.join(updates)} WHERE id = :id"),
         params,
     )
+
+    if result.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Location not found")
+
     log_audit(
         db,
         current_user.get("id"),
@@ -148,9 +152,6 @@ def update_location(
         payload.model_dump(),
     )
     db.commit()
-
-    if result.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Location not found")
 
     updated = db.execute(
         text("SELECT * FROM locations WHERE id = :id"), {"id": location_id}
