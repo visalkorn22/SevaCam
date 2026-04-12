@@ -1,9 +1,15 @@
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { addMinutes } from "date-fns";
+import dynamic from "next/dynamic";
 import { PaymentForm } from "@/components/payment/payment-form";
 import { PaymentReceiptActions } from "@/components/payment/payment-receipt-actions";
 import { PaymentReturnStatus } from "@/components/payment/payment-return-status";
+import TelegramShareButton from "@/components/payment/TelegramShareButton";
+const LocationMapView = dynamic(
+  () => import("@/components/booking/LocationMapView"),
+  { ssr: false }
+);
 import {
   formatDateTimeInTimeZone,
   formatLongDateInTimeZone,
@@ -30,6 +36,12 @@ type BookingRow = {
     duration_minutes: number;
   };
   staff: { full_name?: string | null } | null;
+  location?: {
+    name: string;
+    address: string;
+    latitude: number | null;
+    longitude: number | null;
+  } | null;
 };
 
 const DEFAULT_CUSTOMER_TIMEZONE = "Asia/Phnom_Penh";
@@ -367,6 +379,23 @@ function ConfirmedView({
 
           <div className="mx-auto mt-10 max-w-md motion-preset-slide-up-sm motion-delay-200 duration-500 print:hidden">
             <PaymentReceiptActions />
+            {booking.location?.latitude && booking.location?.longitude && (
+              <div className="mt-6">
+                <LocationMapView
+                  location={{
+                    name: booking.location.name,
+                    address: booking.location.address,
+                    latitude: booking.location.latitude!,
+                    longitude: booking.location.longitude!,
+                  }}
+                />
+              </div>
+            )}
+            {booking.location?.latitude && (
+              <div className="mt-4">
+                <TelegramShareButton bookingId={booking.id} />
+              </div>
+            )}
           </div>
         </div>
       </div>

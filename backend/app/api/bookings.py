@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from typing import List, Optional, Tuple, Dict
 from datetime import datetime, timedelta, time, date, timezone as dt_timezone
 import calendar
@@ -916,33 +917,43 @@ async def get_booking_for_payment(
     """Return booking details needed for payment screen."""
     _ensure_booking_access(db, booking_id, current_user)
     result = db.execute(
-        """
+        text("""
         SELECT b.id, b.status, b.payment_status, b.start_time_utc,
                s.name as service_name, s.price, s.deposit_amount, s.duration_minutes,
-               u.full_name as staff_name
+               u.full_name as staff_name,
+               l.name as location_name, l.address as location_address,
+               l.latitude, l.longitude
         FROM bookings b
         LEFT JOIN services s ON b.service_id = s.id
         LEFT JOIN users u ON b.staff_id = u.id
+        LEFT JOIN locations l ON b.location_id = l.id
         WHERE b.id = :id
-        """,
+        """),
         {"id": booking_id},
     ).fetchone()
 
     if not result:
         raise HTTPException(status_code=404, detail="Booking not found")
 
+    r = result._mapping
     return {
-        "id": result[0],
-        "status": result[1],
-        "payment_status": result[2],
-        "start_time_utc": result[3],
+        "id": r["id"],
+        "status": r["status"],
+        "payment_status": r["payment_status"],
+        "start_time_utc": r["start_time_utc"],
         "services": {
-            "name": result[4],
-            "price": result[5],
-            "deposit_amount": result[6],
-            "duration_minutes": result[7],
+            "name": r["service_name"],
+            "price": r["price"],
+            "deposit_amount": r["deposit_amount"],
+            "duration_minutes": r["duration_minutes"],
         },
-        "staff": {"full_name": result[8]},
+        "staff": {"full_name": r["staff_name"]},
+        "location": {
+            "name": r["location_name"],
+            "address": r["location_address"],
+            "latitude": r["latitude"],
+            "longitude": r["longitude"],
+        } if r["location_name"] else None,
     }
 
 @router.get("/{booking_id}/confirmed")
