@@ -436,6 +436,7 @@ export default async function BookServicePage({
                   staff={staff}
                   customer={me}
                   bookingSource={source}
+                  locations={service.locations}
                 />
               </div>
             </div>

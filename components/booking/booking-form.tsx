@@ -34,6 +34,12 @@ import {
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { formatTimeInTimeZone, getHourInTimeZone } from "@/lib/timezone";
+import BranchSelectionStep, { type BranchLocation } from "./BranchSelectionStep";
+import dynamic from "next/dynamic";
+const LocationMapView = dynamic(
+  () => import("@/components/booking/LocationMapView"),
+  { ssr: false }
+);
 
 // --- Types --------------------------------------------------------------------
 
@@ -78,6 +84,7 @@ interface BookingFormProps {
   staff: BookingStaff[];
   customer: BookingCustomer;
   bookingSource?: "web" | "social";
+  locations?: BranchLocation[];
 }
 
 // --- Constants ----------------------------------------------------------------
@@ -574,9 +581,13 @@ export function BookingForm({
   staff,
   customer,
   bookingSource = "web",
+  locations,
 }: BookingFormProps) {
   const DEFAULT_BOOKING_TIMEZONE = "Asia/Phnom_Penh";
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
+    () => (locations?.length === 1 ? locations[0].id : null)
+  );
   const [selectedStaffId, setSelectedStaffId] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string>("");
@@ -908,6 +919,7 @@ export function BookingForm({
           start_time_utc: selectedSlot,
           booking_source: bookingSource,
           customer_timezone: timezone,
+          location_id: selectedLocationId ?? undefined,
         }),
       });
       const booking = await res.json();
@@ -1443,6 +1455,20 @@ export function BookingForm({
           <span className="font-medium text-(--text-secondary)">{timezone}</span>
         </p>
 
+        {selectedLocationId && locations && (() => {
+          const loc = locations.find((l) => l.id === selectedLocationId);
+          return loc && loc.latitude !== null && loc.longitude !== null ? (
+            <LocationMapView
+              location={{
+                name: loc.name,
+                address: loc.address,
+                latitude: loc.latitude,
+                longitude: loc.longitude,
+              }}
+            />
+          ) : null;
+        })()}
+
         {bookingError && (
           <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
             {bookingError}
@@ -1493,33 +1519,45 @@ export function BookingForm({
         </div>
       )}
 
-      <StepIndicator
-        currentStep={step}
-        canGoStep2={canGoStep2}
-        canGoStep3={canGoStep3}
-        onStepChange={setStep}
-      />
-
-      <SelectionSnapshot
-        step={step}
-        staffName={selectedStaff?.name ?? null}
-        dateLabel={selectedDateLabel}
-        slotLabel={selectedSlotLabel}
-      />
-
-      {step > 1 && (
-        <button
-          type="button"
-          onClick={() => setStep((prev) => (prev - 1) as 1 | 2 | 3)}
-          className="mb-4 flex items-center gap-1.5 text-xs text-(--text-secondary) transition hover:text-(--text-primary)/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20"
-        >
-          <ChevronLeft className="h-3.5 w-3.5" /> Back
-        </button>
+      {locations && locations.length > 1 && !selectedLocationId && (
+        <BranchSelectionStep
+          locations={locations}
+          selectedLocationId={selectedLocationId}
+          onSelect={setSelectedLocationId}
+        />
       )}
 
-      {step === 1 && renderStep1()}
-      {step === 2 && renderStep2()}
-      {step === 3 && renderStep3()}
+      {(!locations || locations.length <= 1 || selectedLocationId) && (
+        <>
+          <StepIndicator
+            currentStep={step}
+            canGoStep2={canGoStep2}
+            canGoStep3={canGoStep3}
+            onStepChange={setStep}
+          />
+
+          <SelectionSnapshot
+            step={step}
+            staffName={selectedStaff?.name ?? null}
+            dateLabel={selectedDateLabel}
+            slotLabel={selectedSlotLabel}
+          />
+
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={() => setStep((prev) => (prev - 1) as 1 | 2 | 3)}
+              className="mb-4 flex items-center gap-1.5 text-xs text-(--text-secondary) transition hover:text-(--text-primary)/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" /> Back
+            </button>
+          )}
+
+          {step === 1 && renderStep1()}
+          {step === 2 && renderStep2()}
+          {step === 3 && renderStep3()}
+        </>
+      )}
     </div>
   );
 }
