@@ -7,6 +7,7 @@ Create Date: 2026-04-12 00:00:00.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 revision: str = "20260412maploc"
 down_revision: Union[str, Sequence[str], None] = "20260401utcmigrate"
@@ -30,8 +31,8 @@ def upgrade() -> None:
     if "service_locations" not in table_names:
         op.create_table(
             "service_locations",
-            sa.Column("service_id", sa.UUID(), nullable=False),
-            sa.Column("location_id", sa.UUID(), nullable=False),
+            sa.Column("service_id", postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column("location_id", postgresql.UUID(as_uuid=True), nullable=False),
             sa.ForeignKeyConstraint(["service_id"], ["services.id"], ondelete="CASCADE"),
             sa.ForeignKeyConstraint(["location_id"], ["locations.id"], ondelete="CASCADE"),
             sa.PrimaryKeyConstraint("service_id", "location_id"),
@@ -41,8 +42,8 @@ def upgrade() -> None:
     if "telegram_connections" not in table_names:
         op.create_table(
             "telegram_connections",
-            sa.Column("id", sa.UUID(), nullable=False),
-            sa.Column("user_id", sa.UUID(), nullable=False),
+            sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
             sa.Column("chat_id", sa.BigInteger(), nullable=False),
             sa.Column(
                 "created_at",
@@ -60,7 +61,7 @@ def upgrade() -> None:
     if "location_id" not in booking_cols:
         op.add_column(
             "bookings",
-            sa.Column("location_id", sa.UUID(), nullable=True),
+            sa.Column("location_id", postgresql.UUID(as_uuid=True), nullable=True),
         )
         op.create_foreign_key(
             "fk_bookings_location_id",
@@ -73,9 +74,26 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_constraint("fk_bookings_location_id", "bookings", type_="foreignkey")
-    op.drop_column("bookings", "location_id")
-    op.drop_table("telegram_connections")
-    op.drop_table("service_locations")
-    op.drop_column("locations", "longitude")
-    op.drop_column("locations", "latitude")
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+
+    # Drop bookings.location_id FK and column
+    booking_cols = {col["name"] for col in inspector.get_columns("bookings")}
+    if "location_id" in booking_cols:
+        # Check if FK constraint exists before dropping
+        fk_names = {fk["name"] for fk in inspector.get_foreign_keys("bookings")}
+        if "fk_bookings_location_id" in fk_names:
+            op.drop_constraint("fk_bookings_location_id", "bookings", type_="foreignkey")
+        op.drop_column("bookings", "location_id")
+
+    table_names = set(inspector.get_table_names())
+    if "telegram_connections" in table_names:
+        op.drop_table("telegram_connections")
+    if "service_locations" in table_names:
+        op.drop_table("service_locations")
+
+    location_cols = {col["name"] for col in inspector.get_columns("locations")}
+    if "longitude" in location_cols:
+        op.drop_column("locations", "longitude")
+    if "latitude" in location_cols:
+        op.drop_column("locations", "latitude")
