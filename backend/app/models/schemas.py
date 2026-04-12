@@ -438,6 +438,7 @@ class BookingCreate(BaseModel):
     start_time_utc: datetime
     booking_source: str = "web"
     customer_timezone: str = "Asia/Phnom_Penh"
+    location_id: Optional[str] = None
 
 class BookingUpdate(BaseModel):
     start_time_utc: Optional[datetime] = None

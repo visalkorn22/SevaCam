@@ -62,3 +62,26 @@ def test_update_location_lat_lng():
     assert resp.status_code == 200
     data = resp.json()
     assert data["latitude"] == 12.0
+
+def test_booking_create_schema_has_location_id():
+    from app.models.schemas import BookingCreate
+    from datetime import datetime, timezone
+    b = BookingCreate(
+        service_id="s1",
+        staff_id="st1",
+        customer_id="c1",
+        start_time_utc=datetime(2026, 5, 1, 10, 0, tzinfo=timezone.utc),
+        location_id="loc-1",
+    )
+    assert b.location_id == "loc-1"
+
+def test_booking_create_schema_location_id_optional():
+    from app.models.schemas import BookingCreate
+    from datetime import datetime, timezone
+    b = BookingCreate(
+        service_id="s1",
+        staff_id="st1",
+        customer_id="c1",
+        start_time_utc=datetime(2026, 5, 1, 10, 0, tzinfo=timezone.utc),
+    )
+    assert b.location_id is None

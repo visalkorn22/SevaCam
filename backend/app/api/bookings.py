@@ -701,12 +701,14 @@ async def create_booking(
     
     # Create booking
     db.execute(
-        """
+        text("""
         INSERT INTO bookings (id, service_id, staff_id, customer_id, start_time_utc,
-                            end_time_utc, booking_source, customer_timezone, status, payment_status)
+                            end_time_utc, booking_source, customer_timezone, status,
+                            payment_status, location_id)
         VALUES (:id, :service_id, :staff_id, :customer_id, :start_time_utc,
-                :end_time_utc, :booking_source, :customer_timezone, :status, :payment_status)
-        """,
+                :end_time_utc, :booking_source, :customer_timezone, :status,
+                :payment_status, :location_id)
+        """),
         {
             "id": booking_id,
             "service_id": booking.service_id,
@@ -718,6 +720,7 @@ async def create_booking(
             "customer_timezone": booking.customer_timezone,
             "status": booking_status,
             "payment_status": payment_status,
+            "location_id": booking.location_id,
         }
     )
     db.commit()
