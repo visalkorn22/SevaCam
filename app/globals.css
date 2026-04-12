@@ -1480,6 +1480,21 @@
     padding-right: 2.85rem;
   }
 
+  .sevacam-number-input {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  .sevacam-number-input::-webkit-inner-spin-button,
+  .sevacam-number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .sevacam-stepper-button svg {
+    stroke-width: 2.2;
+  }
+
   .sevacam-service-card {
     max-width: 52rem;
   }

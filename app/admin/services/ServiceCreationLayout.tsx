@@ -79,10 +79,10 @@ export function ServiceCreationLayout({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-2">
           <p className="sevacam-eyebrow">Admin / Services / {title}</p>
-          <h1 className="sevacam-display text-[clamp(2.4rem,4vw,3.8rem)] leading-[0.92] tracking-[-0.04em] text-(--text-primary)">
+          <h1 className="sevacam-display text-[clamp(2.4rem,4vw,3.8rem)] leading-[0.92] tracking-[-0.04em] text-[var(--text-primary)]">
             {title}
           </h1>
-          <p className="text-sm leading-6 text-(--text-secondary)">{description}</p>
+          <p className="text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
         </div>
       </div>
 

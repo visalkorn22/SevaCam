@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Search } from "lucide-react";
+import { Bell, LogOut, Search, Settings, UserCircle2 } from "lucide-react";
 import {
   roleLabelMap,
   sidebarConfig,
@@ -280,18 +280,63 @@ export function DashboardLayout({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="w-56 border-white/10 bg-[#151515] text-[var(--seva-text)]"
+                        sideOffset={10}
+                        className="w-60 rounded-[1.15rem] border border-[rgba(240,238,235,0.1)] bg-[linear-gradient(180deg,rgba(32,31,31,0.98),rgba(28,27,27,0.98))] p-2 text-[#f0eeeb] shadow-[0_28px_70px_rgba(0,0,0,0.46)] backdrop-blur-xl"
                       >
-                        <DropdownMenuLabel>{displayRole}</DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-white/8" />
-                        <DropdownMenuItem asChild>
-                          <Link href="/profile">Profile</Link>
+                        <div className="rounded-[0.95rem] border border-[rgba(240,238,235,0.08)] bg-[rgba(53,53,52,0.52)] px-3 py-3">
+                          <div className="flex items-center gap-3">
+                            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(240,238,235,0.12)] text-[0.74rem] font-semibold uppercase tracking-[0.14em] text-[#f0eeeb]">
+                              {displayName.slice(0, 2)}
+                            </span>
+                            <div className="min-w-0">
+                              <DropdownMenuLabel className="truncate p-0 text-sm font-medium text-[#f0eeeb]">
+                                {displayName}
+                              </DropdownMenuLabel>
+                              <p className="mt-1 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[#c9c3bc]">
+                                {displayRole}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <DropdownMenuSeparator className="my-2 bg-[rgba(240,238,235,0.1)]" />
+                        <DropdownMenuItem
+                          asChild
+                          className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-1.5 py-1 text-[#f0eeeb] focus:bg-[rgba(122,213,221,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(122,213,221,0.14)] data-[highlighted]:text-[#f0eeeb]"
+                        >
+                          <Link href="/profile" className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2">
+                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
+                              <UserCircle2 className="h-4 w-4 text-[#f7f4ef]" />
+                            </span>
+                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#f0eeeb]">
+                              Profile
+                            </span>
+                          </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={settingsHref}>Settings</Link>
+                        <DropdownMenuItem
+                          asChild
+                          className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-1.5 py-1 text-[#f0eeeb] focus:bg-[rgba(122,213,221,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(122,213,221,0.14)] data-[highlighted]:text-[#f0eeeb]"
+                        >
+                          <Link href={settingsHref} className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2">
+                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
+                              <Settings className="h-4 w-4 text-[#f7f4ef]" />
+                            </span>
+                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#f0eeeb]">
+                              Settings
+                            </span>
+                          </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-white/8" />
-                        <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                        <DropdownMenuSeparator className="my-2 bg-[rgba(240,238,235,0.1)]" />
+                        <DropdownMenuItem
+                          onClick={handleLogout}
+                          className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-3 py-1 text-[#f0eeeb] focus:bg-[rgba(255,183,133,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(255,183,133,0.14)] data-[highlighted]:text-[#f0eeeb]"
+                        >
+                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
+                            <LogOut className="h-4 w-4 text-[#f7f4ef]" />
+                          </span>
+                          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#f0eeeb]">
+                            Logout
+                          </span>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : null}
