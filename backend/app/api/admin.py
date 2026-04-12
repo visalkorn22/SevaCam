@@ -63,7 +63,7 @@ def list_locations(
     db: Session = Depends(get_db),
 ):
     result = db.execute(
-        "SELECT * FROM locations ORDER BY created_at DESC"
+        text("SELECT * FROM locations ORDER BY created_at DESC")
     )
     return [dict(row._mapping) for row in result.fetchall()]
 
@@ -75,15 +75,17 @@ def create_location(
 ):
     location_id = str(uuid.uuid4())
     db.execute(
-        """
-        INSERT INTO locations (id, name, timezone, address, is_active)
-        VALUES (:id, :name, :timezone, :address, :is_active)
-        """,
+        text("""
+        INSERT INTO locations (id, name, timezone, address, latitude, longitude, is_active)
+        VALUES (:id, :name, :timezone, :address, :latitude, :longitude, :is_active)
+        """),
         {
             "id": location_id,
             "name": payload.name,
             "timezone": payload.timezone,
             "address": payload.address,
+            "latitude": payload.latitude,
+            "longitude": payload.longitude,
             "is_active": payload.is_active,
         },
     )
@@ -97,8 +99,7 @@ def create_location(
     )
     db.commit()
     created = db.execute(
-        "SELECT * FROM locations WHERE id = :id",
-        {"id": location_id},
+        text("SELECT * FROM locations WHERE id = :id"), {"id": location_id}
     ).fetchone()
     return dict(created._mapping)
 
@@ -124,12 +125,18 @@ def update_location(
     if payload.is_active is not None:
         updates.append("is_active = :is_active")
         params["is_active"] = payload.is_active
+    if payload.latitude is not None:
+        updates.append("latitude = :latitude")
+        params["latitude"] = payload.latitude
+    if payload.longitude is not None:
+        updates.append("longitude = :longitude")
+        params["longitude"] = payload.longitude
 
     if not updates:
         raise HTTPException(status_code=400, detail="No fields to update")
 
     result = db.execute(
-        f"UPDATE locations SET {', '.join(updates)} WHERE id = :id",
+        text(f"UPDATE locations SET {', '.join(updates)} WHERE id = :id"),
         params,
     )
     log_audit(
@@ -146,8 +153,7 @@ def update_location(
         raise HTTPException(status_code=404, detail="Location not found")
 
     updated = db.execute(
-        "SELECT * FROM locations WHERE id = :id",
-        {"id": location_id},
+        text("SELECT * FROM locations WHERE id = :id"), {"id": location_id}
     ).fetchone()
     return dict(updated._mapping)
 
@@ -158,7 +164,7 @@ def delete_location(
     db: Session = Depends(get_db),
 ):
     result = db.execute(
-        "DELETE FROM locations WHERE id = :id",
+        text("DELETE FROM locations WHERE id = :id"),
         {"id": location_id},
     )
     log_audit(

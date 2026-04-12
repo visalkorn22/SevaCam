@@ -161,12 +161,16 @@ class LocationCreate(BaseModel):
     name: str
     timezone: str = "Asia/Phnom_Penh"
     address: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     is_active: bool = True
 
 class LocationUpdate(BaseModel):
     name: Optional[str] = None
     timezone: Optional[str] = None
     address: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     is_active: Optional[bool] = None
 
 class LocationResponse(BaseModel):
@@ -174,6 +178,8 @@ class LocationResponse(BaseModel):
     name: str
     timezone: str
     address: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
     is_active: bool
     created_at: datetime
 
