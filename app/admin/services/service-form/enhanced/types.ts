@@ -13,6 +13,7 @@ export type ServiceFormData = {
   tags: string;
   inclusions: string;
   prep_notes: string;
+  location_ids: string[];
 };
 
 export type UpdateServiceField = <K extends keyof ServiceFormData>(

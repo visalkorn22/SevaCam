@@ -26,6 +26,8 @@ import EnhancedServiceMedia from "./service-form/enhanced/EnhancedServiceMedia";
 import EnhancedPromotion from "./service-form/enhanced/EnhancedPromotion";
 import EnhancedSchedule from "./service-form/enhanced/EnhancedSchedule";
 import EnhancedStaffAssignments from "./service-form/enhanced/EnhancedStaffAssignments";
+import EnhancedLocation from "./service-form/enhanced/EnhancedLocation";
+import { MapPin } from "lucide-react";
 
 type EnhancedServiceFormProps = {
   mode: "create" | "edit";
@@ -98,6 +100,7 @@ export default function EnhancedServiceForm({
     tags: typeof initialTags === "string" ? initialTags : "",
     inclusions: initialValues?.inclusions || "",
     prep_notes: initialValues?.prep_notes || "",
+    location_ids: Array.isArray(initialValues?.location_ids) ? initialValues.location_ids : [],
   });
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduleForm, setScheduleForm] = useState<OperatingScheduleDraft>({
@@ -438,6 +441,12 @@ export default function EnhancedServiceForm({
           },
         ]
       : []),
+    {
+      id: "location",
+      title: "Locations",
+      icon: MapPin,
+      description: "Assign branch locations for this service",
+    },
   ];
 
   const handleSubmit = async () => {
@@ -780,6 +789,15 @@ export default function EnhancedServiceForm({
         }
       }
 
+      if (createdServiceId && formData.location_ids.length > 0) {
+        await fetch(`/api/services/${createdServiceId}/locations`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ location_ids: formData.location_ids }),
+        });
+      }
+
       router.push("/admin/services");
       router.refresh();
     } catch (err) {
@@ -902,6 +920,12 @@ export default function EnhancedServiceForm({
             setRuleDraft={setRuleDraft}
             exceptionDraft={exceptionDraft}
             setExceptionDraft={setExceptionDraft}
+          />
+        )}
+        {steps[currentStep]?.id === "location" && (
+          <EnhancedLocation
+            formData={formData}
+            updateField={updateField}
           />
         )}
       </div>
