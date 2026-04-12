@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from app.api import auth, users, services, staff, availability, admin, locations
+from app.api import auth, users, services, staff, availability, admin, locations, telegram
 from app.core.config import settings
 
 app = FastAPI(title="Appointment Booking API")
@@ -26,6 +26,7 @@ app.include_router(staff.router, prefix="/api/staff")
 app.include_router(availability.router, prefix="/api/availability")
 app.include_router(admin.router)
 app.include_router(locations.router)
+app.include_router(telegram.router)
 
 if settings.FEATURE_SET == "full":
     from app.api import bookings, payments, notifications, analytics, customers, waitlist, reviews

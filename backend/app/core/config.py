@@ -129,6 +129,13 @@ class Settings(BaseSettings):
     KHQR_QR_LIFETIME_MINUTES: int = 10        # session TTL shown to customer
 
     # =========================
+    # Telegram Bot
+    # =========================
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_BOT_USERNAME: str = ""   # bot username without @
+    TELEGRAM_WEBHOOK_URL: Optional[str] = None
+
+    # =========================
     # Reminder Jobs
     # =========================
     REMINDER_LEAD_MINUTES: int = 60
