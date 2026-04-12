@@ -117,8 +117,70 @@ async def get_service(service_id: str, db: Session = Depends(get_db)):
     
     if not service:
         raise HTTPException(status_code=404, detail="Service not found")
-    
-    return _normalize_service_row(dict(service._mapping))
+
+    service_data = _normalize_service_row(dict(service._mapping))
+
+    # Embed assigned locations
+    loc_rows = db.execute(
+        text("""
+        SELECT l.id, l.name, l.address, l.latitude, l.longitude, l.timezone
+        FROM locations l
+        JOIN service_locations sl ON sl.location_id = l.id
+        WHERE sl.service_id = :sid AND l.is_active = TRUE
+        ORDER BY l.name
+        """),
+        {"sid": service_data["id"]},
+    ).fetchall()
+    service_data["locations"] = [
+        {
+            "id": str(r._mapping["id"]),
+            "name": r._mapping["name"],
+            "address": r._mapping["address"],
+            "latitude": r._mapping["latitude"],
+            "longitude": r._mapping["longitude"],
+            "timezone": r._mapping["timezone"],
+        }
+        for r in loc_rows
+    ]
+    return service_data
+
+@router.get("/{service_id}/locations")
+def get_service_locations(service_id: str, db: Session = Depends(get_db)):
+    """Return all locations assigned to a service."""
+    rows = db.execute(
+        text("""
+        SELECT l.*
+        FROM locations l
+        JOIN service_locations sl ON sl.location_id = l.id
+        WHERE sl.service_id = :service_id AND l.is_active = TRUE
+        ORDER BY l.name
+        """),
+        {"service_id": service_id},
+    ).fetchall()
+    return [dict(row._mapping) for row in rows]
+
+
+@router.put("/{service_id}/locations")
+def set_service_locations(
+    service_id: str,
+    payload: dict,
+    current_user: dict = Depends(require_permissions("services:manage")),
+    db: Session = Depends(get_db),
+):
+    """Replace the full set of locations for a service. payload: {"location_ids": [...]}"""
+    location_ids: list[str] = payload.get("location_ids", [])
+    db.execute(
+        text("DELETE FROM service_locations WHERE service_id = :sid"),
+        {"sid": service_id},
+    )
+    for loc_id in location_ids:
+        db.execute(
+            text("INSERT INTO service_locations (service_id, location_id) VALUES (:sid, :lid)"),
+            {"sid": service_id, "lid": loc_id},
+        )
+    db.commit()
+    return {"ok": True, "location_ids": location_ids}
+
 
 @router.post("/", response_model=ServiceResponse, status_code=status.HTTP_201_CREATED)
 async def create_service(
