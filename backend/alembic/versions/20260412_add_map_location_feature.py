@@ -41,9 +41,9 @@ def upgrade() -> None:
     if "telegram_connections" not in table_names:
         op.create_table(
             "telegram_connections",
-            sa.Column("id", sa.UUID(), primary_key=True, nullable=False),
+            sa.Column("id", sa.UUID(), nullable=False),
             sa.Column("user_id", sa.UUID(), nullable=False),
-            sa.Column("chat_id", sa.BigInteger(), nullable=False, unique=True),
+            sa.Column("chat_id", sa.BigInteger(), nullable=False),
             sa.Column(
                 "created_at",
                 sa.DateTime(),
@@ -51,6 +51,8 @@ def upgrade() -> None:
                 server_default=sa.text("now()"),
             ),
             sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+            sa.PrimaryKeyConstraint("id"),
+            sa.UniqueConstraint("chat_id"),
         )
 
     # 4. Add location_id to bookings
