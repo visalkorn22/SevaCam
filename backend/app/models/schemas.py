@@ -456,6 +456,7 @@ class BookingResponse(BaseModel):
     payment_status: str
     booking_source: str
     customer_timezone: str
+    location_id: Optional[str] = None
     created_at: datetime
 
 class BookingReviewSummary(BaseModel):
