@@ -15,6 +15,7 @@ import {
   FileText,
   ClipboardList,
   Star,
+  MapPin,
 } from "lucide-react";
 
 export type Role = "customer" | "staff" | "admin" | "superadmin";
@@ -112,6 +113,7 @@ const adminSections: SidebarSection[] = [
     title: "Operations",
     items: [
       { title: "Services", icon: Briefcase, href: "/admin/services" },
+      { title: "Locations", icon: MapPin, href: "/admin/locations" },
       { title: "Bookings", icon: Calendar, href: "/admin/bookings" },
       { title: "Availability", icon: Clock, href: "/admin/availability" },
       { title: "Payments", icon: CreditCard, href: "/admin/payments" },
@@ -149,6 +151,7 @@ const superAdminSections: SidebarSection[] = [
     title: "Operations",
     items: [
       { title: "Services", icon: Briefcase, href: "/admin/services" },
+      { title: "Locations", icon: MapPin, href: "/admin/locations" },
       { title: "Bookings", icon: Calendar, href: "/admin/bookings" },
       { title: "Availability", icon: Clock, href: "/admin/availability" },
       { title: "Payments", icon: CreditCard, href: "/admin/payments" },
