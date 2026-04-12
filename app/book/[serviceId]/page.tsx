@@ -8,6 +8,11 @@ import {
   type ServiceReviewsData,
 } from "@/components/booking/ServiceReviews";
 import { ChevronLeft, Clock, DollarSign, Tag, Users } from "lucide-react";
+import dynamic from "next/dynamic";
+const LocationMapView = dynamic(
+  () => import("@/components/booking/LocationMapView"),
+  { ssr: false }
+);
 
 type MeUser = {
   id: string;
@@ -35,6 +40,13 @@ type ServiceRow = {
   deposit_amount: number;
   max_capacity: number;
   is_active: boolean;
+  locations?: Array<{
+    id: string;
+    name: string;
+    address: string;
+    latitude: number | null;
+    longitude: number | null;
+  }>;
 };
 
 type StaffOption = {
@@ -333,6 +345,27 @@ export default async function BookServicePage({
                 </div>
               </div>
             </section>
+
+            {service.locations && service.locations.filter(l => l.latitude !== null).length > 0 && (
+              <section className="space-y-4">
+                <h3 className="text-sm font-semibold uppercase tracking-widest text-(--text-disabled)">
+                  Location{service.locations.length > 1 ? "s" : ""}
+                </h3>
+                {service.locations
+                  .filter((l) => l.latitude !== null && l.longitude !== null)
+                  .map((loc) => (
+                    <LocationMapView
+                      key={loc.id}
+                      location={{
+                        name: loc.name,
+                        address: loc.address,
+                        latitude: loc.latitude!,
+                        longitude: loc.longitude!,
+                      }}
+                    />
+                  ))}
+              </section>
+            )}
 
             {inclusionItems.length > 0 || service.prep_notes ? (
               <section className="grid gap-6 md:grid-cols-2">
