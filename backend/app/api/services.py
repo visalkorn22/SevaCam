@@ -3,6 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List
 from pathlib import Path
+from pydantic import BaseModel
 from app.core.database import get_db
 from app.core.auth import require_permissions
 from app.core.config import settings
@@ -17,6 +18,10 @@ from app.models.schemas import (
     ServiceOperatingExceptionCreate,
 )
 import uuid
+
+
+class ServiceLocationsUpdate(BaseModel):
+    location_ids: List[str]
 
 router = APIRouter()
 
@@ -163,12 +168,12 @@ def get_service_locations(service_id: str, db: Session = Depends(get_db)):
 @router.put("/{service_id}/locations")
 def set_service_locations(
     service_id: str,
-    payload: dict,
+    payload: ServiceLocationsUpdate,
     current_user: dict = Depends(require_permissions("services:manage")),
     db: Session = Depends(get_db),
 ):
     """Replace the full set of locations for a service. payload: {"location_ids": [...]}"""
-    location_ids: list[str] = payload.get("location_ids", [])
+    location_ids: list[str] = payload.location_ids
     db.execute(
         text("DELETE FROM service_locations WHERE service_id = :sid"),
         {"sid": service_id},

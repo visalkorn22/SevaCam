@@ -45,6 +45,14 @@ class ServiceUpdate(BaseModel):
     paused_from: Optional[datetime] = None
     paused_until: Optional[datetime] = None
 
+class EmbeddedLocation(BaseModel):
+    id: str
+    name: str
+    address: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    timezone: str
+
 class ServiceResponse(ServiceBase):
     id: str
     admin_id: Optional[str]
@@ -53,6 +61,7 @@ class ServiceResponse(ServiceBase):
     archived_at: Optional[datetime] = None
     paused_from: Optional[datetime] = None
     paused_until: Optional[datetime] = None
+    locations: List["EmbeddedLocation"] = []
 
     class Config:
         from_attributes = True
