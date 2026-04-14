@@ -8,7 +8,7 @@ import { Plus, Pencil, Trash2, MapPin, X } from "lucide-react";
 
 const LocationPickerMap = dynamic(
   () => import("@/components/admin/LocationPickerMap"),
-  { ssr: false }
+  { ssr: false },
 );
 
 type Location = {
@@ -59,7 +59,9 @@ export default function LocationsClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [searchTimer, setSearchTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [searchTimer, setSearchTimer] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const openCreate = () => {
     setEditingId(null);
@@ -86,7 +88,10 @@ export default function LocationsClient({
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
     if (searchTimer) clearTimeout(searchTimer);
-    if (value.length < 3) { setSearchResults([]); return; }
+    if (value.length < 3) {
+      setSearchResults([]);
+      return;
+    }
     const t = setTimeout(async () => {
       const results = await geocodeAddress(value);
       setSearchResults(results);
@@ -113,15 +118,13 @@ export default function LocationsClient({
     if (!draft.name.trim()) return;
     setIsSaving(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const url = editingId
-        ? `${apiUrl}/api/admin/locations/${editingId}`
-        : `${apiUrl}/api/admin/locations`;
+        ? `/api/admin/locations/${editingId}`
+        : `/api/admin/locations`;
       const method = editingId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(draft),
       });
       if (!res.ok) throw new Error("Save failed");
@@ -129,7 +132,7 @@ export default function LocationsClient({
       setLocations((prev) =>
         editingId
           ? prev.map((l) => (l.id === editingId ? saved : l))
-          : [saved, ...prev]
+          : [saved, ...prev],
       );
       setModalOpen(false);
     } catch (e) {
@@ -140,24 +143,31 @@ export default function LocationsClient({
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this location? Services using it will lose their location.")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    await fetch(`${apiUrl}/api/admin/locations/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    if (
+      !confirm(
+        "Delete this location? Services using it will lose their location.",
+      )
+    )
+      return;
+    await fetch(`/api/admin/locations/${id}`, { method: "DELETE" });
     setLocations((prev) => prev.filter((l) => l.id !== id));
   };
 
-  const fieldLabel = "mb-1.5 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
-  const fieldInput = "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:ring-1 focus-visible:ring-(--accent-primary)";
+  const fieldLabel =
+    "mb-1.5 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
+  const fieldInput =
+    "h-10 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:ring-1 focus-visible:ring-(--accent-primary)";
 
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-(--text-primary)">Locations</h1>
-          <p className="text-sm text-(--text-disabled)">Manage physical branch locations</p>
+          <h1 className="text-xl font-semibold text-(--text-primary)">
+            Locations
+          </h1>
+          <p className="text-sm text-(--text-disabled)">
+            Manage physical branch locations
+          </p>
         </div>
         <Button onClick={openCreate} size="sm" className="gap-1.5">
           <Plus className="h-4 w-4" /> Add Location
@@ -167,33 +177,60 @@ export default function LocationsClient({
       {locations.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-[0.85rem] border border-dashed border-(--border-subtle) py-16 text-center">
           <MapPin className="h-8 w-8 text-(--text-disabled)" />
-          <p className="text-sm text-(--text-disabled)">No locations yet. Add your first branch.</p>
+          <p className="text-sm text-(--text-disabled)">
+            No locations yet. Add your first branch.
+          </p>
         </div>
       ) : (
         <div className="rounded-[0.85rem] border border-(--border-subtle) overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-(--border-subtle) bg-(--bg-inset)">
-                <th className="px-4 py-2.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">Name</th>
-                <th className="px-4 py-2.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">Address</th>
-                <th className="px-4 py-2.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">Coordinates</th>
-                <th className="px-4 py-2.5 text-right text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">Actions</th>
+                <th className="px-4 py-2.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">
+                  Name
+                </th>
+                <th className="px-4 py-2.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">
+                  Address
+                </th>
+                <th className="px-4 py-2.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">
+                  Coordinates
+                </th>
+                <th className="px-4 py-2.5 text-right text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-disabled)">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {locations.map((loc, i) => (
-                <tr key={loc.id} className={i > 0 ? "border-t border-(--border-subtle)" : ""}>
-                  <td className="px-4 py-3 font-medium text-(--text-primary)">{loc.name}</td>
-                  <td className="px-4 py-3 text-(--text-secondary)">{loc.address ?? "—"}</td>
+                <tr
+                  key={loc.id}
+                  className={i > 0 ? "border-t border-(--border-subtle)" : ""}
+                >
+                  <td className="px-4 py-3 font-medium text-(--text-primary)">
+                    {loc.name}
+                  </td>
+                  <td className="px-4 py-3 text-(--text-secondary)">
+                    {loc.address ?? "—"}
+                  </td>
                   <td className="px-4 py-3 font-mono text-xs text-(--text-disabled)">
-                    {loc.latitude != null ? `${loc.latitude.toFixed(4)}, ${loc.longitude?.toFixed(4)}` : "—"}
+                    {loc.latitude != null
+                      ? `${loc.latitude.toFixed(4)}, ${loc.longitude?.toFixed(4)}`
+                      : "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex gap-1.5">
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(loc)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEdit(loc)}
+                      >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(loc.id)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(loc.id)}
+                      >
                         <Trash2 className="h-3.5 w-3.5 text-red-400" />
                       </Button>
                     </div>
@@ -209,7 +246,9 @@ export default function LocationsClient({
       {modalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setModalOpen(false);
+          }}
         >
           <div className="relative w-full max-w-lg rounded-2xl border border-(--border-subtle) bg-(--bg-elevated) p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
@@ -228,7 +267,9 @@ export default function LocationsClient({
                 <label className={fieldLabel}>Location Name</label>
                 <Input
                   value={draft.name}
-                  onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, name: e.target.value }))
+                  }
                   placeholder="e.g. Main Branch"
                   className={fieldInput}
                 />
@@ -263,12 +304,23 @@ export default function LocationsClient({
               />
               {draft.latitude !== null && (
                 <p className="text-[0.68rem] text-(--text-disabled)">
-                  Pin: {draft.latitude.toFixed(6)}, {draft.longitude?.toFixed(6)}
+                  Pin: {draft.latitude.toFixed(6)},{" "}
+                  {draft.longitude?.toFixed(6)}
                 </p>
               )}
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
-                <Button size="sm" onClick={handleSave} disabled={isSaving || !draft.name.trim()}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={isSaving || !draft.name.trim()}
+                >
                   {isSaving ? "Saving…" : "Save Location"}
                 </Button>
               </div>
