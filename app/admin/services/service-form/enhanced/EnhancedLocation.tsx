@@ -77,10 +77,9 @@ export default function EnhancedLocation({ formData, updateField }: EnhancedLoca
   const [searchTimer, setSearchTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchLocations = () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    fetch(`${apiUrl}/api/locations`, { credentials: "include" })
+    fetch("/api/locations")
       .then((r) => r.json())
-      .then((data) => setLocations(data))
+      .then((data) => setLocations(Array.isArray(data) ? data : []))
       .catch(() => setLocations([]))
       .finally(() => setLoading(false));
   };
@@ -167,15 +166,13 @@ export default function EnhancedLocation({ formData, updateField }: EnhancedLoca
     if (!draft.name.trim()) return;
     setIsSaving(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const url = editingId
-        ? `${apiUrl}/api/admin/locations/${editingId}`
-        : `${apiUrl}/api/admin/locations`;
+        ? `/api/admin/locations/${editingId}`
+        : "/api/admin/locations";
       const method = editingId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(draft),
       });
       if (!res.ok) throw new Error("Save failed");
@@ -201,11 +198,7 @@ export default function EnhancedLocation({ formData, updateField }: EnhancedLoca
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm("Delete this location?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    await fetch(`${apiUrl}/api/admin/locations/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    await fetch(`/api/admin/locations/${id}`, { method: "DELETE" });
     setLocations((prev) => prev.filter((l) => l.id !== id));
     updateField(
       "location_ids",

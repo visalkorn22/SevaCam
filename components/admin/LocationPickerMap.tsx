@@ -25,6 +25,8 @@ export default function LocationPickerMap({
     if (!mapRef.current || mapInstanceRef.current) return;
 
     import("leaflet").then((L) => {
+      if (!mapRef.current) return;
+
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconUrl: "/marker-icon.png",
@@ -32,10 +34,15 @@ export default function LocationPickerMap({
         shadowUrl: "/marker-shadow.png",
       });
 
+      // React Strict Mode runs effects twice — clean any stale Leaflet state on the container
+      if ((mapRef.current as any)._leaflet_id) {
+        (mapRef.current as any)._leaflet_id = undefined;
+      }
+
       const center: [number, number] =
         latitude && longitude ? [latitude, longitude] : defaultCenter;
 
-      const map = L.map(mapRef.current!, {
+      const map = L.map(mapRef.current, {
         center,
         zoom: 14,
         scrollWheelZoom: true,

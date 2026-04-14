@@ -31,6 +31,8 @@ export default function LocationMapView({
     // Dynamic import — Leaflet needs window
     import("leaflet").then((L) => {
       // Fix default icon paths
+      if (!mapRef.current) return;
+
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconUrl: "/marker-icon.png",
@@ -38,7 +40,11 @@ export default function LocationMapView({
         shadowUrl: "/marker-shadow.png",
       });
 
-      const map = L.map(mapRef.current!, {
+      if ((mapRef.current as any)._leaflet_id) {
+        (mapRef.current as any)._leaflet_id = undefined;
+      }
+
+      const map = L.map(mapRef.current, {
         center: [location.latitude, location.longitude],
         zoom: 15,
         zoomControl: true,
