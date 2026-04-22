@@ -28,6 +28,12 @@ def _csv_response(rows: list[list[str]], filename: str) -> Response:
     )
 
 
+def _serialize_location(row) -> dict:
+    data = dict(row._mapping)
+    data["id"] = str(data["id"])
+    return data
+
+
 @router.get("/staff")
 def list_staff(
     current_user: dict = Depends(require_roles("admin", "superadmin")),
@@ -65,7 +71,7 @@ def list_locations(
     result = db.execute(
         text("SELECT * FROM locations ORDER BY created_at DESC")
     )
-    return [dict(row._mapping) for row in result.fetchall()]
+    return [_serialize_location(row) for row in result.fetchall()]
 
 @router.post("/locations", response_model=LocationResponse)
 def create_location(
@@ -101,7 +107,7 @@ def create_location(
     created = db.execute(
         text("SELECT * FROM locations WHERE id = :id"), {"id": location_id}
     ).fetchone()
-    return dict(created._mapping)
+    return _serialize_location(created)
 
 @router.put("/locations/{location_id}", response_model=LocationResponse)
 def update_location(
@@ -156,7 +162,7 @@ def update_location(
     updated = db.execute(
         text("SELECT * FROM locations WHERE id = :id"), {"id": location_id}
     ).fetchone()
-    return dict(updated._mapping)
+    return _serialize_location(updated)
 
 @router.delete("/locations/{location_id}")
 def delete_location(

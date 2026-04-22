@@ -5,7 +5,7 @@ import { MapPin, Navigation } from "lucide-react";
 
 export interface LocationData {
   name: string;
-  address: string;
+  address: string | null;
   latitude: number;
   longitude: number;
 }
@@ -28,9 +28,7 @@ export default function LocationMapView({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Dynamic import — Leaflet needs window
     import("leaflet").then((L) => {
-      // Fix default icon paths
       if (!mapRef.current) return;
 
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -52,13 +50,14 @@ export default function LocationMapView({
       });
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(map);
 
       L.marker([location.latitude, location.longitude])
         .addTo(map)
-        .bindPopup(`<b>${location.name}</b><br/>${location.address}`)
+        .bindPopup(`<b>${location.name}</b>${location.address ? `<br/>${location.address}` : ""}`)
         .openPopup();
 
       mapInstanceRef.current = map;
@@ -80,14 +79,16 @@ export default function LocationMapView({
         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
         <div>
           <p className="text-sm font-semibold text-[var(--text-primary)]">{location.name}</p>
-          <p className="text-xs text-[var(--text-disabled)]">{location.address}</p>
+          {location.address && (
+            <p className="text-xs text-(--text-disabled)">{location.address}</p>
+          )}
         </div>
       </div>
 
       <div
         ref={mapRef}
         style={{ height: mapHeight }}
-        className="w-full rounded-[0.7rem] overflow-hidden border border-[var(--border-subtle)]"
+        className="w-full overflow-hidden rounded-[0.7rem] border border-[var(--border-subtle)]"
       />
 
       <a

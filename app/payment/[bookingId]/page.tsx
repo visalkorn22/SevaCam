@@ -1,15 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { addMinutes } from "date-fns";
-import dynamic from "next/dynamic";
+import { MapPin } from "lucide-react";
+import LocationMapView from "@/components/booking/LocationMapView";
 import { PaymentForm } from "@/components/payment/payment-form";
 import { PaymentReceiptActions } from "@/components/payment/payment-receipt-actions";
 import { PaymentReturnStatus } from "@/components/payment/payment-return-status";
 import TelegramShareButton from "@/components/payment/TelegramShareButton";
-const LocationMapView = dynamic(
-  () => import("@/components/booking/LocationMapView"),
-  { ssr: false }
-);
 import {
   formatDateTimeInTimeZone,
   formatLongDateInTimeZone,
@@ -379,24 +376,43 @@ function ConfirmedView({
 
           <div className="mx-auto mt-10 max-w-md motion-preset-slide-up-sm motion-delay-200 duration-500 print:hidden">
             <PaymentReceiptActions />
-            {booking.location?.latitude && booking.location?.longitude && (
+            {booking.location?.latitude != null && booking.location?.longitude != null && (
               <div className="mt-6">
                 <LocationMapView
                   location={{
                     name: booking.location.name,
                     address: booking.location.address,
-                    latitude: booking.location.latitude!,
-                    longitude: booking.location.longitude!,
+                    latitude: booking.location.latitude,
+                    longitude: booking.location.longitude,
                   }}
                 />
               </div>
             )}
-            {booking.location?.latitude && (
+            {booking.location?.latitude != null && booking.location?.longitude != null && (
               <div className="mt-4">
                 <TelegramShareButton bookingId={booking.id} />
               </div>
             )}
           </div>
+          {booking.location && (booking.location.name || booking.location.address) && (
+            <div className="mx-auto mt-6 max-w-md">
+              <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-elevated) p-4">
+                <div className="flex items-start gap-2">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
+                  <div>
+                    <p className="text-sm font-semibold text-(--text-primary)">
+                      {booking.location.name || booking.location.address}
+                    </p>
+                    {booking.location.name && booking.location.address && (
+                      <p className="mt-1 text-xs text-(--text-disabled)">
+                        {booking.location.address}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -468,6 +468,7 @@ class BookingWithDetails(BookingResponse):
     staff_name: Optional[str] = None
     customer_name: Optional[str] = None
     service_price: Optional[Decimal] = None
+    location: Optional[EmbeddedLocation] = None
     review: Optional[BookingReviewSummary] = None
 
 class BookingChangeResponse(BaseModel):

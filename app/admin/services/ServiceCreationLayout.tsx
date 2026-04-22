@@ -27,6 +27,7 @@ type ServiceCreationLayoutProps = {
     image_url: string | null;
     image_urls: string[] | null;
     is_active: boolean | null;
+    location_ids: string[];
   }>;
   staffOptions?: Array<{
     id: string;

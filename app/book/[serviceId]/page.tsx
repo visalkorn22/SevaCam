@@ -3,16 +3,12 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { BookingForm } from "@/components/booking/booking-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import LocationMapView from "@/components/booking/LocationMapView";
 import {
   ServiceReviews,
   type ServiceReviewsData,
 } from "@/components/booking/ServiceReviews";
-import { ChevronLeft, Clock, DollarSign, Tag, Users } from "lucide-react";
-import dynamic from "next/dynamic";
-const LocationMapView = dynamic(
-  () => import("@/components/booking/LocationMapView"),
-  { ssr: false }
-);
+import { ChevronLeft, Clock, DollarSign, MapPin, Tag, Users } from "lucide-react";
 
 type MeUser = {
   id: string;
@@ -43,7 +39,7 @@ type ServiceRow = {
   locations?: Array<{
     id: string;
     name: string;
-    address: string;
+    address: string | null;
     latitude: number | null;
     longitude: number | null;
   }>;
@@ -366,6 +362,41 @@ export default async function BookServicePage({
                   ))}
               </section>
             )}
+
+            {service.locations &&
+              service.locations.filter(
+                (l) => !(l.latitude != null && l.longitude != null) && (l.name || l.address)
+              ).length > 0 && (
+                <section className="space-y-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-widest text-(--text-disabled)">
+                    Location{service.locations.filter(
+                      (l) => !(l.latitude != null && l.longitude != null) && (l.name || l.address)
+                    ).length > 1 ? "s" : ""}
+                  </h3>
+                  {service.locations
+                    .filter(
+                      (l) => !(l.latitude != null && l.longitude != null) && (l.name || l.address)
+                    )
+                    .map((loc) => (
+                      <div
+                        key={loc.id}
+                        className="sevacam-rail p-4"
+                      >
+                        <div className="flex items-start gap-2">
+                          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
+                          <div>
+                            <p className="text-sm font-semibold text-(--text-primary)">
+                              {loc.name || loc.address}
+                            </p>
+                            {loc.name && loc.address && (
+                              <p className="mt-1 text-xs text-(--text-secondary)">{loc.address}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </section>
+              )}
 
             {inclusionItems.length > 0 || service.prep_notes ? (
               <section className="grid gap-6 md:grid-cols-2">

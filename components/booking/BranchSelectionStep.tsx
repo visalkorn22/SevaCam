@@ -11,7 +11,7 @@ const LocationMapView = dynamic(
 export type BranchLocation = {
   id: string;
   name: string;
-  address: string;
+  address: string | null;
   latitude: number | null;
   longitude: number | null;
 };

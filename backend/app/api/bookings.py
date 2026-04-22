@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from typing import List, Optional, Tuple, Dict
 from datetime import datetime, timedelta, time, date, timezone as dt_timezone
 import calendar
 import json
+import logging
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 from app.core.database import get_db
@@ -20,6 +22,7 @@ from app.models.schemas import (
 import uuid
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 ALLOWED_BOOKING_SOURCES = {"web", "social", "admin", "api"}
 DEFAULT_APP_TIMEZONE = "Asia/Phnom_Penh"
@@ -207,6 +210,64 @@ def _normalize_json_field(value: Optional[object]) -> Optional[dict]:
         except json.JSONDecodeError:
             return None
     return None
+
+def _insert_booking_log(
+    db: Session,
+    booking_id: str,
+    action: str,
+    performed_by: Optional[str],
+    details: Optional[dict] = None,
+) -> None:
+    """Persist booking logs without breaking booking flows on schema drift."""
+    details_payload = (
+        json.dumps(jsonable_encoder(details)) if details is not None else None
+    )
+
+    try:
+        db.execute(
+            text(
+                """
+                INSERT INTO booking_logs (id, booking_id, action, performed_by, details)
+                VALUES (:id, :booking_id, :action, :performed_by, CAST(:details AS jsonb))
+                """
+            ),
+            {
+                "id": str(uuid.uuid4()),
+                "booking_id": booking_id,
+                "action": action,
+                "performed_by": performed_by,
+                "details": details_payload,
+            },
+        )
+        db.commit()
+        return
+    except SQLAlchemyError as exc:
+        db.rollback()
+        error_text = str(exc).lower()
+        if "booking_logs" not in error_text or "details" not in error_text:
+            logger.warning("Failed to write booking log with details: %s", exc)
+            return
+
+    # Fallback for legacy schemas that do not include booking_logs.details.
+    try:
+        db.execute(
+            text(
+                """
+                INSERT INTO booking_logs (id, booking_id, action, performed_by)
+                VALUES (:id, :booking_id, :action, :performed_by)
+                """
+            ),
+            {
+                "id": str(uuid.uuid4()),
+                "booking_id": booking_id,
+                "action": action,
+                "performed_by": performed_by,
+            },
+        )
+        db.commit()
+    except SQLAlchemyError as exc:
+        db.rollback()
+        logger.warning("Failed to write booking log fallback: %s", exc)
 
 def _get_service_staff_config(
     db: Session,
@@ -743,31 +804,20 @@ async def create_booking(
     )
     db.commit()
     
-    # Log the booking creation
-    db.execute(
-        """
-        INSERT INTO booking_logs (id, booking_id, action, performed_by, details)
-        VALUES (:id, :booking_id, 'created', :performed_by, CAST(:details AS jsonb))
-        """,
-        {
-            "id": str(uuid.uuid4()),
-            "booking_id": booking_id,
-            "performed_by": current_user.get("id"),
-            "details": json.dumps(
-                jsonable_encoder(
-                    {
-                        "service_id": booking.service_id,
-                        "staff_id": booking.staff_id,
-                        "customer_id": booking.customer_id,
-                        "start_time_utc": booking.start_time_utc.isoformat(),
-                        "end_time_utc": end_time_utc.isoformat(),
-                        "booking_source": booking.booking_source,
-                    }
-                )
-            ),
-        }
+    _insert_booking_log(
+        db=db,
+        booking_id=booking_id,
+        action="created",
+        performed_by=current_user.get("id"),
+        details={
+            "service_id": booking.service_id,
+            "staff_id": booking.staff_id,
+            "customer_id": booking.customer_id,
+            "start_time_utc": booking.start_time_utc.isoformat(),
+            "end_time_utc": end_time_utc.isoformat(),
+            "booking_source": booking.booking_source,
+        },
     )
-    db.commit()
 
     if amount_due_now <= 0:
         _send_booking_emails(db, booking_id, "confirmation")
@@ -1010,11 +1060,15 @@ async def get_bookings(
     query = """
         SELECT b.*, s.name as service_name, s.price as service_price,
                u.full_name as staff_name, c.full_name as customer_name,
+               l.id as location_record_id, l.name as location_name,
+               l.address as location_address, l.latitude as location_latitude,
+               l.longitude as location_longitude, l.timezone as location_timezone,
                r.id as review_id, r.rating as review_rating
         FROM bookings b
         LEFT JOIN services s ON b.service_id = s.id
         LEFT JOIN users u ON b.staff_id = u.id
         LEFT JOIN customers c ON b.customer_id = c.id
+        LEFT JOIN locations l ON b.location_id = l.id
         LEFT JOIN reviews r ON r.booking_id = b.id
         WHERE 1=1
     """
@@ -1058,8 +1112,26 @@ async def get_bookings(
     rows = []
     for row in bookings:
         d = dict(row._mapping)
+        location_record_id = d.pop("location_record_id", None)
+        location_name = d.pop("location_name", None)
+        location_address = d.pop("location_address", None)
+        location_latitude = d.pop("location_latitude", None)
+        location_longitude = d.pop("location_longitude", None)
+        location_timezone = d.pop("location_timezone", None)
         review_id = d.pop("review_id", None)
         review_rating = d.pop("review_rating", None)
+        d["location"] = (
+            {
+                "id": str(location_record_id),
+                "name": location_name,
+                "address": location_address,
+                "latitude": location_latitude,
+                "longitude": location_longitude,
+                "timezone": location_timezone,
+            }
+            if location_record_id is not None
+            else None
+        )
         d["review"] = (
             {"id": str(review_id), "rating": int(review_rating)}
             if review_id is not None
@@ -1312,20 +1384,13 @@ async def update_booking(
     elif booking.payment_status is not None and booking.status is None and booking.start_time_utc is None:
         log_action = "payment_updated"
 
-    db.execute(
-        """
-        INSERT INTO booking_logs (id, booking_id, action, performed_by, details)
-        VALUES (:id, :booking_id, :action, :performed_by, CAST(:details AS jsonb))
-        """,
-        {
-            "id": str(uuid.uuid4()),
-            "booking_id": booking_id,
-            "action": log_action,
-            "performed_by": current_user.get("id"),
-            "details": json.dumps(jsonable_encoder(log_details)) if log_details else None,
-        },
+    _insert_booking_log(
+        db=db,
+        booking_id=booking_id,
+        action=log_action,
+        performed_by=current_user.get("id"),
+        details=log_details if log_details else None,
     )
-    db.commit()
 
     if change_type == "reschedule":
         _send_booking_emails(db, booking_id, "confirmation")
@@ -1372,27 +1437,17 @@ async def cancel_booking(
     )
     db.commit()
 
-    db.execute(
-        """
-        INSERT INTO booking_logs (id, booking_id, action, performed_by, details)
-        VALUES (:id, :booking_id, 'cancelled', :performed_by, CAST(:details AS jsonb))
-        """,
-        {
-            "id": str(uuid.uuid4()),
-            "booking_id": booking_id,
-            "performed_by": current_user.get("id"),
-            "details": json.dumps(
-                jsonable_encoder(
-                    {
-                        "old_status": current_status[0] if current_status else None,
-                        "new_status": "cancelled",
-                        "reason": reason,
-                    }
-                )
-            ),
+    _insert_booking_log(
+        db=db,
+        booking_id=booking_id,
+        action="cancelled",
+        performed_by=current_user.get("id"),
+        details={
+            "old_status": current_status[0] if current_status else None,
+            "new_status": "cancelled",
+            "reason": reason,
         },
     )
-    db.commit()
 
     _send_booking_emails(db, booking_id, "cancellation")
     

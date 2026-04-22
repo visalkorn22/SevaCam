@@ -9,7 +9,10 @@ if [ -n "$DATABASE_URL" ]; then
     sleep 1
   done
 
-  if [ "${RUN_MIGRATIONS:-true}" = "true" ] && [ -n "${MIGRATION_SQL_PATH:-}" ] && [ -f "$MIGRATION_SQL_PATH" ]; then
+  if [ "${RUN_MIGRATIONS:-true}" = "true" ] && [ -f "/app/alembic.ini" ]; then
+    echo "Running Alembic migrations..."
+    alembic upgrade head
+  elif [ "${RUN_MIGRATIONS:-true}" = "true" ] && [ -n "${MIGRATION_SQL_PATH:-}" ] && [ -f "$MIGRATION_SQL_PATH" ]; then
     echo "Running migrations from $MIGRATION_SQL_PATH..."
     psql "$PSQL_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$MIGRATION_SQL_PATH"
   else

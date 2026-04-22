@@ -789,7 +789,7 @@ export default function EnhancedServiceForm({
         }
       }
 
-      if (createdServiceId && formData.location_ids.length > 0) {
+      if (createdServiceId) {
         await fetch(`/api/services/${createdServiceId}/locations`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

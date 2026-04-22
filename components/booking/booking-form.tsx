@@ -25,6 +25,7 @@ import {
   Clock,
   CreditCard,
   Loader2,
+  MapPin,
   Moon,
   Sparkles,
   Sun,
@@ -277,16 +278,19 @@ function StepIndicator({
 
 function SelectionSnapshot({
   step,
+  locationLabel,
   staffName,
   dateLabel,
   slotLabel,
 }: {
   step: 1 | 2 | 3;
+  locationLabel: string | null;
   staffName: string | null;
   dateLabel: string | null;
   slotLabel: string | null;
 }) {
   const items = [
+    { label: "Location", value: locationLabel, isActive: step === 1 },
     { label: "Curator", value: staffName, isActive: step === 1 },
     { label: "Date", value: dateLabel, isActive: step === 2 },
     { label: "Time", value: slotLabel, isActive: step >= 2 },
@@ -307,7 +311,7 @@ function SelectionSnapshot({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
           <div
             key={item.label}
@@ -622,6 +626,11 @@ export function BookingForm({
   const selectedStaff = useMemo(
     () => staff.find((m) => m.id === selectedStaffId) ?? null,
     [staff, selectedStaffId],
+  );
+  const selectedLocation = useMemo(
+    () =>
+      locations?.find((location) => location.id === selectedLocationId) ?? null,
+    [locations, selectedLocationId],
   );
 
   const scrollToSection = (target: HTMLDivElement | null) => {
@@ -976,6 +985,7 @@ export function BookingForm({
 
   const canGoStep2 = Boolean(selectedStaffId);
   const canGoStep3 = Boolean(selectedDate && selectedSlot);
+  const hasMultipleLocations = Boolean(locations && locations.length > 1);
 
   // -- Step 1: Staff ----------------------------------------------------------
 
@@ -1446,6 +1456,26 @@ export function BookingForm({
                 </div>
               </div>
             </div>
+            {selectedLocation && (
+              <div className="flex items-start gap-4 px-5 py-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-muted) bg-(--bg-elevated)">
+                  <MapPin className="h-4 w-4 text-(--accent-primary)" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
+                    Location
+                  </p>
+                  <p className="text-sm font-semibold text-(--text-primary)">
+                    {selectedLocation.name}
+                  </p>
+                  {selectedLocation.address && (
+                    <p className="mt-0.5 text-xs text-(--text-secondary)">
+                      {selectedLocation.address}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1455,19 +1485,18 @@ export function BookingForm({
           <span className="font-medium text-(--text-secondary)">{timezone}</span>
         </p>
 
-        {selectedLocationId && locations && (() => {
-          const loc = locations.find((l) => l.id === selectedLocationId);
-          return loc && loc.latitude !== null && loc.longitude !== null ? (
+        {selectedLocation &&
+          selectedLocation.latitude !== null &&
+          selectedLocation.longitude !== null && (
             <LocationMapView
               location={{
-                name: loc.name,
-                address: loc.address,
-                latitude: loc.latitude,
-                longitude: loc.longitude,
+                name: selectedLocation.name,
+                address: selectedLocation.address,
+                latitude: selectedLocation.latitude,
+                longitude: selectedLocation.longitude,
               }}
             />
-          ) : null;
-        })()}
+          )}
 
         {bookingError && (
           <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
@@ -1538,10 +1567,68 @@ export function BookingForm({
 
           <SelectionSnapshot
             step={step}
+            locationLabel={selectedLocation?.name ?? null}
             staffName={selectedStaff?.name ?? null}
             dateLabel={selectedDateLabel}
             slotLabel={selectedSlotLabel}
           />
+
+          {selectedLocation && (
+            <div className="mb-6 overflow-hidden rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset)">
+              <div className="flex items-start justify-between gap-3 px-4 py-4">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
+                    Appointment Location
+                  </p>
+                  <p className="mt-1 text-sm text-(--text-secondary)">
+                    Review the branch on the map while you are still booking.
+                  </p>
+                </div>
+                {hasMultipleLocations && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedLocationId(null);
+                      setStep(1);
+                    }}
+                    className="rounded-full border border-(--border-subtle) bg-(--bg-elevated) px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-primary) transition-colors hover:bg-(--accent-primary) hover:text-[#07292d]"
+                  >
+                    Change Location
+                  </button>
+                )}
+              </div>
+
+              <div className="px-4 pb-4">
+                {selectedLocation.latitude !== null &&
+                selectedLocation.longitude !== null ? (
+                  <LocationMapView
+                    location={{
+                      name: selectedLocation.name,
+                      address: selectedLocation.address,
+                      latitude: selectedLocation.latitude,
+                      longitude: selectedLocation.longitude,
+                    }}
+                    height={200}
+                    compact
+                  />
+                ) : (
+                  <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-elevated) p-4">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
+                      <div>
+                        <p className="text-sm font-semibold text-(--text-primary)">
+                          {selectedLocation.name}
+                        </p>
+                        <p className="mt-1 text-xs text-(--text-secondary)">
+                          {selectedLocation.address || "Address unavailable"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {step > 1 && (
             <button

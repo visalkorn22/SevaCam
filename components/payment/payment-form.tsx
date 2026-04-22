@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Loader2,
+  MapPin,
   QrCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,11 @@ import {
   formatTimeInTimeZone,
   parseDateValue,
 } from "@/lib/timezone";
+import dynamic from "next/dynamic";
+const LocationMapView = dynamic(
+  () => import("@/components/booking/LocationMapView"),
+  { ssr: false }
+);
 
 type PaymentBooking = {
   id: string;
@@ -34,6 +40,12 @@ type PaymentBooking = {
     duration_minutes: number;
   };
   staff: { full_name?: string | null } | null;
+  location?: {
+    name: string;
+    address: string;
+    latitude: number | null;
+    longitude: number | null;
+  } | null;
 };
 
 type PaymentIntentResponse = {
@@ -541,6 +553,19 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                       <span className="text-(--border-subtle)">·</span>
                       <span>{booking.services.duration_minutes} min</span>
                     </div>
+                    {booking.location && (booking.location.name || booking.location.address) && (
+                      <div className="mt-1.5 flex items-start gap-1.5 text-xs text-(--text-secondary)">
+                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-(--accent-primary)" />
+                        <div>
+                          <span className="font-medium text-(--text-primary)">
+                            {booking.location.name || booking.location.address}
+                          </span>
+                          {booking.location.name && booking.location.address && (
+                            <p className="mt-0.5 text-(--text-secondary)">{booking.location.address}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-xl font-semibold tracking-[-0.03em] text-(--text-primary)">{usd.format(amount)}</p>
@@ -777,6 +802,43 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                     </div>
                   </div>
 
+                </div>
+              </div>
+            )}
+            {booking.location && (booking.location.name || booking.location.address) && (
+              <div className="print:hidden">
+                <div className="sevacam-rail overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.16)]">
+                  <div className="px-6 py-5 sm:px-7 sm:py-6">
+                    <p className="sevacam-eyebrow">Appointment Location</p>
+                    <div className="mt-4">
+                      {booking.location.latitude != null && booking.location.longitude != null ? (
+                        <LocationMapView
+                          location={{
+                            name: booking.location.name,
+                            address: booking.location.address,
+                            latitude: booking.location.latitude,
+                            longitude: booking.location.longitude,
+                          }}
+                        />
+                      ) : (
+                        <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-elevated) p-4">
+                          <div className="flex items-start gap-2">
+                            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
+                            <div>
+                              <p className="text-sm font-semibold text-(--text-primary)">
+                                {booking.location.name || booking.location.address}
+                              </p>
+                              {booking.location.name && booking.location.address && (
+                                <p className="mt-1 text-xs text-(--text-secondary)">
+                                  {booking.location.address}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

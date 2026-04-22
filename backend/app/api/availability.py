@@ -62,6 +62,12 @@ def _resolve_staff_id(current_user: dict, staff_id: Optional[str]) -> str:
         return current_user.get("id")
     return staff_id
 
+def _as_utc_aware(value: datetime) -> datetime:
+    """Normalize DB datetime values to UTC-aware datetimes for safe comparisons."""
+    if value.tzinfo is None:
+        return value.replace(tzinfo=dt_timezone.utc)
+    return value.astimezone(dt_timezone.utc)
+
 def _merge_intervals(intervals: List[Tuple[datetime, datetime]]) -> List[Tuple[datetime, datetime]]:
     if not intervals:
         return []
@@ -326,7 +332,10 @@ def _compute_slots_for_date(
         raise HTTPException(status_code=400, detail="Invalid timezone")
 
     service_result = db.execute(
-        "SELECT duration_minutes, buffer_minutes, max_capacity FROM services WHERE id = :id",
+        text(
+            "SELECT duration_minutes, buffer_minutes, max_capacity "
+            "FROM services WHERE id = :id"
+        ),
         {"id": service_id},
     )
     service = service_result.fetchone()
@@ -355,7 +364,7 @@ def _compute_slots_for_date(
         staff_query += " AND u.location_id = :location_id"
         params["location_id"] = location_id
 
-    staff_result = db.execute(staff_query, params)
+    staff_result = db.execute(text(staff_query), params)
     staff_rows = staff_result.fetchall()
     if not staff_rows:
         return []
@@ -385,7 +394,7 @@ def _compute_slots_for_date(
             schedule_params["location_id"] = location_id
         schedule_query += " ORDER BY (location_id IS NULL) ASC, is_default DESC, effective_from DESC NULLS LAST"
 
-        schedule = db.execute(schedule_query, schedule_params).fetchone()
+        schedule = db.execute(text(schedule_query), schedule_params).fetchone()
         if not schedule:
             continue
 
@@ -405,11 +414,13 @@ def _compute_slots_for_date(
         weekday = (day_start.weekday() + 1) % 7
 
         work_blocks = db.execute(
-            """
-            SELECT start_time_local, end_time_local
-            FROM staff_work_blocks
-            WHERE schedule_id = :schedule_id AND weekday = :weekday
-            """,
+            text(
+                """
+                SELECT start_time_local, end_time_local
+                FROM staff_work_blocks
+                WHERE schedule_id = :schedule_id AND weekday = :weekday
+                """
+            ),
             {"schedule_id": schedule._mapping["id"], "weekday": weekday},
         ).fetchall()
 
@@ -425,11 +436,13 @@ def _compute_slots_for_date(
             intervals.append((start_dt, end_dt))
 
         break_blocks = db.execute(
-            """
-            SELECT start_time_local, end_time_local
-            FROM staff_break_blocks
-            WHERE schedule_id = :schedule_id AND weekday = :weekday
-            """,
+            text(
+                """
+                SELECT start_time_local, end_time_local
+                FROM staff_break_blocks
+                WHERE schedule_id = :schedule_id AND weekday = :weekday
+                """
+            ),
             {"schedule_id": schedule._mapping["id"], "weekday": weekday},
         ).fetchall()
 
@@ -460,27 +473,31 @@ def _compute_slots_for_date(
 
         if BOOKINGS_ENABLED and max_bookings_per_day is not None and not ignore_booking_limits:
             booking_count = db.execute(
-                """
-                SELECT COUNT(*)
-                FROM bookings
-                WHERE staff_id = :staff_id
-                  AND start_time_utc < :day_end
-                  AND end_time_utc > :day_start
-                  AND status NOT IN ('cancelled', 'no-show')
-                """,
+                text(
+                    """
+                    SELECT COUNT(*)
+                    FROM bookings
+                    WHERE staff_id = :staff_id
+                      AND start_time_utc < :day_end
+                      AND end_time_utc > :day_start
+                      AND status NOT IN ('cancelled', 'no-show')
+                    """
+                ),
                 {"staff_id": staff_id, "day_start": day_start_utc, "day_end": day_end_utc},
             ).scalar()
             if booking_count is not None and int(booking_count) >= int(max_bookings_per_day):
                 continue
 
         exceptions = db.execute(
-            """
-            SELECT type, start_utc, end_utc, is_all_day
-            FROM staff_exceptions
-            WHERE staff_id = :staff_id
-              AND start_utc < :day_end
-              AND end_utc > :day_start
-            """,
+            text(
+                """
+                SELECT type, start_utc, end_utc, is_all_day
+                FROM staff_exceptions
+                WHERE staff_id = :staff_id
+                  AND start_utc < :day_end
+                  AND end_utc > :day_start
+                """
+            ),
             {"staff_id": staff_id, "day_start": day_start_utc, "day_end": day_end_utc},
         ).fetchall()
 
@@ -549,30 +566,40 @@ def _compute_slots_for_date(
         booked_intervals: List[Tuple[datetime, datetime]] = []
         if BOOKINGS_ENABLED:
             bookings = db.execute(
-                """
-                SELECT service_id, start_time_utc, end_time_utc
-                FROM bookings
-                WHERE staff_id = :staff_id
-                  AND start_time_utc < :day_end
-                  AND end_time_utc > :day_start
-                  AND status NOT IN ('cancelled', 'no-show')
-                """,
+                text(
+                    """
+                    SELECT service_id, start_time_utc, end_time_utc
+                    FROM bookings
+                    WHERE staff_id = :staff_id
+                      AND start_time_utc < :day_end
+                      AND end_time_utc > :day_start
+                      AND status NOT IN ('cancelled', 'no-show')
+                    """
+                ),
                 {"staff_id": staff_id, "day_start": day_start_utc, "day_end": day_end_utc},
             ).fetchall()
-            booked_intervals = [(b[0], b[1], b[2]) for b in bookings]
+            booked_intervals = [
+                (b[0], _as_utc_aware(b[1]), _as_utc_aware(b[2]))
+                for b in bookings
+            ]
 
         holds = db.execute(
-            """
-            SELECT service_id, start_utc, end_utc
-            FROM booking_holds
-            WHERE staff_id = :staff_id
-              AND expires_at_utc > NOW()
-              AND start_utc < :day_end
-              AND end_utc > :day_start
-            """,
+            text(
+                """
+                SELECT service_id, start_utc, end_utc
+                FROM booking_holds
+                WHERE staff_id = :staff_id
+                  AND expires_at_utc > NOW()
+                  AND start_utc < :day_end
+                  AND end_utc > :day_start
+                """
+            ),
             {"staff_id": staff_id, "day_start": day_start_utc, "day_end": day_end_utc},
         ).fetchall()
-        hold_intervals = [(h[0], h[1], h[2]) for h in holds]
+        hold_intervals = [
+            (h[0], _as_utc_aware(h[1]), _as_utc_aware(h[2]))
+            for h in holds
+        ]
 
         if max_slots_per_day is not None and int(max_slots_per_day) <= 0:
             continue

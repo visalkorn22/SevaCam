@@ -26,6 +26,7 @@ type ServiceRow = {
   inclusions?: string | null;
   prep_notes?: string | null;
   category?: string | null;
+  locations?: Array<{ id: string }> | null;
 };
 
 type StaffRow = {
@@ -149,7 +150,10 @@ export default async function AdminServiceEditPage({
         <ServiceCreationLayout
           mode="edit"
           serviceId={serviceId}
-          initialValues={service}
+          initialValues={{
+            ...service,
+            location_ids: service.locations?.map((l) => l.id) ?? [],
+          }}
           staffOptions={staff}
           assignedStaff={assignedStaff}
         />

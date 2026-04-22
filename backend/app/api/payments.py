@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user, is_admin
@@ -292,6 +293,77 @@ def _coerce_metadata(value: object) -> dict:
     return {}
 
 
+def _is_missing_payments_metadata_column_error(exc: Exception) -> bool:
+    msg = str(exc).lower()
+    return (
+        "payments" in msg
+        and "metadata" in msg
+        and ("undefinedcolumn" in msg or "does not exist" in msg)
+    )
+
+
+def _insert_payment_row(
+    db: Session,
+    *,
+    payment_id: str,
+    booking_id: str,
+    provider: str,
+    provider_reference: str | None,
+    amount,
+    currency: str,
+    metadata: dict,
+) -> None:
+    params = {
+        "id": payment_id,
+        "booking_id": booking_id,
+        "provider": provider,
+        "provider_reference": provider_reference,
+        "amount": amount,
+        "currency": currency,
+        "metadata": json.dumps(metadata),
+    }
+
+    try:
+        db.execute(
+            text(
+                """
+                INSERT INTO payments (id, booking_id, provider, provider_reference,
+                                      amount, currency, status, metadata)
+                VALUES (:id, :booking_id, :provider, :provider_reference,
+                        :amount, :currency, 'pending', CAST(:metadata AS JSONB))
+                """
+            ),
+            params,
+        )
+        return
+    except SQLAlchemyError as exc:
+        db.rollback()
+        if not _is_missing_payments_metadata_column_error(exc):
+            raise
+
+    logger.warning(
+        "payments.metadata column missing; inserting payment row without metadata",
+    )
+    db.execute(
+        text(
+            """
+            INSERT INTO payments (id, booking_id, provider, provider_reference,
+                                  amount, currency, status)
+            VALUES (:id, :booking_id, :provider, :provider_reference,
+                    :amount, :currency, 'pending')
+            """
+        ),
+        {
+            "id": payment_id,
+            "booking_id": booking_id,
+            "provider": provider,
+            "provider_reference": provider_reference,
+            "amount": amount,
+            "currency": currency,
+        },
+    )
+
+
 def _serialize_payment_response(payment: dict) -> dict:
     serialized = dict(payment)
     # FastAPI response_model expects string IDs; DB driver can return UUID objects.
@@ -459,23 +531,46 @@ def _apply_payment_status(
     if current_status in ("completed", "refunded") and normalized_status == "failed":
         return current_status
 
-    db.execute(
-        text(
-            """
-            UPDATE payments
-            SET status = :status,
-                provider_reference = COALESCE(:provider_reference, provider_reference),
-                metadata = COALESCE(metadata, '{}'::jsonb) || CAST(:metadata_patch AS JSONB)
-            WHERE id = :id
-            """
-        ),
-        {
-            "id": payment["id"],
-            "status": normalized_status,
-            "provider_reference": provider_reference,
-            "metadata_patch": json.dumps(metadata_patch or {}),
-        },
-    )
+    try:
+        db.execute(
+            text(
+                """
+                UPDATE payments
+                SET status = :status,
+                    provider_reference = COALESCE(:provider_reference, provider_reference),
+                    metadata = COALESCE(metadata, '{}'::jsonb) || CAST(:metadata_patch AS JSONB)
+                WHERE id = :id
+                """
+            ),
+            {
+                "id": payment["id"],
+                "status": normalized_status,
+                "provider_reference": provider_reference,
+                "metadata_patch": json.dumps(metadata_patch or {}),
+            },
+        )
+    except SQLAlchemyError as exc:
+        db.rollback()
+        if not _is_missing_payments_metadata_column_error(exc):
+            raise
+        logger.warning(
+            "payments.metadata column missing; updating payment without metadata patch",
+        )
+        db.execute(
+            text(
+                """
+                UPDATE payments
+                SET status = :status,
+                    provider_reference = COALESCE(:provider_reference, provider_reference)
+                WHERE id = :id
+                """
+            ),
+            {
+                "id": payment["id"],
+                "status": normalized_status,
+                "provider_reference": provider_reference,
+            },
+        )
 
     if normalized_status == "completed":
         db.execute(
@@ -1264,24 +1359,15 @@ async def create_payment_intent(
         metadata["khqr_md5"] = khqr_record.md5
         metadata["khqr_bill_number"] = khqr_record.bill_number
 
-    db.execute(
-        text(
-            """
-            INSERT INTO payments (id, booking_id, provider, provider_reference,
-                                  amount, currency, status, metadata)
-            VALUES (:id, :booking_id, :provider, :provider_reference,
-                    :amount, :currency, 'pending', CAST(:metadata AS JSONB))
-            """
-        ),
-        {
-            "id": payment_id,
-            "booking_id": payment.booking_id,
-            "provider": provider,
-            "provider_reference": provider_reference,
-            "amount": payment.amount,
-            "currency": payment.currency,
-            "metadata": json.dumps(metadata),
-        }
+    _insert_payment_row(
+        db,
+        payment_id=payment_id,
+        booking_id=payment.booking_id,
+        provider=provider,
+        provider_reference=provider_reference,
+        amount=payment.amount,
+        currency=payment.currency,
+        metadata=metadata,
     )
     db.commit()
 

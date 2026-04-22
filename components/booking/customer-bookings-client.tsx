@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BookingCard } from "@/components/booking/BookingCard";
+import LocationMapView from "@/components/booking/LocationMapView";
+import { ReviewDialog } from "@/components/booking/ReviewDialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -46,6 +48,15 @@ type BookingReviewSummary = {
   rating: number;
 };
 
+type BookingLocation = {
+  id: string;
+  name: string;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  timezone?: string | null;
+};
+
 type BookingRow = {
   id: string;
   service_id: string;
@@ -62,6 +73,7 @@ type BookingRow = {
   staff_name?: string | null;
   customer_name?: string | null;
   service_price?: number | string | null;
+  location?: BookingLocation | null;
   review?: BookingReviewSummary | null;
 };
 
@@ -121,6 +133,10 @@ export default function CustomerBookingsClient({
       : DEFAULT_CUSTOMER_TIMEZONE;
   const getBookingTimestamp = (value: string) =>
     parseDateValue(value)?.getTime() ?? Number.NaN;
+  const getLocationLabel = (location?: BookingLocation | null) => {
+    if (!location) return undefined;
+    return location.name;
+  };
 
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistRow[]>([]);
@@ -150,7 +166,7 @@ export default function CustomerBookingsClient({
   const [rebookLoadingId, setRebookLoadingId] = useState<string | null>(null);
   const [reviewBooking, setReviewBooking] = useState<BookingRow | null>(null);
 
-  const loadBookings = async () => {
+  const loadBookings = useCallback(async () => {
     try {
       const res = await fetch(`${apiUrl}/api/bookings`, {
         method: "GET",
@@ -165,7 +181,7 @@ export default function CustomerBookingsClient({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load bookings");
     }
-  };
+  }, [apiUrl]);
 
   const onReviewSubmitted = (
     bookingId: string,
@@ -177,7 +193,7 @@ export default function CustomerBookingsClient({
     setReviewBooking(null);
   };
 
-  const loadWaitlist = async () => {
+  const loadWaitlist = useCallback(async () => {
     try {
       const res = await fetch(`${apiUrl}/api/waitlist/`, {
         method: "GET",
@@ -193,9 +209,9 @@ export default function CustomerBookingsClient({
     } catch {
       setWaitlist([]);
     }
-  };
+  }, [apiUrl]);
 
-  const loadServiceName = async (serviceId: string) => {
+  const loadServiceName = useCallback(async (serviceId: string) => {
     if (!serviceId || serviceLookup[serviceId]) return;
     try {
       const res = await fetch(`${apiUrl}/api/services/${serviceId}`, {
@@ -211,7 +227,7 @@ export default function CustomerBookingsClient({
     } catch {
       return;
     }
-  };
+  }, [apiUrl, serviceLookup]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -219,13 +235,13 @@ export default function CustomerBookingsClient({
     Promise.all([loadBookings(), loadWaitlist()]).finally(() => {
       setIsLoading(false);
     });
-  }, []);
+  }, [loadBookings, loadWaitlist]);
 
   useEffect(() => {
     waitlist.forEach((entry) => {
       void loadServiceName(entry.service_id);
     });
-  }, [waitlist]);
+  }, [loadServiceName, waitlist]);
 
   const now = Date.now();
   const upcomingBookings = useMemo(
@@ -314,7 +330,7 @@ export default function CustomerBookingsClient({
     };
 
     void loadSlots();
-  }, [rescheduleBooking, rescheduleDate, timezone]);
+  }, [apiUrl, rescheduleBooking, rescheduleDate, timezone]);
 
   useEffect(() => {
     setSelectedSlot("");
@@ -442,6 +458,7 @@ export default function CustomerBookingsClient({
               time={formatTimeInTimeZone(booking.start_time_utc, timezone)}
               price={Number(booking.service_price || 0)}
               status={booking.status}
+              location={getLocationLabel(booking.location)}
               providerName={booking.staff_name || "Staff"}
               onViewDetails={() => openDetails(booking)}
               onEdit={canEdit ? () => openReschedule(booking) : undefined}
@@ -623,7 +640,49 @@ export default function CustomerBookingsClient({
                     {detailsBooking.booking_source}
                   </Badge>
                 </div>
+                {detailsBooking.location ? (
+                  <div className="mt-2 flex items-start justify-between gap-4">
+                    <span className="text-muted-foreground">Location</span>
+                    <div className="max-w-[70%] text-right">
+                      <p className="font-semibold">{detailsBooking.location.name}</p>
+                      {detailsBooking.location.address ? (
+                        <p className="text-xs text-muted-foreground">
+                          {detailsBooking.location.address}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
               </div>
+
+              {detailsBooking.location ? (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold">Booking location</p>
+                  {detailsBooking.location.latitude != null &&
+                  detailsBooking.location.longitude != null ? (
+                    <LocationMapView
+                      location={{
+                        name: detailsBooking.location.name,
+                        address:
+                          detailsBooking.location.address || "Address unavailable",
+                        latitude: detailsBooking.location.latitude,
+                        longitude: detailsBooking.location.longitude,
+                      }}
+                      height={220}
+                      compact
+                    />
+                  ) : (
+                    <div className="rounded-2xl border border-border bg-muted/20 p-4 text-sm">
+                      <p className="font-semibold text-foreground">
+                        {detailsBooking.location.name}
+                      </p>
+                      <p className="mt-1 text-muted-foreground">
+                        {detailsBooking.location.address || "Address unavailable"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : null}
 
               <div className="space-y-3">
                 <p className="text-sm font-semibold">History</p>
