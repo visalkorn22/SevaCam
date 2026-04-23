@@ -10,6 +10,7 @@ type MeUser = {
   full_name?: string | null;
   phone?: string | null;
   timezone?: string | null;
+  avatar_url?: string | null;
 };
 
 async function getMe(): Promise<MeUser | null> {
@@ -32,10 +33,6 @@ export default async function ProfilePage() {
 
   return (
     <DashboardLayout>
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold tracking-tight">Profile Settings</h2>
-        <p className="text-muted-foreground">Manage your account information</p>
-      </div>
       <ProfileClient user={me} />
     </DashboardLayout>
   );

@@ -40,9 +40,7 @@ type AuthShellProps = {
   magicLinkLoading: boolean;
   magicLinkMessage: string | null;
   magicLinkStatus: "success" | "error" | null;
-  googleClientId?: string;
-  googleLoading: boolean;
-  googleReady: boolean;
+  googleEnabled: boolean;
   fullName: string;
   signupEmail: string;
   signupPassword: string;
@@ -101,9 +99,7 @@ export function AuthShell({
   magicLinkLoading,
   magicLinkMessage,
   magicLinkStatus,
-  googleClientId,
-  googleLoading,
-  googleReady,
+  googleEnabled,
   fullName,
   signupEmail,
   signupPassword,
@@ -280,19 +276,17 @@ export function AuthShell({
 
               {mode === "login" ? (
                 <form onSubmit={onLoginSubmit} className="space-y-6">
-                  <button
-                    type="button"
-                    onClick={onMagicLink}
-                    disabled={loginLoading || magicLinkLoading}
-                    className={secondaryButtonClass}
-                  >
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/12 bg-white/[0.06]">
-                      <Mail className="h-3.5 w-3.5" />
-                    </span>
-                    {magicLinkLoading
-                      ? "Sending access link..."
-                      : "Continue with email"}
-                  </button>
+                  <div className="flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={onMagicLink}
+                      disabled={loginLoading || magicLinkLoading}
+                      className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors disabled:opacity-40"
+                    >
+                      <Mail className="h-3 w-3" />
+                      {magicLinkLoading ? "Sending…" : "or continue with email"}
+                    </button>
+                  </div>
 
                   {magicLinkMessage && (
                     <div
@@ -403,7 +397,7 @@ export function AuthShell({
                     <ArrowRight className="h-4 w-4" />
                   </button>
 
-                  {googleClientId && (
+                  {googleEnabled && (
                     <>
                       <div className={dividerClass}>
                         <span className="h-px flex-1 bg-white/10" />
@@ -413,15 +407,13 @@ export function AuthShell({
                       <button
                         type="button"
                         onClick={onGoogleLogin}
-                        disabled={!googleReady || googleLoading || loginLoading}
+                        disabled={loginLoading}
                         className={secondaryButtonClass}
                       >
                         <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white">
                           <GoogleLogo className="h-4 w-4" />
                         </span>
-                        {googleLoading
-                          ? "Connecting..."
-                          : "Continue with Google"}
+                        Continue with Google
                       </button>
                     </>
                   )}
@@ -587,7 +579,7 @@ export function AuthShell({
                     <ArrowRight className="h-4 w-4" />
                   </button>
 
-                  {googleClientId && (
+                  {googleEnabled && (
                     <>
                       <div className={dividerClass}>
                         <span className="h-px flex-1 bg-white/10" />
@@ -597,15 +589,13 @@ export function AuthShell({
                       <button
                         type="button"
                         onClick={onGoogleLogin}
-                        disabled={!googleReady || googleLoading || signupLoading}
+                        disabled={signupLoading}
                         className={secondaryButtonClass}
                       >
                         <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white">
                           <GoogleLogo className="h-4 w-4" />
                         </span>
-                        {googleLoading
-                          ? "Connecting..."
-                          : "Continue with Google"}
+                        Continue with Google
                       </button>
                     </>
                   )}

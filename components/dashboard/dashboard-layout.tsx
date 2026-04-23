@@ -31,7 +31,11 @@ interface DashboardLayoutProps {
 }
 
 function isActivePath(pathname: string, href: string) {
-  if (href === "/admin/dashboard" || href === "/staff/dashboard" || href === "/dashboard") {
+  if (
+    href === "/admin/dashboard" ||
+    href === "/staff/dashboard" ||
+    href === "/dashboard"
+  ) {
     return pathname === href;
   }
 
@@ -67,14 +71,20 @@ export function DashboardLayout({
   }, []);
 
   const isAdminRoute = pathname.startsWith("/admin");
-  const resolvedRole = profile?.role || ((user as { role?: Role } | null)?.role as Role) || "customer";
-  const role: Role = isAdminRoute
+  const resolvedRole =
+    profile?.role ||
+    ((user as { role?: Role } | null)?.role as Role) ||
+    "customer";
+  const isAdminUser = resolvedRole === "admin" || resolvedRole === "superadmin";
+  const useAdminShell = isAdminRoute || isAdminUser;
+  const role: Role = useAdminShell
     ? resolvedRole === "superadmin"
       ? "superadmin"
       : "admin"
     : resolvedRole;
 
-  const displayName = profile?.full_name || user?.email?.split("@")[0] || "User";
+  const displayName =
+    profile?.full_name || user?.email?.split("@")[0] || "User";
   const displayRole =
     role === "superadmin" ? "Super Admin" : roleLabelMap[role];
   const pageTitle = getPageTitle(pathname, title);
@@ -148,9 +158,10 @@ export function DashboardLayout({
     );
   };
 
-  if (isAdminRoute) {
+  if (useAdminShell) {
     const currentItem =
-      flatNavItems.find((item) => isActivePath(pathname, item.href)) ?? flatNavItems[0];
+      flatNavItems.find((item) => isActivePath(pathname, item.href)) ??
+      flatNavItems[0];
 
     return (
       <div className="sevacam-home min-h-screen bg-[var(--seva-base)] text-[var(--seva-text)]">
@@ -183,7 +194,9 @@ export function DashboardLayout({
                   <p className="truncate text-sm font-medium text-[var(--seva-text)]">
                     {displayName}
                   </p>
-                  <p className="text-xs text-[var(--seva-text-soft)]">{displayRole}</p>
+                  <p className="text-xs text-[var(--seva-text-soft)]">
+                    {displayRole}
+                  </p>
                 </div>
               </div>
               <button
@@ -233,7 +246,9 @@ export function DashboardLayout({
                       <p className="truncate text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--seva-accent)]">
                         {displayRole}
                       </p>
-                      <p className="truncate text-sm text-white/58">{currentItem?.title}</p>
+                      <p className="truncate text-sm text-white/58">
+                        {currentItem?.title}
+                      </p>
                     </div>
                   </div>
 
@@ -303,7 +318,10 @@ export function DashboardLayout({
                           asChild
                           className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-1.5 py-1 text-[#f0eeeb] focus:bg-[rgba(122,213,221,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(122,213,221,0.14)] data-[highlighted]:text-[#f0eeeb]"
                         >
-                          <Link href="/profile" className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2">
+                          <Link
+                            href="/profile"
+                            className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2"
+                          >
                             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
                               <UserCircle2 className="h-4 w-4 text-[#f7f4ef]" />
                             </span>
@@ -316,7 +334,10 @@ export function DashboardLayout({
                           asChild
                           className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-1.5 py-1 text-[#f0eeeb] focus:bg-[rgba(122,213,221,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(122,213,221,0.14)] data-[highlighted]:text-[#f0eeeb]"
                         >
-                          <Link href={settingsHref} className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2">
+                          <Link
+                            href={settingsHref}
+                            className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2"
+                          >
                             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
                               <Settings className="h-4 w-4 text-[#f7f4ef]" />
                             </span>
@@ -429,7 +450,9 @@ export function DashboardLayout({
                     <Link href={settingsHref}>Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : null}
@@ -457,7 +480,9 @@ export function DashboardLayout({
             {subtitle ? (
               <p className="text-sm text-(--text-secondary)">{subtitle}</p>
             ) : null}
-            <h1 className="text-2xl font-semibold tracking-tight">{pageTitle}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {pageTitle}
+            </h1>
           </div>
         )}
         {children}

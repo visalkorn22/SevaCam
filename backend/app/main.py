@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from app.api import auth, users, services, staff, availability, admin, locations, telegram
+from app.api import auth, avatar, google_oauth, users, services, staff, availability, admin, locations, telegram
 from app.core.config import settings
 
 app = FastAPI(title="Appointment Booking API")
@@ -20,6 +20,8 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(avatar.router)
+app.include_router(google_oauth.router)
 app.include_router(users.router, prefix="/api", tags=["users"])
 app.include_router(services.router, prefix="/api/services")
 app.include_router(staff.router, prefix="/api/staff")

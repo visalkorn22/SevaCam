@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import LocationsClient from "./LocationsClient";
+import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
+import LocationsClient from "./locations-client";
 
 async function getLocations() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -30,5 +31,10 @@ export default async function LocationsPage() {
     redirect("/admin/dashboard");
   }
   const locations = await getLocations();
-  return <LocationsClient initialLocations={locations} />;
+
+  return (
+    <DashboardLayout>
+      <LocationsClient initialLocations={locations} />
+    </DashboardLayout>
+  );
 }

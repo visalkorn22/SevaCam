@@ -40,9 +40,26 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None
 
     # =========================
-    # Google OAuth
+    # Google OAuth 2.0
     # =========================
     GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/auth/google/callback"
+    FRONTEND_URL: str = "http://localhost:3000"
+
+    # =========================
+    # Session lifetime
+    # =========================
+    SESSION_DAYS: int = 30
+
+    # =========================
+    # Cookie security (env-driven per deployment topology)
+    # =========================
+    COOKIE_NAME: str = "auth_token"
+    COOKIE_SECURE: bool = False       # Set True in production
+    COOKIE_SAMESITE: str = "lax"      # "none" for cross-domain topology
+    COOKIE_DOMAIN: Optional[str] = None  # ".yourdomain.com" for subdomain topology
+    COOKIE_PATH: str = "/"
 
     # =========================
     # ABA Payway

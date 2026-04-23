@@ -18,22 +18,6 @@ type AuthClientProps = {
   initialMode: Mode;
 };
 
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        id?: {
-          initialize: (options: {
-            client_id: string;
-            callback: (response: { credential?: string }) => void;
-          }) => void;
-          prompt: (notification?: unknown) => void;
-        };
-      };
-    };
-  }
-}
-
 export default function AuthClient({ initialMode }: AuthClientProps) {
   const router = useRouter();
   const { refreshProfile } = useAuth();
@@ -43,7 +27,9 @@ export default function AuthClient({ initialMode }: AuthClientProps) {
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(
+    searchParams.get("error"),
+  );
   const [loginLoading, setLoginLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
@@ -52,11 +38,8 @@ export default function AuthClient({ initialMode }: AuthClientProps) {
   const [magicLinkStatus, setMagicLinkStatus] = useState<
     "success" | "error" | null
   >(null);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [googleReady, setGoogleReady] = useState(false);
-  const googleInitialized = useRef(false);
   const loginEmailRef = useRef<HTMLInputElement | null>(null);
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
 
   const [fullName, setFullName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
@@ -154,97 +137,10 @@ export default function AuthClient({ initialMode }: AuthClientProps) {
     }
   };
 
-  const handleGoogleCredential = useCallback(
-    async (credential: string) => {
-      setGoogleLoading(true);
-      setLoginError(null);
-
-      try {
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await fetch(`${apiUrl}/api/auth/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ credential }),
-        });
-
-        if (!res.ok) {
-          let message = "Google login failed";
-          try {
-            const data = await res.json();
-            message = data?.detail || data?.message || message;
-          } catch {}
-          throw new Error(message);
-        }
-
-        await refreshProfile();
-        await redirectAfterAuth();
-      } catch (err: unknown) {
-        setLoginError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setGoogleLoading(false);
-      }
-    },
-    [redirectAfterAuth, refreshProfile],
-  );
-
   const handleGoogleLogin = () => {
-    if (!googleClientId) {
-      setLoginError("Google login is not configured.");
-      return;
-    }
-    if (!window.google?.accounts?.id) {
-      setLoginError("Google login is unavailable.");
-      return;
-    }
-    if (!googleInitialized.current) {
-      setLoginError("Google login is still loading.");
-      return;
-    }
-    window.google.accounts.id.prompt();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    window.location.href = `${apiUrl}/api/auth/google/start?mode=${mode}`;
   };
-
-  useEffect(() => {
-    if (!googleClientId) {
-      return;
-    }
-
-    const initializeGoogle = () => {
-      if (!window.google?.accounts?.id || googleInitialized.current) {
-        return;
-      }
-
-      window.google.accounts.id.initialize({
-        client_id: googleClientId,
-        callback: (response) => {
-          if (response?.credential) {
-            void handleGoogleCredential(response.credential);
-          }
-        },
-      });
-      googleInitialized.current = true;
-      setGoogleReady(true);
-    };
-
-    if (window.google?.accounts?.id) {
-      initializeGoogle();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => initializeGoogle();
-    script.onerror = () => setLoginError("Google login is unavailable.");
-    document.head.appendChild(script);
-
-    return () => {
-      script.onload = null;
-      script.onerror = null;
-    };
-  }, [googleClientId, handleGoogleCredential]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -448,9 +344,7 @@ export default function AuthClient({ initialMode }: AuthClientProps) {
       magicLinkLoading={magicLinkLoading}
       magicLinkMessage={magicLinkMessage}
       magicLinkStatus={magicLinkStatus}
-      googleClientId={googleClientId}
-      googleLoading={googleLoading}
-      googleReady={googleReady}
+      googleEnabled={googleEnabled}
       fullName={fullName}
       signupEmail={signupEmail}
       signupPassword={signupPassword}

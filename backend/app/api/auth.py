@@ -12,30 +12,25 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from passlib.context import CryptContext
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import secrets
 import uuid
 import hashlib
-import httpx
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from app.core.database import get_db
 from app.core.auth import get_current_user, resolve_token
 from app.core.config import settings
 from app.core.email import send_email
+from app.core.session import create_app_session, set_auth_cookie, utc_now
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-SESSION_DAYS = 30
 RESET_TOKEN_MINUTES = 60
 VERIFY_TOKEN_HOURS = 24
 MAGIC_LINK_TOKEN_MINUTES = settings.MAGIC_LINK_TOKEN_MINUTES
 DEFAULT_APP_TIMEZONE = "Asia/Phnom_Penh"
-
-
-def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
 
 
 def is_expired(expires_at: datetime) -> bool:
@@ -135,17 +130,9 @@ class ChangePasswordBody(BaseModel):
     new_password: str
 
 
-class GoogleLoginBody(BaseModel):
-    credential: Optional[str] = None
-    id_token: Optional[str] = None
-
-
 # =========================
 # Helpers
 # =========================
-
-def create_session_token() -> str:
-    return secrets.token_hex(32)
 
 
 def hash_reset_token(token: str) -> str:
@@ -202,37 +189,6 @@ def send_magic_link_email(recipient: str, token: str) -> None:
         "If you did not request this email, you can ignore it."
     )
     send_email(recipient, subject, body)
-
-
-def verify_google_token(id_token: str) -> dict:
-    if not settings.GOOGLE_CLIENT_ID:
-        raise HTTPException(status_code=500, detail="Google login is not configured")
-
-    try:
-        res = httpx.get(
-            "https://oauth2.googleapis.com/tokeninfo",
-            params={"id_token": id_token},
-            timeout=10.0,
-        )
-    except httpx.RequestError:
-        raise HTTPException(status_code=502, detail="Unable to verify Google token")
-
-    if res.status_code != 200:
-        raise HTTPException(status_code=401, detail="Invalid Google token")
-
-    payload = res.json()
-    if payload.get("aud") != settings.GOOGLE_CLIENT_ID:
-        raise HTTPException(status_code=401, detail="Invalid Google token")
-
-    email = payload.get("email")
-    if not email:
-        raise HTTPException(status_code=401, detail="Google token missing email")
-
-    email_verified = payload.get("email_verified")
-    if email_verified not in (True, "true", "True", "1", 1):
-        raise HTTPException(status_code=401, detail="Google email not verified")
-
-    return payload
 
 
 # =========================
@@ -342,32 +298,9 @@ def login(
     if not user.email_verified:
         raise HTTPException(status_code=403, detail="Email not verified")
 
-    token = create_session_token()
-    expires_at = utc_now() + timedelta(days=SESSION_DAYS)
-
-    db.execute(
-        text("""
-            INSERT INTO sessions (id, user_id, token, expires_at)
-            VALUES (:id, :user_id, :token, :expires_at)
-        """),
-        {
-            "id": str(uuid.uuid4()),
-            "user_id": user.id,
-            "token": token,
-            "expires_at": expires_at,
-        },
-    )
+    token = create_app_session(user.id, db)
     db.commit()
-
-    response.set_cookie(
-        key="auth_token",
-        value=token,
-        httponly=True,
-        samesite="lax",
-        secure=False,
-        path="/",
-        max_age=SESSION_DAYS * 24 * 60 * 60,
-    )
+    set_auth_cookie(response, token)
 
     return {"user": dict(user._mapping)}
 
@@ -487,138 +420,9 @@ def confirm_magic_link(
         {"used_at": utc_now(), "id": record.id},
     )
 
-    token = create_session_token()
-    expires_at = utc_now() + timedelta(days=SESSION_DAYS)
-
-    db.execute(
-        text(
-            """
-            INSERT INTO sessions (id, user_id, token, expires_at)
-            VALUES (:id, :user_id, :token, :expires_at)
-            """
-        ),
-        {
-            "id": str(uuid.uuid4()),
-            "user_id": user.id,
-            "token": token,
-            "expires_at": expires_at,
-        },
-    )
+    token = create_app_session(user.id, db)
     db.commit()
-
-    response.set_cookie(
-        key="auth_token",
-        value=token,
-        httponly=True,
-        samesite="lax",
-        secure=False,
-        path="/",
-        max_age=SESSION_DAYS * 24 * 60 * 60,
-    )
-
-    return {"user": dict(user._mapping)}
-
-
-# =========================
-# Google login
-# =========================
-
-@router.post("/google")
-def google_login(
-    response: Response,
-    payload: GoogleLoginBody = Body(...),
-    db: Session = Depends(get_db),
-):
-    token = payload.credential or payload.id_token
-    if not token:
-        raise HTTPException(status_code=400, detail="Missing Google credential")
-
-    data = verify_google_token(token)
-
-    email = data.get("email")
-    full_name = data.get("name")
-    avatar_url = data.get("picture")
-
-    user = db.execute(
-        text(
-            """
-            SELECT id, email, full_name, role, phone, avatar_url, timezone, password_hash, is_active, email_verified
-            FROM users
-            WHERE email = :email
-            """
-        ),
-        {"email": email},
-    ).fetchone()
-
-    if not user:
-        role = "customer"
-        role_exists = db.execute(
-            text("SELECT 1 FROM roles WHERE name = :role"),
-            {"role": role},
-        ).fetchone()
-        if not role_exists:
-            raise HTTPException(status_code=500, detail="Default role is not configured")
-
-        user_id = str(uuid.uuid4())
-        user = db.execute(
-            text(
-                """
-                INSERT INTO users (id, email, full_name, role, avatar_url, timezone, email_verified)
-                VALUES (:id, :email, :full_name, :role, :avatar_url, :timezone, TRUE)
-                RETURNING id, email, full_name, role, phone, avatar_url, timezone
-                """
-            ),
-            {
-                "id": user_id,
-                "email": email,
-                "full_name": full_name,
-                "role": role,
-                "avatar_url": avatar_url,
-                "timezone": DEFAULT_APP_TIMEZONE,
-            },
-        ).fetchone()
-    else:
-        if not user.is_active:
-            raise HTTPException(status_code=403, detail="Account is disabled")
-        if not user.email_verified:
-            db.execute(
-                text("UPDATE users SET email_verified = TRUE WHERE id = :id"),
-                {"id": user.id},
-            )
-        if avatar_url and not user.avatar_url:
-            db.execute(
-                text("UPDATE users SET avatar_url = :avatar_url WHERE id = :id"),
-                {"avatar_url": avatar_url, "id": user.id},
-            )
-
-    token = create_session_token()
-    expires_at = utc_now() + timedelta(days=SESSION_DAYS)
-
-    db.execute(
-        text(
-            """
-            INSERT INTO sessions (id, user_id, token, expires_at)
-            VALUES (:id, :user_id, :token, :expires_at)
-            """
-        ),
-        {
-            "id": str(uuid.uuid4()),
-            "user_id": user.id,
-            "token": token,
-            "expires_at": expires_at,
-        },
-    )
-    db.commit()
-
-    response.set_cookie(
-        key="auth_token",
-        value=token,
-        httponly=True,
-        samesite="lax",
-        secure=False,
-        path="/",
-        max_age=SESSION_DAYS * 24 * 60 * 60,
-    )
+    set_auth_cookie(response, token)
 
     return {"user": dict(user._mapping)}
 
@@ -720,15 +524,7 @@ def change_password(
     db.commit()
 
     response.delete_cookie("auth_token", path="/")
-    response.set_cookie(
-        key="auth_token",
-        value=token or "",
-        httponly=True,
-        samesite="lax",
-        secure=False,
-        path="/",
-        max_age=SESSION_DAYS * 24 * 60 * 60,
-    )
+    set_auth_cookie(response, token or "")
 
     return {"message": "Password updated"}
 
