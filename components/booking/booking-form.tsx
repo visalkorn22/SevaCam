@@ -22,12 +22,9 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Clock,
-  CreditCard,
   Loader2,
   MapPin,
   Moon,
-  Sparkles,
   Sun,
   Sunrise,
   User,
@@ -143,6 +140,27 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
+const formatDuration = (minutes: number) => {
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+};
+
+const FORM_ART_CLASSES = [
+  "sevacam-art-stones",
+  "sevacam-art-sanctuary",
+  "sevacam-art-dining",
+  "sevacam-art-ritual",
+  "sevacam-art-chamber",
+  "sevacam-art-botanical",
+] as const;
+
+const getFormArtClass = (seed: string) => {
+  const total = seed.split("").reduce((sum, c) => sum + c.charCodeAt(0), 0);
+  return FORM_ART_CLASSES[total % FORM_ART_CLASSES.length];
+};
+
 const getInitials = (name: string) => {
   const parts = name.trim().split(/\s+/).slice(0, 2);
   if (!parts.length) return "";
@@ -152,9 +170,9 @@ const getInitials = (name: string) => {
     .toUpperCase();
 };
 
-// --- StepIndicator ------------------------------------------------------------
+// --- BookingStepIndicator -----------------------------------------------------
 
-function StepIndicator({
+function BookingStepIndicator({
   currentStep,
   canGoStep2,
   canGoStep3,
@@ -166,176 +184,93 @@ function StepIndicator({
   onStepChange: (step: 1 | 2 | 3) => void;
 }) {
   const steps = [
-    {
-      label: "Provider",
-      helper: "Choose the curator first. Price and availability update instantly.",
-      Icon: User,
-    },
-    {
-      label: "Date & Time",
-      helper: "Select a day, then choose the time window that fits your schedule.",
-      Icon: CalendarDays,
-    },
-    {
-      label: "Confirm",
-      helper: "Review the reservation summary, then continue to payment.",
-      Icon: Check,
-    },
+    { label: "Curator", step: 1 as const },
+    { label: "Date & time", step: 2 as const },
+    { label: "Confirm", step: 3 as const },
   ];
 
   return (
-    <div className="mb-6 space-y-3">
-      <div className="flex items-center gap-0">
-        {steps.map(({ label, Icon }, i) => {
-          const step = (i + 1) as 1 | 2 | 3;
+    <div className="mb-8">
+      <div className="flex items-start">
+        {steps.map(({ label, step }, i) => {
           const isDone = step < currentStep;
           const isActive = step === currentStep;
           const isReachable =
-            step === 1 || (step === 2 && canGoStep2) || (step === 3 && canGoStep3);
+            step === 1 ||
+            (step === 2 && canGoStep2) ||
+            (step === 3 && canGoStep3);
 
           return (
-            <div key={step} className="flex flex-1 flex-col items-center gap-1.5">
-              <div className="relative flex w-full items-center">
-                {i > 0 && (
-                  <div
-                    className={cn(
-                      "h-px flex-1 transition-colors duration-500",
-                      isDone || isActive
-                        ? "bg-(--accent-primary)/60"
-                        : "bg-(--bg-inset)",
-                    )}
-                  />
-                )}
+            <div key={step} className="flex items-start">
+              <div className="flex flex-col items-center">
                 <button
                   type="button"
-                  onClick={() => {
-                    if (isReachable) onStepChange(step);
-                  }}
+                  onClick={() => isReachable && onStepChange(step)}
                   disabled={!isReachable}
-                  aria-current={isActive ? "step" : undefined}
                   className={cn(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
-                    isDone
-                      ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_10px_22px_rgba(122,213,221,0.18)]"
-                      : isActive
-                        ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_10px_22px_rgba(122,213,221,0.18)]"
-                        : "border-(--border-subtle) bg-(--bg-inset) text-(--text-primary)/70",
-                    isReachable &&
-                      !isActive &&
-                      "hover:-translate-y-0.5 hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
-                    !isReachable && "cursor-not-allowed opacity-45",
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+                    isDone || isActive
+                      ? "bg-(--accent-primary) text-[#07292d]"
+                      : "border border-(--border-muted) bg-(--bg-elevated) text-(--text-secondary)",
+                    !isReachable && "cursor-not-allowed opacity-40",
                   )}
                 >
-                  {isDone ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    <Icon className="h-3.5 w-3.5" />
-                  )}
+                  {isDone ? <Check className="h-3 w-3" /> : step}
                 </button>
-                {i < steps.length - 1 && (
-                  <div
-                    className={cn(
-                      "h-px flex-1 transition-colors duration-500",
-                      isDone ? "bg-(--accent-primary)/60" : "bg-(--bg-inset)",
-                    )}
-                  />
-                )}
+                <span
+                  className={cn(
+                    "mt-1.5 whitespace-nowrap text-[0.6rem] font-medium uppercase tracking-[0.12em]",
+                    isActive
+                      ? "text-(--text-primary)"
+                      : isDone
+                        ? "text-(--accent-primary)/80"
+                        : "text-(--text-secondary)/60",
+                  )}
+                >
+                  {label}
+                </span>
               </div>
-              <span
-                className={cn(
-                  "text-[9px] font-semibold uppercase tracking-widest transition-colors",
-                  isActive
-                    ? "text-(--text-primary)/90"
-                    : isDone
-                      ? "text-(--accent-primary)/70"
-                      : "text-(--text-secondary)/60",
-                )}
-              >
-                {label}
-              </span>
+              {i < steps.length - 1 && (
+                <div
+                  className={cn(
+                    "mx-2 mt-3.5 h-px w-16 flex-1 transition-colors duration-300 sm:w-24",
+                    isDone ? "bg-(--accent-primary)" : "bg-(--border-muted)",
+                  )}
+                />
+              )}
             </div>
           );
         })}
-      </div>
-
-      <div
-        aria-live="polite"
-        className="rounded-[0.45rem] border border-(--border-subtle) bg-(--bg-inset) px-3.5 py-3"
-      >
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-secondary)">
-          Current guidance
-        </p>
-        <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
-          <span className="font-semibold text-(--text-primary)">
-            Step {currentStep}:
-          </span>{" "}
-          {steps[currentStep - 1].helper}
-        </p>
       </div>
     </div>
   );
 }
 
-function SelectionSnapshot({
-  step,
-  locationLabel,
-  staffName,
-  dateLabel,
-  slotLabel,
+// --- ServiceHeaderBar ---------------------------------------------------------
+
+function ServiceHeaderBar({
+  service,
+  effectivePrice,
+  effectiveDuration,
 }: {
-  step: 1 | 2 | 3;
-  locationLabel: string | null;
-  staffName: string | null;
-  dateLabel: string | null;
-  slotLabel: string | null;
+  service: BookingService;
+  effectivePrice: number;
+  effectiveDuration: number;
 }) {
-  const items = [
-    { label: "Location", value: locationLabel, isActive: step === 1 },
-    { label: "Curator", value: staffName, isActive: step === 1 },
-    { label: "Date", value: dateLabel, isActive: step === 2 },
-    { label: "Time", value: slotLabel, isActive: step >= 2 },
-  ];
-
+  const artClass = getFormArtClass(service.id);
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="mb-6 grid gap-2 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) p-3"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
-          Reservation Path
-        </p>
-        <span className="rounded-full bg-(--accent-primary)/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--accent-primary)">
-          Step {step} of 3
-        </span>
+    <div className="mb-6 flex items-center justify-between gap-4 border-b border-(--border-muted) pb-5">
+      <div className="flex items-center gap-3">
+        <div className={`h-9 w-9 shrink-0 rounded-[0.45rem] ${artClass}`} />
+        <p className="text-sm font-semibold text-(--text-primary)">{service.name}</p>
       </div>
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        {items.map((item) => (
-          <div
-            key={item.label}
-            className={cn(
-              "rounded-[0.45rem] px-3 py-3 transition-colors",
-              item.value
-                ? "bg-(--accent-primary)/8 text-(--text-primary)"
-                : "bg-black/10 text-(--text-secondary)",
-              item.isActive && "bg-(--accent-primary)/12",
-            )}
-          >
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
-              {item.label}
-            </p>
-            <p
-              className={cn(
-                "mt-1 text-sm font-medium leading-5",
-                item.value ? "text-(--text-primary)" : "text-(--text-secondary)",
-              )}
-            >
-              {item.value ?? "Waiting for selection"}
-            </p>
-          </div>
-        ))}
+      <div className="text-right">
+        <p className="text-sm font-bold text-(--text-primary)">
+          {formatCurrency(effectivePrice)}
+        </p>
+        <p className="text-[0.65rem] text-(--text-secondary)">
+          {formatDuration(effectiveDuration)}
+        </p>
       </div>
     </div>
   );
@@ -359,75 +294,30 @@ function SlotPeriodSection({
   onSelect: (startTime: string) => void;
 }) {
   if (slots.length === 0) return null;
-  const { Icon, iconColor, bgColor, borderColor, label, subLabel } = period;
 
   return (
     <div className="space-y-2">
-      <div
-        className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${bgColor} ${borderColor}`}
-      >
-        <Icon className={`h-3.5 w-3.5 shrink-0 ${iconColor}`} />
-        <span className="text-xs font-semibold text-(--text-primary)/90">{label}</span>
-        <span className="text-[10px] text-(--text-secondary)/80">{subLabel}</span>
-        <span
-          className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${bgColor} ${iconColor}`}
-        >
-          {slots.length}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+        {period.label}
+      </p>
+      <div className="grid grid-cols-4 gap-2">
         {slots.map((slot) => {
           const isSelected = selectedSlot === slot.start_time;
           const startLabel = formatTimeInTimeZone(slot.start_time, timeZone);
-          const endDate = addMinutes(
-            new Date(slot.start_time),
-            durationMinutes,
-          );
-          const endLabel = formatTimeInTimeZone(endDate, timeZone);
-
           return (
             <button
               key={slot.start_time}
               type="button"
               onClick={() => onSelect(slot.start_time)}
               className={cn(
-                "group sevacam-interactive-card flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+                "rounded-[0.45rem] border px-2 py-2.5 text-center text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                 isSelected
-                  ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_16px_28px_rgba(122,213,221,0.16)]"
-                  : "border-(--border-subtle) bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
+                  ? "border-transparent bg-(--accent-primary) text-[#07292d]"
+                  : "border-(--border-muted) bg-(--bg-elevated) text-(--text-primary) hover:border-(--accent-primary)/50 hover:bg-(--accent-primary)/10",
               )}
               aria-pressed={isSelected}
             >
-              <span
-                className={cn(
-                  "text-sm font-bold leading-tight",
-                  isSelected
-                    ? "text-[#07292d]"
-                    : "text-(--text-primary) group-hover:text-[#07292d]",
-                )}
-              >
-                {startLabel}
-              </span>
-              <span
-                className={cn(
-                  "mt-0.5 text-[10px] leading-none",
-                  isSelected
-                    ? "text-[#07292d]/70"
-                    : "text-(--text-secondary)/80 group-hover:text-[#07292d]/70",
-                )}
-              >
-                ends {endLabel}
-              </span>
-              <span
-                className={cn(
-                  "mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] transition-colors",
-                  isSelected
-                    ? "text-[#07292d]/82"
-                    : "text-(--text-secondary)/55 group-hover:text-[#07292d]/82",
-                )}
-              >
-                {isSelected ? "Selected time" : "Tap to select"}
-              </span>
+              {startLabel}
             </button>
           );
         })}
@@ -610,6 +500,7 @@ export function BookingForm({
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [isJoiningWaitlist, setIsJoiningWaitlist] = useState(false);
   const [waitlistMessage, setWaitlistMessage] = useState<string | null>(null);
+  const [isAnyAvailable, setIsAnyAvailable] = useState(false);
 
   const router = useRouter();
   const timezone =
@@ -990,26 +881,16 @@ export function BookingForm({
   // -- Step 1: Staff ----------------------------------------------------------
 
   const renderStep1 = () => (
-    <div ref={providerSectionRef} className="sevacam-section-anchor space-y-5">
-      <div className="rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
-          Step 01
-        </p>
-        <h3 className="mt-2 text-base font-semibold text-(--text-primary)">
-          Select your curator
-        </h3>
-        <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
-          Hover or tap a profile to preview the option you want. The next step
-          opens as soon as one curator is selected.
-        </p>
-      </div>
+    <div ref={providerSectionRef} className="sevacam-section-anchor">
+      <h2 className="text-2xl font-bold text-(--text-primary)">Who would you like?</h2>
+      <p className="mt-1 mb-6 text-sm text-(--text-secondary)">
+        Availability updates based on your choice.
+      </p>
 
       {staff.length === 0 ? (
-        <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-8 text-center">
+        <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-8 text-center">
           <User className="mx-auto mb-3 h-8 w-8 text-(--text-secondary)/80" />
-          <p className="text-sm font-medium text-(--text-primary)/80">
-            No staff available
-          </p>
+          <p className="text-sm font-medium text-(--text-primary)/80">No staff available</p>
           <p className="mt-1 text-xs text-(--text-secondary)/80">
             No team members are available for this service right now.
           </p>
@@ -1017,33 +898,24 @@ export function BookingForm({
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {staff.map((member) => {
-            const isSelected = member.id === selectedStaffId;
+            const isSelected = !isAnyAvailable && member.id === selectedStaffId;
             return (
               <button
                 key={member.id}
                 type="button"
-                onClick={() => handleStaffSelect(member.id)}
+                onClick={() => {
+                  setIsAnyAvailable(false);
+                  handleStaffSelect(member.id);
+                }}
                 className={cn(
-                  "group sevacam-interactive-card relative flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+                  "sevacam-interactive-card flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                   isSelected
-                    ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_18px_30px_rgba(122,213,221,0.16)]"
-                    : "border-(--border-subtle) bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
+                    ? "border-(--accent-primary) bg-(--bg-elevated) shadow-[0_0_0_2px_var(--accent-primary)]"
+                    : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--accent-primary)/50",
                 )}
                 aria-pressed={isSelected}
               >
-                {isSelected && (
-                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-[#07292d]/12">
-                    <Check className="h-3 w-3 text-[#07292d]" />
-                  </span>
-                )}
-                <div
-                  className={cn(
-                    "flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 transition-all",
-                    isSelected
-                      ? "border-[#07292d]/18"
-                      : "border-(--border-subtle) group-hover:border-[#07292d]/18",
-                  )}
-                >
+                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-(--border-muted)">
                   {member.avatar_url ? (
                     <img
                       src={member.avatar_url}
@@ -1051,68 +923,78 @@ export function BookingForm({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-lg font-bold text-(--text-primary)/90 group-hover:text-[#07292d]">
+                    <span
+                      className={cn(
+                        "text-lg font-bold",
+                        isSelected ? "text-(--accent-primary)" : "text-(--text-primary)/90",
+                      )}
+                    >
                       {getInitials(member.name || "?")}
                     </span>
                   )}
                 </div>
                 <div>
-                  <p
-                    className={cn(
-                      "text-sm font-semibold",
-                      isSelected
-                        ? "text-[#07292d]"
-                        : "text-(--text-primary) group-hover:text-[#07292d]",
-                    )}
-                  >
-                    {member.name}
-                  </p>
-                  {member.price_override ? (
-                    <p
-                      className={cn(
-                        "mt-0.5 text-xs",
-                        isSelected
-                          ? "text-[#07292d]/75"
-                          : "text-(--text-secondary) group-hover:text-[#07292d]/75",
-                      )}
-                    >
-                      {formatCurrency(toNumber(member.price_override))}
-                    </p>
-                  ) : (
-                    <p className="mt-0.5 text-xs text-(--text-secondary)/80 group-hover:text-[#07292d]/75">
-                      Standard rate
-                    </p>
-                  )}
-                  <p
-                    className={cn(
-                      "mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition-colors",
-                      isSelected
-                        ? "text-[#07292d]/82"
-                        : "text-(--text-secondary)/55 group-hover:text-[#07292d]/82",
-                    )}
-                  >
-                    {isSelected ? "Selected curator" : "Tap to select"}
-                  </p>
+                  <p className="text-sm font-semibold text-(--text-primary)">{member.name}</p>
+                  <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">Available this week</p>
                 </div>
               </button>
             );
           })}
+
+          {/* Any available card */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsAnyAvailable(true);
+              if (staff[0]) handleStaffSelect(staff[0].id);
+            }}
+            className={cn(
+              "sevacam-interactive-card flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+              isAnyAvailable
+                ? "border-(--accent-primary) bg-(--bg-elevated) shadow-[0_0_0_2px_var(--accent-primary)]"
+                : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--accent-primary)/50",
+            )}
+          >
+            <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-(--border-muted) bg-(--bg-inset)">
+              <Loader2 className="h-7 w-7 text-(--text-secondary)/60" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-(--text-primary)">Any available</p>
+              <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">Pick first open slot</p>
+            </div>
+          </button>
         </div>
       )}
+
+      {/* Bottom action bar */}
       {staff.length > 0 && (
-        <button
-          type="button"
-          onClick={() => setStep(2)}
-          disabled={!canGoStep2}
-          className={cn(
-            "sevacam-primary-button flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.22rem] px-5 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
-            canGoStep2
-              ? "text-[#07292d]"
-              : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
-          )}
-        >
-          Continue to Date & Time <ArrowRight className="h-4 w-4" />
-        </button>
+        <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-3">
+          <p className="text-sm text-(--text-secondary)">
+            {canGoStep2 ? (
+              <>
+                Chosen:{" "}
+                <span className="font-semibold text-(--text-primary)">
+                  {isAnyAvailable ? "Any available" : (selectedStaff?.name ?? "")}
+                </span>
+              </>
+            ) : (
+              <span className="text-(--text-secondary)/60">No curator selected</span>
+            )}
+          </p>
+          <button
+            type="button"
+            onClick={() => setStep(2)}
+            disabled={!canGoStep2}
+            className={cn(
+              "sevacam-primary-button inline-flex items-center gap-2 rounded-[0.18rem] px-5 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
+              canGoStep2
+                ? "text-[#07292d]"
+                : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
+            )}
+          >
+            Continue <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
       )}
     </div>
   );
@@ -1120,234 +1002,133 @@ export function BookingForm({
   // -- Step 2: Date + Time ----------------------------------------------------
 
   const renderStep2 = () => (
-    <div ref={calendarSectionRef} className="sevacam-section-anchor space-y-5">
-      <div className="rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
-          Step 02
-        </p>
-        <h3 className="mt-2 text-base font-semibold text-(--text-primary)">
-          Choose date and time
-        </h3>
-        <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
-          Start with the calendar, then move into the times below. When a date is
-          chosen, the view scrolls to the open slots automatically.
-        </p>
-      </div>
+    <div ref={calendarSectionRef} className="sevacam-section-anchor">
+      <h2 className="text-2xl font-bold text-(--text-primary)">When works for you?</h2>
+      <p className="mt-1 mb-6 text-sm text-(--text-secondary)">
+        <span className="text-(--accent-primary)">Green dots</span> mean there&apos;s open
+        availability.
+      </p>
 
-      <div className="flex items-center gap-2 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-2.5">
-        <CalendarDays className="h-4 w-4 shrink-0 text-(--accent-primary)" />
-        <span className="text-xs text-(--text-secondary)">
-          {selectedDate ? (
-            <>
-              <span className="font-semibold text-(--text-primary)">
-                {format(selectedDate, "EEEE, MMMM d")}
-              </span>{" "}
-              - pick a time below
-            </>
-          ) : selectedStaff ? (
-            "Pick any date to inspect times. Green dots already have openings."
-          ) : (
-            "Select a provider to load the calendar"
-          )}
-        </span>
-        {selectedDate && (
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedDate(null);
-              setSelectedSlot("");
-              setAvailableSlots([]);
-            }}
-            className="ml-auto text-[10px] text-(--text-secondary)/80 underline-offset-2 hover:text-(--text-primary)/80 hover:underline"
-          >
-            change
-          </button>
-        )}
-      </div>
-
-      <div
-        className={cn(
-          "rounded-2xl border px-4 py-3",
-          calendarError
-            ? "border-rose-500/30 bg-rose-500/10"
-            : availableDayCount > 0
-              ? "border-emerald-500/20 bg-emerald-500/10"
-              : "border-amber-400/20 bg-amber-400/10",
-        )}
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-secondary)">
-              Calendar Status
-            </p>
-            {calendarError ? (
-              <p className="text-sm font-medium text-rose-100">
-                {calendarError}
-              </p>
-            ) : selectedStaff ? (
-              <>
-                <p className="text-sm font-medium text-(--text-primary)">
-                  {availableDayCount > 0
-                    ? `${availableDayCount} open day${availableDayCount === 1 ? "" : "s"} in ${format(calendarMonth, "MMMM yyyy")} for ${selectedStaff.name}.`
-                    : `No open days in ${format(calendarMonth, "MMMM yyyy")} for ${selectedStaff.name}.`}
-                </p>
-                <p className="text-xs text-(--text-secondary)">
-                  {availableDayCount > 0
-                    ? "Green dots already have bookable times. Dim dates can still be opened to check details."
-                    : "You can still tap a date to inspect it, switch month, or jump to the next available opening."}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm font-medium text-(--text-primary)">
-                Choose a provider first to load their available dates.
-              </p>
-            )}
-          </div>
-
-          {nextAvailableDate && !selectedDate && !calendarError ? (
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedDate(nextAvailableDate);
-                setCalendarMonth(startOfMonth(nextAvailableDate));
-              }}
-              className="sevacam-primary-button inline-flex min-h-10 items-center gap-1.5 self-start rounded-[0.22rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
-            >
-              <CalendarDays className="h-3.5 w-3.5" />
-              Next available: {format(nextAvailableDate, "MMM d")}
-            </button>
-          ) : null}
+      {calendarError && (
+        <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          {calendarError}
         </div>
-      </div>
+      )}
 
-      <BookingCalendar
-        calendarMonth={calendarMonth}
-        calendarDays={calendarDays}
-        selectedDate={selectedDate}
-        monthAvailability={monthAvailability}
-        isLoadingCalendar={isLoadingCalendar}
-        selectedStaffId={selectedStaffId}
-        today={today}
-        onPrevMonth={() => setCalendarMonth((prev) => subMonths(prev, 1))}
-        onNextMonth={() => setCalendarMonth((prev) => addMonths(prev, 1))}
-        onDateSelect={handleDateSelect}
-      />
+      {/* Side-by-side: calendar left, time slots right */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+        {/* Calendar */}
+        <BookingCalendar
+          calendarMonth={calendarMonth}
+          calendarDays={calendarDays}
+          selectedDate={selectedDate}
+          monthAvailability={monthAvailability}
+          isLoadingCalendar={isLoadingCalendar}
+          selectedStaffId={selectedStaffId}
+          today={today}
+          onPrevMonth={() => setCalendarMonth((prev) => subMonths(prev, 1))}
+          onNextMonth={() => setCalendarMonth((prev) => addMonths(prev, 1))}
+          onDateSelect={handleDateSelect}
+        />
 
-      <div ref={timesSectionRef} className="sevacam-section-anchor space-y-3">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-(--text-secondary)" />
-          <p className="text-xs font-semibold uppercase tracking-wider text-(--text-secondary)">
-            Available Times
-          </p>
-          {selectedSlot && (
-            <span className="ml-auto rounded-full bg-(--accent-primary)/15 px-2.5 py-0.5 text-[11px] font-semibold text-(--accent-primary)">
-              {formatTimeInTimeZone(selectedSlot, timezone)} selected
-            </span>
-          )}
-        </div>
-
-        {selectedDate && availableSlots.length > 6 ? (
-          <p className="text-[11px] text-(--text-secondary)/70">
-            More times are available below. Scroll the list to review the full
-            day.
-          </p>
-        ) : null}
-
-        {!selectedDate ? (
-          <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-6 text-center">
-            <p className="text-sm text-(--text-secondary)">
-              Pick a date above to see available times
-            </p>
-          </div>
-        ) : isLoadingSlots ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse space-y-2">
-                <div className="h-8 rounded-xl bg-(--bg-elevated)" />
-                <div className="grid grid-cols-3 gap-2">
-                  {[1, 2, 3].map((j) => (
-                    <div key={j} className="h-14 rounded-xl bg-(--bg-elevated)" />
-                  ))}
-                </div>
+        {/* Time slots */}
+        <div ref={timesSectionRef} className="sevacam-section-anchor space-y-4">
+          {!selectedDate ? (
+            <div className="flex h-full min-h-[12rem] items-center justify-center rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 text-center">
+              <p className="text-sm text-(--text-secondary)">Select a date to see available times</p>
+            </div>
+          ) : isLoadingSlots ? (
+            <div className="space-y-3">
+              <div className="h-5 w-32 animate-pulse rounded bg-(--bg-elevated)" />
+              <div className="grid grid-cols-4 gap-2">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="h-10 animate-pulse rounded-[0.45rem] bg-(--bg-elevated)" />
+                ))}
               </div>
-            ))}
-          </div>
-        ) : availableSlots.length > 0 ? (
-          <div
-            key={`${selectedStaffId}-${selectedDate.toDateString()}`}
-            className={cn(
-              "space-y-4",
-              availableSlots.length > 6 &&
-                "sevacam-scroll-panel max-h-[24rem] overflow-y-auto pr-1",
-            )}
-          >
-            {TIME_PERIODS.map((period) => (
-              <SlotPeriodSection
-                key={period.key}
-                period={period}
-                slots={slotsByPeriod[period.key] ?? []}
-                selectedSlot={selectedSlot}
-                durationMinutes={effectiveDuration}
-                timeZone={timezone}
-                onSelect={setSelectedSlot}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) p-5 text-center">
-            <Sparkles className="mx-auto mb-2 h-6 w-6 text-(--text-secondary)/80" />
-            <p className="text-sm font-medium text-(--text-primary)/80">
-              No slots on this date
-            </p>
-            <p className="mt-1 text-xs text-(--text-secondary)/80">
-              Try another day or join the waitlist.
-            </p>
-            <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
-              {nextAvailableDate && (
+            </div>
+          ) : availableSlots.length > 0 ? (
+            <>
+              <p className="text-sm font-semibold text-(--text-primary)">
+                {availableSlots.length} times on {format(selectedDate, "MMMM d")}
+              </p>
+              <div className="space-y-4">
+                {TIME_PERIODS.map((period) => (
+                  <SlotPeriodSection
+                    key={period.key}
+                    period={period}
+                    slots={slotsByPeriod[period.key] ?? []}
+                    selectedSlot={selectedSlot}
+                    durationMinutes={effectiveDuration}
+                    timeZone={timezone}
+                    onSelect={setSelectedSlot}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-5 text-center">
+              <p className="text-sm font-medium text-(--text-primary)/80">No slots on this date</p>
+              <p className="mt-1 text-xs text-(--text-secondary)/80">Try another day or join the waitlist.</p>
+              <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+                {nextAvailableDate && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDate(nextAvailableDate);
+                      setCalendarMonth(startOfMonth(nextAvailableDate));
+                    }}
+                    className="sevacam-primary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.18rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                  >
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    Next available: {format(nextAvailableDate, "MMM d")}
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedDate(nextAvailableDate);
-                    setCalendarMonth(startOfMonth(nextAvailableDate));
-                  }}
-                  className="sevacam-primary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.22rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                  onClick={handleJoinWaitlist}
+                  disabled={isJoiningWaitlist}
+                  className="sevacam-secondary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.18rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em] disabled:opacity-60"
                 >
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  Next available: {format(nextAvailableDate, "MMM d")}
+                  {isJoiningWaitlist ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : null}
+                  {isJoiningWaitlist ? "Joining..." : "Join waitlist"}
                 </button>
+              </div>
+              {waitlistMessage && (
+                <p className="mt-3 text-xs text-emerald-300">{waitlistMessage}</p>
               )}
-              <button
-                type="button"
-                onClick={handleJoinWaitlist}
-                disabled={isJoiningWaitlist}
-                className="sevacam-secondary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.22rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em] disabled:opacity-60"
-              >
-                {isJoiningWaitlist ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : null}
-                {isJoiningWaitlist ? "Joining..." : "Join waitlist"}
-              </button>
             </div>
-            {waitlistMessage && (
-              <p className="mt-3 text-xs text-emerald-300">{waitlistMessage}</p>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setStep(3)}
-        disabled={!canGoStep3}
-        className={cn(
-          "sevacam-primary-button flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.22rem] px-5 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
-          canGoStep3
-            ? "text-[#07292d]"
-            : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
-        )}
+      {/* Bottom action bar */}
+      <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-3">
+        <p className="text-sm text-(--text-secondary)">
+          {selectedDate && selectedSlot ? (
+            <span className="font-medium text-(--text-primary)">
+              {format(selectedDate, "MMM d")} at{" "}
+              {formatTimeInTimeZone(selectedSlot, timezone)}
+            </span>
+          ) : (
+            <span className="text-(--text-secondary)/60">Pick a day and time</span>
+          )}
+        </p>
+        <button
+          type="button"
+          onClick={() => setStep(3)}
+          disabled={!canGoStep3}
+          className={cn(
+            "sevacam-primary-button inline-flex items-center gap-2 rounded-[0.18rem] px-5 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
+            canGoStep3
+              ? "text-[#07292d]"
+              : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
+          )}
         >
-          Review Booking <ArrowRight className="h-4 w-4" />
-      </button>
+          Continue <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 
@@ -1355,184 +1136,142 @@ export function BookingForm({
 
   const renderStep3 = () => {
     const slotStart = selectedSlot ? new Date(selectedSlot) : null;
-    const slotEnd = slotStart ? addMinutes(slotStart, effectiveDuration) : null;
+    const remainingAfterSession =
+      effectiveDeposit > 0 ? effectivePrice - effectiveDeposit : 0;
 
     return (
-      <div ref={confirmSectionRef} className="sevacam-section-anchor space-y-5">
-      <div className="rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
-            Step 03
-          </p>
-          <h3 className="mt-2 text-base font-semibold text-(--text-primary)">
-            Review and continue
-          </h3>
-          <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
-            Check the summary below. If everything looks right, continue to
-            payment with confidence.
-          </p>
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-(--border-muted)">
-          <div className="bg-(--bg-elevated) px-5 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-(--text-secondary)">
-              Booking Summary
-            </p>
-          </div>
-          <div className="divide-y divide-border/40">
-            <div className="flex items-center gap-4 px-5 py-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-muted) bg-(--bg-elevated)">
-                {selectedStaff?.avatar_url ? (
-                  <img
-                    src={selectedStaff.avatar_url}
-                    alt={selectedStaff.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="text-sm font-bold text-(--text-primary)/90">
-                    {getInitials(selectedStaff?.name ?? "?")}
-                  </span>
-                )}
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
-                  Provider
-                </p>
-                <p className="text-sm font-semibold text-(--text-primary)">
-                  {selectedStaff?.name}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 px-5 py-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-muted) bg-(--bg-elevated)">
-                <CalendarDays className="h-4 w-4 text-(--accent-primary)" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
-                  Date & Time
-                </p>
-                <p className="text-sm font-semibold text-(--text-primary)">
-                  {selectedDate && format(selectedDate, "EEEE, MMMM d, yyyy")}
-                </p>
-                {slotStart && slotEnd && (
-                  <p className="mt-0.5 text-xs text-(--text-secondary)">
-                    {formatTimeInTimeZone(slotStart, timezone)} &rarr;{" "}
-                    {formatTimeInTimeZone(slotEnd, timezone)}
-                    <span className="ml-2 text-(--text-secondary)/80">
-                      ({effectiveDuration} min)
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex items-start gap-4 px-5 py-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-muted) bg-(--bg-elevated)">
-                <CreditCard className="h-4 w-4 text-(--accent-primary)" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
-                  Pricing
-                </p>
-                <div className="mt-1.5 space-y-1.5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-(--text-primary)/80">Service</span>
-                    <span className="font-semibold text-(--text-primary)">
-                      {formatCurrency(effectivePrice)}
-                    </span>
-                  </div>
-                  {effectiveDeposit > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-(--text-secondary)">Deposit due now</span>
-                      <span className="font-semibold text-(--accent-primary)">
-                        {formatCurrency(effectiveDeposit)}
-                      </span>
-                    </div>
-                  )}
-                  {effectiveCapacity > 1 && (
-                    <div className="flex justify-between text-xs text-(--text-secondary)/80">
-                      <span>Group capacity</span>
-                      <span>Up to {effectiveCapacity} people</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            {selectedLocation && (
-              <div className="flex items-start gap-4 px-5 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-muted) bg-(--bg-elevated)">
-                  <MapPin className="h-4 w-4 text-(--accent-primary)" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-(--text-secondary)/80">
-                    Location
-                  </p>
-                  <p className="text-sm font-semibold text-(--text-primary)">
-                    {selectedLocation.name}
-                  </p>
-                  {selectedLocation.address && (
-                    <p className="mt-0.5 text-xs text-(--text-secondary)">
-                      {selectedLocation.address}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <p className="flex items-center gap-1.5 text-[11px] text-(--text-secondary)/80">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
-          Times shown in your timezone:{" "}
-          <span className="font-medium text-(--text-secondary)">{timezone}</span>
+      <div ref={confirmSectionRef} className="sevacam-section-anchor">
+        <h2 className="text-2xl font-bold text-(--text-primary)">Confirm &amp; pay</h2>
+        <p className="mt-1 mb-6 text-sm text-(--text-secondary)">
+          Review the details below before confirming your booking.
         </p>
 
-        {selectedLocation &&
-          selectedLocation.latitude !== null &&
-          selectedLocation.longitude !== null && (
-            <LocationMapView
-              location={{
-                name: selectedLocation.name,
-                address: selectedLocation.address,
-                latitude: selectedLocation.latitude,
-                longitude: selectedLocation.longitude,
-              }}
-            />
-          )}
+        <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+          {/* Left column */}
+          <div className="space-y-5">
+            {/* YOUR BOOKING */}
+            <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-5">
+              <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                Your Booking
+              </p>
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-muted) bg-(--bg-inset)">
+                  {selectedStaff?.avatar_url ? (
+                    <img
+                      src={selectedStaff.avatar_url}
+                      alt={selectedStaff.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold text-(--text-primary)/90">
+                      {getInitials(selectedStaff?.name ?? "?")}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-(--text-primary)">
+                    {selectedStaff?.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-(--text-secondary)">
+                    {selectedDate && format(selectedDate, "MMM d, yyyy")}
+                    {slotStart && ` · ${formatTimeInTimeZone(slotStart, timezone)}`}
+                    {` · ${effectiveDuration} min`}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center justify-between border-t border-(--border-muted) pt-4">
+                <p className="text-sm text-(--text-secondary)">{service.name}</p>
+                <p className="text-sm font-semibold text-(--text-primary)">
+                  {formatCurrency(effectivePrice)}
+                </p>
+              </div>
+            </div>
+          </div>
 
+          {/* Right column: price breakdown */}
+          <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-5 lg:self-start">
+            <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+              Price
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-(--text-secondary)">{service.name}</span>
+                <span className="font-medium text-(--text-primary)">
+                  {formatCurrency(effectivePrice)}
+                </span>
+              </div>
+              {effectiveDeposit > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-(--text-secondary)">Deposit now</span>
+                  <span className="font-medium text-(--text-primary)">
+                    {formatCurrency(effectiveDeposit)}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-(--text-secondary)">Service fee</span>
+                <span className="font-medium text-emerald-400">$0</span>
+              </div>
+            </div>
+            <div className="mt-4 border-t border-(--border-muted) pt-4">
+              <div className="flex items-end justify-between">
+                <span className="text-sm font-semibold text-(--text-primary)">Due now</span>
+                <span className="text-2xl font-bold text-(--text-primary)">
+                  {formatCurrency(amountDueNow)}
+                </span>
+              </div>
+              {effectiveDeposit > 0 && remainingAfterSession > 0 && (
+                <p className="mt-1 text-right text-xs text-(--text-secondary)">
+                  {formatCurrency(remainingAfterSession)} after session
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Errors / messages */}
         {bookingError && (
-          <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          <div className="mt-5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
             {bookingError}
           </div>
         )}
         {waitlistMessage && (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+          <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
             {waitlistMessage}
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={handleBooking}
-          disabled={isBooking}
-          className={cn(
-            "sevacam-primary-button flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.22rem] px-5 py-3.5 text-[0.62rem] font-bold uppercase tracking-[0.2em] transition-all duration-200",
-            isBooking
-              ? "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)"
-              : "text-[#07292d]",
-          )}
-        >
-          {isBooking ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" /> Processing...
-            </>
-          ) : (
-            <>
-              <Check className="h-4 w-4" />{" "}
-              {amountDueNow > 0
-                ? "Confirm and Continue to Payment"
-                : "Confirm Booking"}
-            </>
-          )}
-        </button>
+        {/* Bottom action bar */}
+        <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-3">
+          <p className="text-sm text-(--text-secondary)">
+            Total due now:{" "}
+            <span className="font-semibold text-(--text-primary)">
+              {formatCurrency(amountDueNow)}
+            </span>
+          </p>
+          <button
+            type="button"
+            onClick={handleBooking}
+            disabled={isBooking}
+            className={cn(
+              "sevacam-primary-button inline-flex items-center gap-2 rounded-[0.18rem] px-5 py-2.5 text-[0.62rem] font-bold uppercase tracking-[0.18em] transition-all duration-200",
+              isBooking
+                ? "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)"
+                : "text-[#07292d]",
+            )}
+          >
+            {isBooking ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Processing...
+              </>
+            ) : (
+              <>
+                Authorize payment · {formatCurrency(amountDueNow)}{" "}
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
     );
   };
@@ -1558,19 +1297,16 @@ export function BookingForm({
 
       {(!locations || locations.length <= 1 || selectedLocationId) && (
         <>
-          <StepIndicator
+          <ServiceHeaderBar
+            service={service}
+            effectivePrice={effectivePrice}
+            effectiveDuration={effectiveDuration}
+          />
+          <BookingStepIndicator
             currentStep={step}
             canGoStep2={canGoStep2}
             canGoStep3={canGoStep3}
             onStepChange={setStep}
-          />
-
-          <SelectionSnapshot
-            step={step}
-            locationLabel={selectedLocation?.name ?? null}
-            staffName={selectedStaff?.name ?? null}
-            dateLabel={selectedDateLabel}
-            slotLabel={selectedSlotLabel}
           />
 
           {selectedLocation && (

@@ -770,104 +770,72 @@ export function ServicesClient({
                     return (
                       <article
                         key={service.id}
-                        className="sevacam-rail sevacam-service-card flex h-full max-w-none flex-col overflow-hidden p-4 sm:p-5"
+                        className="flex flex-col overflow-hidden rounded-xl border border-(--seva-border-subtle) bg-(--seva-elevated)"
                       >
-                        <div className="overflow-hidden rounded-[0.45rem] bg-(--seva-elevated)">
+                        {/* Image / gradient placeholder */}
+                        <div className="relative overflow-hidden">
                           {images.length > 0 ? (
                             <ImageCarousel
                               images={images}
                               alt={displayName}
-                              className="h-56 w-full sm:h-64"
-                              imageClassName="h-56 w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.03] sm:h-64"
+                              className="h-48 w-full"
+                              imageClassName="h-48 w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.03]"
                             />
                           ) : (
-                            <div
-                              className={`h-56 w-full sm:h-64 ${toneClass}`}
-                            />
+                            <div className={`h-48 w-full ${toneClass}`} />
+                          )}
+                          {service.category && (
+                            <span aria-hidden="true" className="absolute bottom-3 left-3 rounded-full bg-black/50 px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+                              {service.category}
+                            </span>
                           )}
                         </div>
 
-                        <div className="mt-5 flex items-start justify-between gap-4">
-                          <div className="min-w-0">
-                            <p className="mb-3 text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
-                              {service.category || "Curated service"}
-                            </p>
-                            <h3 className="sevacam-display text-[1.65rem] leading-[1.02] text-(--seva-text) sm:text-[1.9rem]">
-                              {displayName}
-                            </h3>
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <p className="text-[1.15rem] font-medium tabular-nums text-(--seva-warm) sm:text-[1.3rem]">
-                              {formatPrice(service.price)}
-                            </p>
-                            <p className="mt-1 text-[0.62rem] uppercase tracking-[0.16em] text-(--seva-text-muted)">
-                              {formatDuration(service.duration_minutes)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {service.description ? (
-                          <p className="mt-4 line-clamp-3 text-sm leading-7 text-(--seva-text-soft)">
-                            {service.description}
+                        {/* Card body */}
+                        <div className="flex flex-1 flex-col gap-2.5 p-4 sm:p-5">
+                          <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">
+                            {service.category || "Curated"}
                           </p>
-                        ) : null}
 
-                        {service.tags && service.tags.length > 0 ? (
-                          <div className="mt-5 flex flex-wrap gap-2">
-                            {service.tags.slice(0, 4).map((tag) => (
-                              <button
-                                key={tag}
-                                type="button"
-                                onClick={() => {
-                                  if (!selectedTags.includes(tag)) toggleTag(tag);
-                                }}
-                                title={`Filter by #${tag}`}
-                                className={cn(
-                                  "rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors",
-                                  selectedTags.includes(tag)
-                                    ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
-                                    : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
-                                )}
-                              >
-                                #{tag}
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
+                          <h3 className="text-[1.05rem] font-bold leading-snug text-(--seva-text) sm:text-[1.12rem]">
+                            {displayName}
+                          </h3>
 
-                        <div className="mt-auto pt-6">
-                          <div className="flex flex-wrap gap-x-4 gap-y-2 text-[0.62rem] uppercase tracking-[0.16em] text-(--seva-text-muted)">
-                            {service.deposit_amount > 0 ? (
-                              <span>{formatPrice(service.deposit_amount)} deposit</span>
-                            ) : (
-                              <span>No deposit</span>
+                          <div className="flex items-center gap-3 text-[0.72rem] text-(--seva-text-soft)">
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5" />
+                              {formatDuration(service.duration_minutes)}
+                            </span>
+                            {availableDate && avail === "available" && (
+                              <span className="text-(--seva-accent)">Available</span>
                             )}
-                            {availableDate ? (
-                              avail === "available" ? (
-                                <span className="text-(--seva-accent)">
-                                  Available on selected date
-                                </span>
-                              ) : avail === "loading" ? (
-                                <span className="inline-flex items-center gap-1 text-(--seva-accent)">
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                  Checking slots
-                                </span>
-                              ) : avail === "unknown" ? (
-                                <span>Availability unavailable</span>
-                              ) : (
-                                <span>No slot on selected date</span>
-                              )
-                            ) : (
-                              <span>Ready to book</span>
+                            {availableDate && avail === "loading" && (
+                              <span className="inline-flex items-center gap-1 text-(--seva-accent)">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              </span>
                             )}
                           </div>
-                          <Link
-                            href={`/book/${service.id}`}
-                            className="sevacam-primary-button mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.18rem] px-6 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
-                          >
-                            Reserve Service
-                            <ArrowRight className="h-4 w-4" />
-                          </Link>
+
+                          {/* Price + CTA */}
+                          <div className="mt-auto flex items-end justify-between gap-3 pt-3">
+                            <div>
+                              <p className="text-[1.2rem] font-bold text-(--seva-text)">
+                                {formatPrice(service.price)}
+                              </p>
+                              {service.deposit_amount > 0 && (
+                                <p className="mt-0.5 text-[0.62rem] text-(--seva-text-muted)">
+                                  {formatPrice(service.deposit_amount)} deposit
+                                </p>
+                              )}
+                            </div>
+                            <Link
+                              href={`/book/${service.id}`}
+                              className="inline-flex items-center gap-1.5 rounded-[0.45rem] border border-(--seva-border-interactive) px-3.5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-soft) transition-colors hover:border-(--seva-accent) hover:text-(--seva-accent)"
+                            >
+                              Reserve service
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </Link>
+                          </div>
                         </div>
                       </article>
                     );

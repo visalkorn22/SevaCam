@@ -1,0 +1,59 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #EAF4FF
+  BorderColor #5B84B1
+}
+
+actor Guest
+actor Customer
+actor "Payment Gateway" as PaymentGateway
+
+rectangle "Booking & Schedule Management System" {
+  usecase "Browse Services" as UC_Browse
+  usecase "Register Account" as UC_Register
+  usecase "Log In" as UC_Login
+  usecase "Book Service" as UC_Book
+  usecase "Check Availability" as UC_Check
+  usecase "Select Staff and Time Slot" as UC_Select
+  usecase "Make Payment" as UC_Pay
+  usecase "View My Bookings" as UC_View
+  usecase "Reschedule Booking" as UC_Reschedule
+  usecase "Cancel Booking" as UC_Cancel
+  usecase "Join Waitlist" as UC_Waitlist
+  usecase "Submit Review" as UC_Review
+}
+
+Guest --> UC_Browse
+Guest --> UC_Register
+Guest --> UC_Login
+
+Customer --> UC_Browse
+Customer --> UC_Book
+Customer --> UC_Pay
+Customer --> UC_View
+Customer --> UC_Reschedule
+Customer --> UC_Cancel
+Customer --> UC_Waitlist
+Customer --> UC_Review
+
+UC_Book ..> UC_Check : <<include>>
+UC_Book ..> UC_Select : <<include>>
+UC_Reschedule ..> UC_Check : <<include>>
+UC_Pay ..> UC_Book : <<extend>>
+
+PaymentGateway --> UC_Pay
+
+note right of UC_Pay
+Only when a deposit or payment
+is required for the booking.
+end note
+
+note bottom of UC_Review
+Review is allowed only after
+a completed booking.
+end note
+
+@enduml

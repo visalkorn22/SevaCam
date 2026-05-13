@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { Star } from "lucide-react";
 
 type ServiceReview = {
@@ -16,18 +16,12 @@ export type ServiceReviewsData = {
 
 function StarDisplay({ rating, max = 5 }: { rating: number; max?: number }) {
   const filled = Math.round(rating);
-
   return (
-    <span
-      aria-label={`${rating} out of ${max} stars`}
-      className="flex items-center gap-1 text-amber-400"
-    >
+    <span aria-label={`${rating} out of ${max} stars`} className="flex items-center gap-0.5">
       {Array.from({ length: max }).map((_, index) => (
         <Star
           key={index}
-          className={`h-3.5 w-3.5 ${
-            index < filled ? "fill-current" : "text-(--seva-border-interactive)"
-          }`}
+          className={`h-3 w-3 ${index < filled ? "fill-amber-400 text-amber-400" : "text-(--border-muted)"}`}
         />
       ))}
     </span>
@@ -37,7 +31,7 @@ function StarDisplay({ rating, max = 5 }: { rating: number; max?: number }) {
 export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
   if (!data || data.review_count === 0) {
     return (
-      <div className="sevacam-rail p-6">
+      <div>
         <h2 className="text-sm font-semibold text-(--text-primary)">Reviews</h2>
         <p className="mt-2 text-sm text-(--text-secondary)">No reviews yet.</p>
       </div>
@@ -45,37 +39,38 @@ export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
   }
 
   return (
-    <div className="sevacam-rail p-6">
-      <h2 className="text-sm font-semibold text-(--text-primary)">Reviews</h2>
-
-      <div className="mt-3 flex items-center gap-2">
-        <span className="text-2xl font-semibold text-(--text-primary)">
-          {data.average_rating?.toFixed(1)}
-        </span>
-        <StarDisplay rating={data.average_rating ?? 0} />
+    <div>
+      <div className="mb-5 flex items-center gap-3">
+        <h2 className="text-base font-semibold text-(--text-primary)">Reviews</h2>
+        {data.average_rating != null && (
+          <>
+            <StarDisplay rating={data.average_rating} />
+            <span className="text-sm font-semibold text-(--text-primary)">
+              {data.average_rating.toFixed(1)}
+            </span>
+          </>
+        )}
         <span className="text-xs text-(--text-secondary)">
-          - {data.review_count} review{data.review_count !== 1 ? "s" : ""}
+          {data.review_count} total
         </span>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="grid gap-4 md:grid-cols-3">
         {data.reviews.map((review, index) => (
           <div
             key={index}
             className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-4"
           >
-            <div className="flex flex-wrap items-center gap-2">
-              <StarDisplay rating={review.rating} />
-              <span className="text-xs text-(--text-secondary)">
-                {review.customer_name} -{" "}
-                {format(new Date(review.created_at), "MMM d, yyyy")}
-              </span>
-            </div>
-            {review.comment ? (
+            <StarDisplay rating={review.rating} />
+            {review.comment && (
               <p className="mt-2 text-sm leading-relaxed text-(--text-secondary)">
                 {review.comment}
               </p>
-            ) : null}
+            )}
+            <p className="mt-3 text-[0.65rem] text-(--text-secondary)/70">
+              {review.customer_name} ·{" "}
+              {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
+            </p>
           </div>
         ))}
       </div>

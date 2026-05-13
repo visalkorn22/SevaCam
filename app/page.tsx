@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -274,6 +274,8 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [curationMode, setCurationMode] = useState<CurationMode>("soonest");
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   const role = user?.role;
   const isStaff = role === "staff";
@@ -391,6 +393,22 @@ export default function HomePage() {
     }
   }, [categoryOptions, selectedCategory]);
 
+  useEffect(() => {
+    const onScroll = () => {
+      const current = window.scrollY;
+      if (current <= 0) {
+        setHeaderVisible(true);
+      } else if (current > lastScrollY.current) {
+        setHeaderVisible(false);
+      } else {
+        setHeaderVisible(true);
+      }
+      lastScrollY.current = current;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const visibleServices = useMemo(() => {
     const filtered = sourceServices.filter((service) => {
       if (selectedCategory === "all") {
@@ -473,7 +491,11 @@ export default function HomePage() {
 
   return (
     <div className="sevacam-home min-h-screen bg-(--seva-base) text-(--seva-text)">
-      <header className="bg-(--seva-base)">
+      <header
+        className={`sticky top-0 z-50 bg-(--seva-base) transition-transform duration-300 ease-in-out ${
+          headerVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
         <div className="mx-auto flex max-w-[86rem] items-center justify-between gap-6 px-6 py-5 sm:px-8 lg:px-10">
           <Link
             href="/"
@@ -502,7 +524,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-soft) transition-colors hover:text-(--seva-accent)"
+                className="text-sm font-medium text-(--seva-text-soft) transition-colors hover:text-(--seva-accent)"
               >
                 Logout
               </button>
@@ -510,16 +532,16 @@ export default function HomePage() {
             {showStaffAdminButton ? (
               <Link
                 href={staffAdminHref}
-                className="hidden text-[0.68rem] uppercase tracking-[0.18em] text-(--seva-text-soft) transition-colors hover:text-(--seva-text) sm:inline-flex"
+                className="hidden text-sm font-medium text-(--seva-text-soft) transition-colors hover:text-(--seva-text) sm:inline-flex"
               >
                 {staffAdminLabel}
               </Link>
             ) : null}
             <Link
               href="/services"
-              className="sevacam-primary-button inline-flex min-h-11 items-center rounded-[0.18rem] px-5 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
+              className="sevacam-primary-button inline-flex min-h-11 items-center rounded-[0.18rem] px-5 py-3 text-sm font-semibold"
             >
-              Go To Book
+              Go to Book
             </Link>
             <ThemeToggle compact />
             {user ? (

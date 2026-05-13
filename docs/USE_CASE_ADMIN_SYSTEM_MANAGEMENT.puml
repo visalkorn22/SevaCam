@@ -1,0 +1,59 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FFF1F1
+  BorderColor #C97A7A
+}
+
+actor Admin
+
+rectangle "Booking & Schedule Management System" {
+  usecase "Manage Services" as UC_ManageServices
+  usecase "Create Service" as UC_CreateService
+  usecase "Edit Service" as UC_EditService
+  usecase "Archive Service" as UC_ArchiveService
+  usecase "Assign Staff to Service" as UC_AssignStaff
+  usecase "Manage Operating Schedules" as UC_ManageSchedules
+
+  usecase "Manage Locations" as UC_ManageLocations
+  usecase "Manage User Accounts" as UC_ManageUsers
+
+  usecase "Manage Bookings" as UC_ManageBookings
+  usecase "View All Bookings" as UC_ViewBookings
+  usecase "Reschedule Booking" as UC_RescheduleBooking
+  usecase "Cancel Booking" as UC_CancelBooking
+  usecase "Update Booking Status" as UC_UpdateBookingStatus
+
+  usecase "Send Notification" as UC_SendNotification
+}
+
+Admin --> UC_ManageServices
+Admin --> UC_ManageLocations
+Admin --> UC_ManageUsers
+Admin --> UC_ManageBookings
+Admin --> UC_SendNotification
+
+UC_ManageServices ..> UC_CreateService : <<include>>
+UC_ManageServices ..> UC_EditService : <<include>>
+UC_ManageServices ..> UC_ArchiveService : <<include>>
+UC_ManageServices ..> UC_AssignStaff : <<include>>
+UC_ManageServices ..> UC_ManageSchedules : <<include>>
+
+UC_ManageBookings ..> UC_ViewBookings : <<include>>
+UC_ManageBookings ..> UC_RescheduleBooking : <<include>>
+UC_ManageBookings ..> UC_CancelBooking : <<include>>
+UC_ManageBookings ..> UC_UpdateBookingStatus : <<include>>
+
+note right of UC_ArchiveService
+The implemented system archives
+services instead of deleting them.
+end note
+
+note bottom of UC_SendNotification
+Keep this only if your report covers
+backend notification actions too.
+end note
+
+@enduml

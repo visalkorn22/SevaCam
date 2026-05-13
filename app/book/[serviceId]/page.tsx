@@ -8,7 +8,7 @@ import {
   ServiceReviews,
   type ServiceReviewsData,
 } from "@/components/booking/ServiceReviews";
-import { ChevronLeft, Clock, DollarSign, MapPin, Tag, Users } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, MapPin } from "lucide-react";
 
 type MeUser = {
   id: string;
@@ -185,314 +185,237 @@ export default async function BookServicePage({
 
   const displayName = service.public_name || service.name;
   const heroArtClass = getBookingArtClass(`${service.id}${service.category ?? ""}`);
-  const serviceTagline = service.category
-    ? `${service.category.toUpperCase()} EXCLUSIVE`
-    : "CURATED EXPERIENCE";
-
   return (
     <div className="sevacam-home min-h-screen bg-(--bg-base) text-(--text-primary)">
-      <header className="border-b border-(--border-muted) bg-(--bg-base)">
-        <div className="mx-auto flex max-w-[86rem] items-center justify-between gap-6 px-6 py-5 sm:px-8 lg:px-10">
-          <Link
-            href="/"
-            className="sevacam-display text-[1.6rem] tracking-[-0.04em] text-(--text-primary)"
-          >
-            SevaCam
-          </Link>
+      <div className="mx-auto w-full max-w-[86rem] px-6 py-8 sm:px-8 lg:px-10">
 
-          <nav className="hidden items-center gap-8 md:flex">
-            <Link href="/services" className="sevacam-nav-link sevacam-nav-link-active">
-              Curation
-            </Link>
-            <Link href="/bookings" className="sevacam-nav-link">
-              Experiences
-            </Link>
-            <Link href="/support" className="sevacam-nav-link">
-              Concierge
-            </Link>
-          </nav>
-
-          <Link
-            href="/services"
-            className="sevacam-primary-button inline-flex min-h-11 items-center rounded-[0.18rem] px-5 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
-          >
-            Reserve
-          </Link>
-        </div>
-      </header>
-
-      <div className="mx-auto w-full max-w-[86rem] px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
+        {/* Back link */}
         <Link
           href="/services"
           className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-(--text-secondary) transition-colors hover:text-(--text-primary)"
         >
           <ChevronLeft className="h-4 w-4" />
-          All Services
+          Back to services
         </Link>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_24rem] xl:grid-cols-[minmax(0,1.18fr)_27rem]">
-          <div className="space-y-8">
-            <section className="relative overflow-hidden rounded-[0.5rem] bg-(--bg-surface)">
-              {images.length > 0 ? (
-                <ImageCarousel
-                  images={images}
-                  alt={displayName}
-                  className="h-[26rem] w-full sm:h-[34rem] xl:h-[42rem]"
-                  imageClassName="h-[26rem] w-full object-cover sm:h-[34rem] xl:h-[42rem]"
-                />
-              ) : (
-                <div className={`h-[26rem] w-full sm:h-[34rem] xl:h-[42rem] ${heroArtClass}`} />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/82" />
-              <div className="absolute inset-x-0 top-0 p-6 sm:p-8">
-                <p className="text-[0.62rem] uppercase tracking-[0.22em] text-(--text-secondary)">
-                  Service Detail
-                </p>
-              </div>
-              <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 lg:p-10">
-                <p className="text-[0.62rem] uppercase tracking-[0.22em] text-(--color-accent-warm)">
-                  {serviceTagline}
-                </p>
-                <h1 className="sevacam-display mt-5 max-w-[8ch] text-[clamp(3.6rem,9vw,6.8rem)] leading-[0.88] tracking-[-0.06em] text-white">
-                  {displayName}
-                </h1>
-                <div className="mt-8 grid gap-6 border-t border-white/10 pt-6 sm:grid-cols-3">
-                  <div>
-                    <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--text-secondary)">
-                      Duration
-                    </p>
-                    <p className="mt-2 text-[1.05rem] text-white">
-                      {formatDuration(service.duration_minutes)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--text-secondary)">
-                      Investment
-                    </p>
-                    <p className="mt-2 text-[1.05rem] text-white">
-                      {formatPrice(service.price)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--text-secondary)">
-                      Curators
-                    </p>
-                    <p className="mt-2 text-[1.05rem] text-white">
-                      {staff.length > 0 ? `${staff.length} available` : "Assigned on request"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-              <div className="space-y-5">
-                {service.description ? (
-                  <p className="max-w-3xl text-base leading-8 text-(--text-secondary)">
-                    {service.description}
-                  </p>
-                ) : null}
-
-                <div className="flex flex-wrap gap-2 text-xs font-medium">
-                  <span className="flex items-center gap-1.5 rounded-full bg-(--bg-elevated) px-3 py-1.5 text-(--text-secondary)">
-                    <Clock className="h-3.5 w-3.5 text-(--text-disabled)" />
-                    {formatDuration(service.duration_minutes)}
-                  </span>
-                  <span className="flex items-center gap-1.5 rounded-full bg-(--bg-elevated) px-3 py-1.5 text-(--text-secondary)">
-                    <DollarSign className="h-3.5 w-3.5 text-(--text-disabled)" />
-                    {formatPrice(service.price)}
-                  </span>
-                  {service.deposit_amount > 0 ? (
-                    <span className="flex items-center gap-1.5 rounded-full bg-(--state-warning-subtle) px-3 py-1.5 text-(--state-warning)">
-                      <Tag className="h-3 w-3" />
-                      {formatPrice(service.deposit_amount)} deposit
-                    </span>
-                  ) : (
-                    <span className="rounded-full bg-(--bg-elevated) px-3 py-1.5 text-(--text-secondary)">
-                      No deposit required
-                    </span>
-                  )}
-                  {service.max_capacity > 1 ? (
-                    <span className="flex items-center gap-1.5 rounded-full bg-(--bg-elevated) px-3 py-1.5 text-(--text-secondary)">
-                      <Users className="h-3.5 w-3.5 text-(--text-disabled)" />
-                      Group - up to {service.max_capacity}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="sevacam-rail p-6">
-                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--text-secondary)">
-                  Service Notes
-                </p>
-                <div className="mt-4 space-y-3">
-                  <div className="sevacam-side-stat">
-                    <span>Category</span>
-                    <span>{service.category || "Curated Service"}</span>
-                  </div>
-                  <div className="sevacam-side-stat">
-                    <span>Provider options</span>
-                    <span>{staff.length > 0 ? staff.length : "On request"}</span>
-                  </div>
-                  <div className="sevacam-side-stat">
-                    <span>Booking source</span>
-                    <span>{source === "social" ? "Social referral" : "Direct web"}</span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {service.locations && service.locations.filter(l => l.latitude !== null).length > 0 && (
-              <section className="space-y-4">
-                <h3 className="text-sm font-semibold uppercase tracking-widest text-(--text-disabled)">
-                  Location{service.locations.length > 1 ? "s" : ""}
-                </h3>
-                {service.locations
-                  .filter((l) => l.latitude !== null && l.longitude !== null)
-                  .map((loc) => (
-                    <LocationMapView
-                      key={loc.id}
-                      location={{
-                        name: loc.name,
-                        address: loc.address,
-                        latitude: loc.latitude!,
-                        longitude: loc.longitude!,
-                      }}
-                    />
-                  ))}
-              </section>
+        {/* ── Service hero: 2-column ── */}
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+          {/* Left: image */}
+          <div className="overflow-hidden rounded-2xl">
+            {images.length > 0 ? (
+              <ImageCarousel
+                images={images}
+                alt={displayName}
+                className="w-full"
+                imageClassName="w-full object-cover"
+              />
+            ) : (
+              <div className={`aspect-4/3 w-full ${heroArtClass}`} />
             )}
-
-            {service.locations &&
-              service.locations.filter(
-                (l) => !(l.latitude != null && l.longitude != null) && (l.name || l.address)
-              ).length > 0 && (
-                <section className="space-y-4">
-                  <h3 className="text-sm font-semibold uppercase tracking-widest text-(--text-disabled)">
-                    Location{service.locations.filter(
-                      (l) => !(l.latitude != null && l.longitude != null) && (l.name || l.address)
-                    ).length > 1 ? "s" : ""}
-                  </h3>
-                  {service.locations
-                    .filter(
-                      (l) => !(l.latitude != null && l.longitude != null) && (l.name || l.address)
-                    )
-                    .map((loc) => (
-                      <div
-                        key={loc.id}
-                        className="sevacam-rail p-4"
-                      >
-                        <div className="flex items-start gap-2">
-                          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
-                          <div>
-                            <p className="text-sm font-semibold text-(--text-primary)">
-                              {loc.name || loc.address}
-                            </p>
-                            {loc.name && loc.address && (
-                              <p className="mt-1 text-xs text-(--text-secondary)">{loc.address}</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </section>
-              )}
-
-            {inclusionItems.length > 0 || service.prep_notes ? (
-              <section className="grid gap-6 md:grid-cols-2">
-                {inclusionItems.length > 0 ? (
-                  <div className="sevacam-rail p-6">
-                    <h2 className="text-sm font-semibold text-(--text-primary)">
-                      What&apos;s Included
-                    </h2>
-                    <ul className="mt-4 space-y-3 text-sm leading-7 text-(--text-secondary)">
-                      {inclusionItems.map((item) => (
-                        <li key={item} className="flex items-start gap-2.5">
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent-primary)" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-
-                {service.prep_notes ? (
-                  <div className="sevacam-rail p-6">
-                    <h2 className="text-sm font-semibold text-(--text-primary)">
-                      Prep Notes
-                    </h2>
-                    <p className="mt-4 text-sm leading-7 text-(--text-secondary)">
-                      {service.prep_notes}
-                    </p>
-                  </div>
-                ) : null}
-              </section>
-            ) : null}
-
-            <section>
-              <ServiceReviews data={reviewsData} />
-            </section>
           </div>
 
-          <aside className="lg:sticky lg:top-8 lg:self-start">
-            <div className="sevacam-rail p-6 shadow-[0_20px_40px_rgba(0,0,0,0.32)] sm:p-8">
-              <div className="space-y-4 border-b border-(--border-muted) pb-5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--text-secondary)">
-                  Step-by-step booking
+          {/* Right: info + CTA */}
+          <div className="space-y-5 lg:py-2">
+            {service.category && (
+              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-warm)">
+                {service.category}
+              </p>
+            )}
+            <h1 className="text-3xl font-bold leading-tight text-(--text-primary) sm:text-4xl">
+              {displayName}
+            </h1>
+            {service.description && (
+              <p className="text-sm leading-7 text-(--text-secondary)">
+                {service.description}
+              </p>
+            )}
+
+            {/* Stats row */}
+            <div className="flex gap-8 border-y border-(--border-muted) py-5">
+              <div>
+                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                  Price
                 </p>
-                <h2 className="sevacam-display text-[1.8rem] leading-none text-(--text-primary)">
-                  Reserve your window
-                </h2>
-                <div className="grid gap-3 rounded-[0.45rem] bg-(--bg-elevated) p-4 text-xs text-(--text-secondary)">
-                  <div className="flex items-center justify-between gap-3">
-                    <span>{displayName}</span>
-                    <span className="font-semibold text-(--text-primary)">
-                      {formatPrice(service.price)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span>{formatDuration(service.duration_minutes)}</span>
-                    <span>
-                      {staff.length > 0
-                        ? `${staff.length} provider${staff.length === 1 ? "" : "s"}`
-                        : "Provider assigned"}
-                    </span>
-                  </div>
+                <p className="mt-1 text-xl font-bold text-(--text-primary)">
+                  {formatPrice(service.price)}
+                </p>
+              </div>
+              <div>
+                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                  Length
+                </p>
+                <p className="mt-1 text-xl font-bold text-(--text-primary)">
+                  {formatDuration(service.duration_minutes)}
+                </p>
+              </div>
+              {reviewsData?.average_rating != null && (
+                <div>
+                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                    Rating
+                  </p>
+                  <p className="mt-1 text-xl font-bold text-(--text-primary)">
+                    {reviewsData.average_rating.toFixed(1)}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* CTA — scrolls to the booking form */}
+            <a
+              href="#booking"
+              className="sevacam-primary-button flex min-h-12 w-full items-center justify-center gap-2 rounded-[0.18rem] px-6 py-3.5 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[#07292d]"
+            >
+              Reserve service · {formatPrice(service.price)}
+              <ArrowRight className="h-4 w-4" />
+            </a>
+            {service.deposit_amount > 0 && (
+              <p className="text-center text-xs text-(--text-secondary)">
+                {formatPrice(service.deposit_amount)} deposit now ·{" "}
+                {formatPrice(service.price - service.deposit_amount)} after session
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* ── What's included + Who guides it ── */}
+        {(inclusionItems.length > 0 || staff.length > 0) && (
+          <div className="mt-14 grid gap-10 md:grid-cols-2">
+            {inclusionItems.length > 0 && (
+              <div>
+                <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                  What&apos;s Included
+                </p>
+                <ul className="space-y-3">
+                  {inclusionItems.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-sm text-(--text-secondary)">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {staff.length > 0 && (
+              <div>
+                <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                  Who Guides It
+                </p>
+                <div className="space-y-3">
+                  {staff.map((member) => (
+                    <div key={member.id} className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-muted) bg-(--bg-elevated)">
+                        {member.avatar_url ? (
+                          <img
+                            src={member.avatar_url}
+                            alt={member.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs font-bold text-(--text-primary)/80">
+                            {member.name
+                              .split(" ")
+                              .map((p: string) => p[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 2)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm font-medium text-(--text-primary)">
+                        {member.name}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
+            )}
+          </div>
+        )}
 
-              <div className="mt-6">
-                <BookingForm
-                  service={service}
-                  staff={staff}
-                  customer={me}
-                  bookingSource={source}
-                  locations={service.locations}
-                />
-              </div>
+        {/* ── Prep notes ── */}
+        {service.prep_notes && (
+          <div className="mt-10 rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-6">
+            <p className="mb-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+              Prep Notes
+            </p>
+            <p className="text-sm leading-7 text-(--text-secondary)">{service.prep_notes}</p>
+          </div>
+        )}
+
+        {/* ── Location maps ── */}
+        {service.locations &&
+          service.locations.filter((l: { latitude: number | null; longitude: number | null }) => l.latitude !== null && l.longitude !== null).length > 0 && (
+            <div className="mt-10 space-y-4">
+              {service.locations
+                .filter((l: { latitude: number | null; longitude: number | null }) => l.latitude !== null && l.longitude !== null)
+                .map((loc: { id: string; name: string; address: string | null; latitude: number | null; longitude: number | null }) => (
+                  <LocationMapView
+                    key={loc.id}
+                    location={{
+                      name: loc.name,
+                      address: loc.address,
+                      latitude: loc.latitude!,
+                      longitude: loc.longitude!,
+                    }}
+                  />
+                ))}
             </div>
-          </aside>
+          )}
+
+        {/* ── Text-only locations ── */}
+        {service.locations &&
+          service.locations.filter(
+            (l: { latitude: number | null; longitude: number | null; name: string; address: string | null }) => !(l.latitude != null && l.longitude != null) && (l.name || l.address),
+          ).length > 0 && (
+            <div className="mt-6 space-y-3">
+              {service.locations
+                .filter((l: { latitude: number | null; longitude: number | null; name: string; address: string | null }) => !(l.latitude != null && l.longitude != null) && (l.name || l.address))
+                .map((loc: { id: string; name: string; address: string | null }) => (
+                  <div key={loc.id} className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-4">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
+                      <div>
+                        <p className="text-sm font-semibold text-(--text-primary)">
+                          {loc.name || loc.address}
+                        </p>
+                        {loc.name && loc.address && (
+                          <p className="mt-1 text-xs text-(--text-secondary)">{loc.address}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+        {/* ── Reviews ── */}
+        <div className="mt-12">
+          <ServiceReviews data={reviewsData} />
         </div>
+
+        {/* ── Booking form — full width ── */}
+        <section id="booking" className="mt-16 scroll-mt-6 border-t border-(--border-muted) pt-12">
+          <BookingForm
+            service={service}
+            staff={staff}
+            customer={me}
+            bookingSource={source}
+            locations={service.locations}
+          />
+        </section>
 
         <footer className="mt-16 border-t border-(--border-muted) pt-8">
           <div className="flex flex-col gap-6 text-[0.58rem] uppercase tracking-[0.18em] text-(--text-secondary) sm:flex-row sm:items-center sm:justify-between">
             <p>Copyright 2026 SevaCam. All rights reserved.</p>
             <nav className="flex flex-wrap gap-x-6 gap-y-3">
-              <Link href="/" className="transition-colors hover:text-(--text-primary)">
-                Privacy
-              </Link>
-              <Link href="/" className="transition-colors hover:text-(--text-primary)">
-                Terms
-              </Link>
-              <Link href="/services" className="transition-colors hover:text-(--text-primary)">
-                Atelier
-              </Link>
-              <Link href="/support" className="transition-colors hover:text-(--text-primary)">
-                Contact
-              </Link>
+              <Link href="/" className="transition-colors hover:text-(--text-primary)">Privacy</Link>
+              <Link href="/" className="transition-colors hover:text-(--text-primary)">Terms</Link>
+              <Link href="/services" className="transition-colors hover:text-(--text-primary)">Atelier</Link>
+              <Link href="/support" className="transition-colors hover:text-(--text-primary)">Contact</Link>
             </nav>
           </div>
         </footer>
+
       </div>
     </div>
   );
