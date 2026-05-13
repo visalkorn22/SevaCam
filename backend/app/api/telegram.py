@@ -1,5 +1,6 @@
 # backend/app/api/telegram.py
 import uuid
+import asyncio
 import httpx
 from datetime import datetime, timedelta, timezone
 
@@ -31,6 +32,49 @@ def _decode_connect_token(token: str) -> str:
         raise HTTPException(status_code=400, detail="Invalid or expired connect token")
 
 
+def _process_start_command(token: str, chat_id: int, db: Session) -> None:
+    """Link a Telegram chat_id to a user account via a /start token."""
+    try:
+        user_id = _decode_connect_token(token)
+    except HTTPException:
+        return  # silently ignore bad tokens
+
+    existing = db.execute(
+        text("SELECT id FROM telegram_connections WHERE user_id = :uid"),
+        {"uid": user_id},
+    ).fetchone()
+    if not existing:
+        db.execute(
+            text("""
+            INSERT INTO telegram_connections (id, user_id, chat_id)
+            VALUES (:id, :uid, :chat_id)
+            ON CONFLICT (chat_id) DO UPDATE SET user_id = EXCLUDED.user_id
+            """),
+            {"id": str(uuid.uuid4()), "uid": user_id, "chat_id": chat_id},
+        )
+        db.commit()
+
+    _send_telegram_message(
+        chat_id,
+        "✅ Connected! You can now receive location cards from the booking system.",
+    )
+
+
+def _handle_update(body: dict, db: Session) -> None:
+    """Process a single Telegram update dict (shared by webhook and polling)."""
+    message = body.get("message", {})
+    text_msg: str = message.get("text", "")
+    chat_id: int = message.get("chat", {}).get("id")
+
+    if not chat_id:
+        return
+
+    if text_msg.startswith("/start"):
+        parts = text_msg.split(" ", 1)
+        if len(parts) >= 2:
+            _process_start_command(parts[1].strip(), chat_id, db)
+
+
 @router.get("/status")
 def telegram_status(
     current_user: dict = Depends(get_current_user),
@@ -45,43 +89,9 @@ def telegram_status(
 
 @router.post("/webhook")
 async def telegram_webhook(request: Request, db: Session = Depends(get_db)):
-    """Receives updates from Telegram. Handles /start {token} command."""
+    """Receives updates from Telegram when a webhook URL is registered."""
     body = await request.json()
-    message = body.get("message", {})
-    text_msg: str = message.get("text", "")
-    chat_id: int = message.get("chat", {}).get("id")
-
-    if not chat_id:
-        return {"ok": True}
-
-    if text_msg.startswith("/start"):
-        parts = text_msg.split(" ", 1)
-        if len(parts) < 2:
-            return {"ok": True}
-        token = parts[1].strip()
-        try:
-            user_id = _decode_connect_token(token)
-        except HTTPException:
-            return {"ok": True}  # silently ignore bad tokens
-
-        # Upsert telegram_connections
-        existing = db.execute(
-            text("SELECT id FROM telegram_connections WHERE user_id = :uid"),
-            {"uid": user_id},
-        ).fetchone()
-        if not existing:
-            db.execute(
-                text("""
-                INSERT INTO telegram_connections (id, user_id, chat_id)
-                VALUES (:id, :uid, :chat_id)
-                ON CONFLICT (chat_id) DO UPDATE SET user_id = EXCLUDED.user_id
-                """),
-                {"id": str(uuid.uuid4()), "uid": user_id, "chat_id": chat_id},
-            )
-            db.commit()
-
-        _send_telegram_message(chat_id, "✅ Connected! You can now receive location cards from this booking system.")
-
+    _handle_update(body, db)
     return {"ok": True}
 
 
@@ -149,6 +159,44 @@ def send_location(
     _send_telegram_message(chat_id, msg, parse_mode="Markdown")
 
     return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Long-polling task — used automatically when TELEGRAM_WEBHOOK_URL is not set
+# ---------------------------------------------------------------------------
+
+async def run_polling() -> None:
+    """
+    Async long-polling loop. Pulls updates from Telegram and processes them.
+    Runs as a background task when no webhook URL is configured (e.g. localhost dev).
+    """
+    from app.core.database import SessionLocal  # avoid circular import at module level
+
+    offset = 0
+    print("[telegram] Starting long-polling (no webhook URL configured)")
+
+    async with httpx.AsyncClient() as client:
+        while True:
+            try:
+                resp = await client.get(
+                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/getUpdates",
+                    params={"offset": offset, "timeout": 30, "allowed_updates": ["message"]},
+                    timeout=40,
+                )
+                updates = resp.json().get("result", [])
+                for update in updates:
+                    offset = update["update_id"] + 1
+                    db = SessionLocal()
+                    try:
+                        _handle_update(update, db)
+                    finally:
+                        db.close()
+            except asyncio.CancelledError:
+                print("[telegram] Polling stopped")
+                return
+            except Exception as exc:
+                print(f"[telegram] Polling error: {exc}")
+                await asyncio.sleep(5)
 
 
 def _send_telegram_location(chat_id: int, latitude: float, longitude: float) -> None:

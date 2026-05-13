@@ -47,45 +47,45 @@ export function PaymentSuccessModal({
   return (
     <AlertDialog open={open}>
       <AlertDialogContent
-        overlayClassName="bg-[#131313]/99 backdrop-blur-xl"
-        className="w-[min(92vw,30rem)] animate-scale-in overflow-hidden rounded-[1.3rem] border border-white/8 bg-[#151515] p-0 text-[#f0eeeb] shadow-[0_38px_110px_rgba(0,0,0,0.66)] motion-duration-300"
+        overlayClassName="bg-black/70 backdrop-blur-xl"
+        className="w-[min(92vw,30rem)] animate-scale-in overflow-hidden rounded-[1.3rem] border border-(--seva-border-subtle) bg-(--seva-surface) p-0 text-(--seva-text) shadow-[0_38px_110px_rgba(0,0,0,0.66)] motion-duration-300"
       >
         {/* Animation + header */}
         <div className="flex flex-col items-center px-6 pb-5 pt-7">
           {/* Animation circle */}
-          <div className="relative h-40 w-40 rounded-full ring-1 ring-white/8">
+          <div className="relative h-40 w-40 rounded-full ring-1 ring-(--seva-border-subtle)">
             <SuccessAnimation />
           </div>
 
           {/* Pill badge */}
-          <span className="mt-4 inline-flex min-h-7 items-center rounded-full bg-[rgba(122,213,221,0.14)] px-3.5 text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-[#7ad5dd]">
+          <span className="mt-4 inline-flex min-h-7 items-center rounded-full bg-(--seva-accent-subtle) px-3.5 text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-(--seva-accent)">
             Reservation secured
           </span>
 
           {/* Title + description */}
           <AlertDialogHeader className="mt-3 items-center gap-2 text-center">
-            <AlertDialogTitle className="sevacam-display text-[clamp(1.8rem,6vw,2.6rem)] leading-[1] tracking-[-0.04em] text-[#f0eeeb]">
+            <AlertDialogTitle className="sevacam-display text-[clamp(1.8rem,6vw,2.6rem)] leading-[1] tracking-[-0.04em] text-(--seva-text)">
               Payment received
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-[0.85rem] leading-6 text-[rgba(240,238,235,0.72)]">
+            <AlertDialogDescription className="text-[0.85rem] leading-6 text-(--seva-text-soft)">
               Your payment is approved and the appointment is locked in.
             </AlertDialogDescription>
           </AlertDialogHeader>
         </div>
 
         {/* Footer bar */}
-        <div className="border-t border-white/6 bg-[#171717] px-6 py-5">
+        <div className="border-t border-(--seva-border-subtle) bg-(--seva-elevated) px-6 py-5">
           {/* Amount row */}
-          <div className="mb-4 flex items-center justify-between rounded-[0.8rem] bg-[#1f1f1f] px-4 py-3.5">
+          <div className="mb-4 flex items-center justify-between rounded-[0.8rem] bg-(--seva-inset) px-4 py-3.5">
             <div>
-              <p className="text-[0.58rem] font-semibold uppercase tracking-[0.2em] text-[rgba(240,238,235,0.5)]">
+              <p className="text-[0.58rem] font-semibold uppercase tracking-[0.2em] text-(--seva-text-muted)">
                 Amount paid
               </p>
-              <p className="mt-1 text-[1.7rem] font-semibold tracking-[-0.04em] text-[#f0eeeb]">
+              <p className="mt-1 text-[1.7rem] font-semibold tracking-[-0.04em] text-(--seva-text)">
                 {formatAmount(amount, currency)}
               </p>
             </div>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(122,213,221,0.14)] text-[#7ad5dd]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--seva-accent-subtle) text-(--seva-accent)">
               <Check className="h-4 w-4" />
             </span>
           </div>
@@ -94,7 +94,7 @@ export function PaymentSuccessModal({
           <AlertDialogFooter className="mt-0">
             <AlertDialogAction
               onClick={onConfirm}
-              className="h-12 w-full rounded-[0.5rem] border-0 bg-[#7ad5dd] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.19em] text-[#07292d] shadow-[0_12px_24px_rgba(122,213,221,0.2)] hover:bg-[#92dfe5]"
+              className="h-12 w-full rounded-[0.5rem] border-0 bg-(--seva-accent) px-6 text-[0.62rem] font-semibold uppercase tracking-[0.19em] text-(--seva-accent-ink) shadow-[0_12px_24px_rgba(122,213,221,0.2)] hover:bg-(--seva-accent-deep)"
             >
               View booking confirmation
             </AlertDialogAction>

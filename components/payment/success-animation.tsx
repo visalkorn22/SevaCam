@@ -79,31 +79,31 @@ export function SuccessAnimation() {
         />
       </svg>
 
-      {/* Inner circle: dark fill + shutters + settled glow — clipped to circle shape */}
+      {/* Inner circle: fill + shutters + settled glow — clipped to circle shape */}
       <div
         className="absolute rounded-full overflow-hidden"
         style={{
           inset: "5%",
           zIndex: 1,
-          background: "radial-gradient(circle at 45% 38%, #1a2829, #0f1a1b)",
+          background: "var(--sa-circle-bg)",
         }}
       >
         {/* Shutter — top half slides up (1px extra overlap to kill seam) */}
         <div
           className="sa-shutter-top absolute inset-x-0 top-0"
-          style={{ height: "calc(50% + 1px)", background: "#151515" }}
+          style={{ height: "calc(50% + 1px)", background: "var(--sa-shutter)" }}
         />
         {/* Shutter — bottom half slides down (1px extra overlap to kill seam) */}
         <div
           className="sa-shutter-bot absolute inset-x-0 bottom-0"
-          style={{ height: "calc(50% + 1px)", background: "#151515" }}
+          style={{ height: "calc(50% + 1px)", background: "var(--sa-shutter)" }}
         />
-        {/* Teal glow that settles after shutters open */}
+        {/* Glow that settles after shutters open */}
         <div
           className="sa-glow absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle, rgba(122,213,221,0.22) 0%, transparent 65%)",
+              "radial-gradient(circle, var(--sa-glow-color) 0%, transparent 65%)",
           }}
         />
       </div>
@@ -123,7 +123,7 @@ export function SuccessAnimation() {
           <path
             className="sa-check"
             fill="none"
-            stroke="#7ad5dd"
+            stroke="var(--sa-check-color)"
             strokeWidth="4.2"
             strokeLinecap="round"
             strokeLinejoin="round"

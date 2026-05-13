@@ -66,16 +66,16 @@ const DAYS_OF_WEEK = [
 ];
 
 const fieldInput =
-  "!h-10 rounded-[0.7rem] border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.03)] text-white placeholder:text-[var(--text-disabled)] focus-visible:border-[var(--accent-primary)] focus-visible:bg-[var(--bg-elevated)] focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] transition-colors text-sm";
+  "!h-10 rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:bg-(--bg-elevated) focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] transition-colors text-sm";
 
 const microLabel =
-  "mb-1.5 block text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-disabled)]";
+  "mb-1.5 block text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
 
 const selectContent =
-  "rounded-[0.85rem] border border-[rgba(240,238,235,0.12)] bg-[rgba(28,27,27,0.98)] text-white backdrop-blur-xl shadow-[0_24px_48px_rgba(0,0,0,0.45)]";
+  "rounded-[0.85rem] border border-(--border-subtle) bg-(--seva-dropdown-bg) text-(--text-primary) backdrop-blur-xl shadow-[0_24px_48px_rgba(0,0,0,0.45)]";
 
 const selectItem =
-  "seva-select-item min-h-10 rounded-[0.6rem] text-white data-[highlighted]:!bg-[rgba(255,255,255,0.06)] data-[highlighted]:!text-white data-[state=checked]:!bg-[rgba(122,213,221,0.18)] data-[state=checked]:!text-white [&_svg]:text-white";
+  "seva-select-item min-h-10 rounded-[0.6rem] text-(--text-primary) data-[highlighted]:!bg-(--bg-hover) data-[highlighted]:!text-(--text-primary) data-[state=checked]:!bg-[rgba(122,213,221,0.18)] data-[state=checked]:!text-(--accent-primary) [&_svg]:text-(--text-secondary)";
 
 export default function EnhancedStaffAssignments({
   staffOptions,
@@ -182,15 +182,15 @@ export default function EnhancedStaffAssignments({
     <div className="space-y-6">
       <div>
         <p className="sevacam-eyebrow mb-1">Staff Members</p>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-(--text-secondary)">
           Select who can deliver this service. At least one is required.
         </p>
       </div>
 
       {availableStaff.length === 0 ? (
-        <div className="rounded-[0.75rem] border border-dashed border-[var(--border-subtle)] bg-[var(--bg-inset)] px-5 py-8 text-center">
-          <UserRound className="mx-auto mb-3 h-8 w-8 text-[var(--text-disabled)]" />
-          <p className="text-sm text-[var(--text-secondary)]">
+        <div className="rounded-[0.75rem] border border-dashed border-(--border-subtle) bg-(--bg-inset) px-5 py-8 text-center">
+          <UserRound className="mx-auto mb-3 h-8 w-8 text-(--text-disabled)" />
+          <p className="text-sm text-(--text-secondary)">
             {loadError ?? "No active staff found. Add staff accounts first."}
           </p>
         </div>
@@ -206,15 +206,15 @@ export default function EnhancedStaffAssignments({
                 className={`flex items-center justify-between rounded-[0.75rem] border px-4 py-3.5 text-left transition-all duration-150 ${
                   isSelected
                     ? "border-[rgba(122,213,221,0.4)] bg-[rgba(122,213,221,0.08)]"
-                    : "border-[var(--border-subtle)] bg-[var(--bg-inset)] hover:border-[rgba(122,213,221,0.25)] hover:bg-[var(--bg-elevated)]"
+                    : "border-(--border-subtle) bg-(--bg-inset) hover:border-[rgba(122,213,221,0.25)] hover:bg-(--bg-elevated)"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                       isSelected
-                        ? "bg-[rgba(122,213,221,0.15)] text-[var(--accent-primary)]"
-                        : "bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
+                        ? "bg-[rgba(122,213,221,0.15)] text-(--accent-primary)"
+                        : "bg-(--bg-elevated) text-(--text-secondary)"
                     }`}
                   >
                     {(staff.full_name || "S").charAt(0).toUpperCase()}
@@ -223,8 +223,8 @@ export default function EnhancedStaffAssignments({
                     <p
                       className={`text-sm font-semibold leading-tight ${
                         isSelected
-                          ? "text-[var(--accent-primary)]"
-                          : "text-[var(--text-primary)]"
+                          ? "text-(--accent-primary)"
+                          : "text-(--text-primary)"
                       }`}
                     >
                       {staff.full_name || "Staff Member"}
@@ -233,7 +233,7 @@ export default function EnhancedStaffAssignments({
                       className={`text-[0.68rem] ${
                         isSelected
                           ? "text-[rgba(122,213,221,0.7)]"
-                          : "text-[var(--text-disabled)]"
+                          : "text-(--text-disabled)"
                       }`}
                     >
                       {staff.is_active ? "Active" : "Inactive"}
@@ -243,13 +243,13 @@ export default function EnhancedStaffAssignments({
                 <div
                   className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
                     isSelected
-                      ? "border-[var(--accent-primary)] bg-[var(--accent-primary)]"
-                      : "border-[var(--border-subtle)] bg-transparent"
+                      ? "border-(--accent-primary) bg-(--accent-primary)"
+                      : "border-(--border-subtle) bg-transparent"
                   }`}
                 >
                   {isSelected && (
                     <Check
-                      className="h-3 w-3 text-[var(--text-on-accent)]"
+                      className="h-3 w-3 text-(--text-on-accent)"
                       strokeWidth={3}
                     />
                   )}
@@ -261,18 +261,18 @@ export default function EnhancedStaffAssignments({
       )}
 
       {enableScheduleAssignment && (
-        <div className="space-y-5 border-t border-white/5 pt-5">
+        <div className="space-y-5 border-t border-(--seva-border-subtle) pt-5">
           <div>
             <p className="sevacam-eyebrow mb-1">
               {scheduleMode === "edit" ? "Staff Time Blocks" : "Quick Schedule"}
             </p>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-(--text-secondary)">
               {scheduleMode === "edit"
                 ? "Add or remove weekly time blocks for selected staff."
                 : "Optionally assign weekly time slots to selected staff."}
             </p>
             {scheduleLoading && (
-              <p className="mt-2 text-xs text-[var(--text-disabled)]">
+              <p className="mt-2 text-xs text-(--text-disabled)">
                 Loading current blocks...
               </p>
             )}
@@ -292,7 +292,7 @@ export default function EnhancedStaffAssignments({
           </div>
 
           {selectedStaff.length === 0 ? (
-            <p className="text-xs text-[var(--text-disabled)]">
+            <p className="text-xs text-(--text-disabled)">
               Select staff above to configure time slots.
             </p>
           ) : (
@@ -306,19 +306,19 @@ export default function EnhancedStaffAssignments({
                 return (
                   <div
                     key={staff.id}
-                    className="overflow-hidden rounded-[0.85rem] border border-[var(--border-subtle)] bg-[var(--bg-elevated)]"
+                    className="overflow-hidden rounded-[0.85rem] border border-(--border-subtle) bg-(--bg-elevated)"
                   >
-                    <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+                    <div className="flex items-center justify-between border-b border-(--seva-border-subtle) px-4 py-3">
                       <div className="flex items-center gap-2.5">
-                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(122,213,221,0.1)] text-[0.62rem] font-bold text-[var(--accent-primary)]">
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(122,213,221,0.1)] text-[0.62rem] font-bold text-(--accent-primary)">
                           {(staff.full_name || "S").charAt(0).toUpperCase()}
                         </span>
-                        <p className="text-[0.84rem] font-semibold text-[var(--text-primary)]">
+                        <p className="text-[0.84rem] font-semibold text-(--text-primary)">
                           {staff.full_name || "Staff Member"}
                         </p>
                       </div>
                       {totalBlocks > 0 && (
-                        <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-2.5 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-[var(--accent-primary)]">
+                        <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-2.5 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-(--accent-primary)">
                           {totalBlocks} block{totalBlocks !== 1 ? "s" : ""}
                         </span>
                       )}
@@ -390,9 +390,9 @@ export default function EnhancedStaffAssignments({
                           {existingBlocks.map((block) => (
                             <div
                               key={block.id}
-                              className="flex items-center justify-between rounded-[0.5rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)] px-3 py-2"
+                              className="flex items-center justify-between rounded-[0.5rem] border border-(--border-subtle) bg-(--bg-inset) px-3 py-2"
                             >
-                              <span className="text-xs text-[var(--text-secondary)]">
+                              <span className="text-xs text-(--text-secondary)">
                                 {
                                   DAYS_OF_WEEK.find(
                                     (d) => d.value === String(block.weekday),
@@ -405,7 +405,7 @@ export default function EnhancedStaffAssignments({
                                 onClick={() =>
                                   onRemoveExistingBlock?.(staff.id, block.id)
                                 }
-                                className="text-[var(--text-disabled)] transition hover:text-[#ffb785]"
+                                className="text-(--text-disabled) transition hover:text-[#ffb785]"
                                 aria-label="Remove"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
@@ -417,7 +417,7 @@ export default function EnhancedStaffAssignments({
 
                       {blocks.length > 0 && (
                         <div className="space-y-1.5">
-                          <p className={`${microLabel} text-[var(--accent-primary)]`}>
+                          <p className={`${microLabel} text-(--accent-primary)`}>
                             New
                           </p>
                           {blocks.map((block, idx) => (
@@ -425,7 +425,7 @@ export default function EnhancedStaffAssignments({
                               key={`${staff.id}-${idx}`}
                               className="flex items-center justify-between rounded-[0.5rem] border border-[rgba(122,213,221,0.2)] bg-[rgba(122,213,221,0.05)] px-3 py-2"
                             >
-                              <span className="text-xs text-[var(--text-secondary)]">
+                              <span className="text-xs text-(--text-secondary)">
                                 {
                                   DAYS_OF_WEEK.find(
                                     (d) => d.value === String(block.weekday),
@@ -436,7 +436,7 @@ export default function EnhancedStaffAssignments({
                               <button
                                 type="button"
                                 onClick={() => removeBlock(staff.id, idx)}
-                                className="text-[var(--text-disabled)] transition hover:text-[#ffb785]"
+                                className="text-(--text-disabled) transition hover:text-[#ffb785]"
                                 aria-label="Remove"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />

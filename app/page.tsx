@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { Service } from "@/lib/types/landing";
 
 type ApiService = {
@@ -471,12 +472,12 @@ export default function HomePage() {
     );
 
   return (
-    <div className="sevacam-home min-h-screen bg-[var(--seva-base)] text-[var(--seva-text)]">
-      <header className="bg-[var(--seva-base)]">
+    <div className="sevacam-home min-h-screen bg-(--seva-base) text-(--seva-text)">
+      <header className="bg-(--seva-base)">
         <div className="mx-auto flex max-w-[86rem] items-center justify-between gap-6 px-6 py-5 sm:px-8 lg:px-10">
           <Link
             href="/"
-            className="sevacam-display text-[1.55rem] tracking-[-0.04em] text-[var(--seva-text)]"
+            className="sevacam-display text-[1.55rem] tracking-[-0.04em] text-(--seva-text)"
           >
             SevaCam
           </Link>
@@ -501,7 +502,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-text-soft)] transition-colors hover:text-[var(--seva-accent)]"
+                className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-soft) transition-colors hover:text-(--seva-accent)"
               >
                 Logout
               </button>
@@ -509,7 +510,7 @@ export default function HomePage() {
             {showStaffAdminButton ? (
               <Link
                 href={staffAdminHref}
-                className="hidden text-[0.68rem] uppercase tracking-[0.18em] text-[var(--seva-text-soft)] transition-colors hover:text-[var(--seva-text)] sm:inline-flex"
+                className="hidden text-[0.68rem] uppercase tracking-[0.18em] text-(--seva-text-soft) transition-colors hover:text-(--seva-text) sm:inline-flex"
               >
                 {staffAdminLabel}
               </Link>
@@ -520,8 +521,9 @@ export default function HomePage() {
             >
               Go To Book
             </Link>
+            <ThemeToggle compact />
             {user ? (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--seva-surface)] text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--seva-text)]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-(--seva-surface) text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--seva-text)">
                 {userMonogram}
               </div>
             ) : null}
@@ -550,13 +552,13 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,183,133,0.06),transparent_24%)]" />
 
           <div className="relative z-10 px-6 lg:px-0">
-            <p className="sevacam-eyebrow text-[var(--seva-warm)]">
+            <p className="sevacam-eyebrow text-(--seva-warm)">
               Nocturnal Collection
             </p>
-            <h1 className="sevacam-display mt-6 max-w-[8ch] text-[clamp(3.6rem,10vw,6.6rem)] leading-[0.84] tracking-[-0.06em] text-[var(--seva-text)]">
+            <h1 className="sevacam-display mt-6 max-w-[8ch] text-[clamp(3.6rem,10vw,6.6rem)] leading-[0.84] tracking-[-0.06em] text-(--seva-text)">
               The Collection
             </h1>
-            <p className="mt-7 max-w-xl text-base leading-8 text-[var(--seva-text-soft)]">
+            <p className="mt-7 max-w-xl text-base leading-8 text-(--seva-text-soft)">
               A curated selection of service experiences shaped for quieter,
               more intentional booking. Browse {collectionServices.length} live
               options across {serviceSections.length} collections and move
@@ -564,7 +566,7 @@ export default function HomePage() {
             </p>
 
             <div className="mt-9">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                 Filter by category
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -587,7 +589,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-5">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                 Selection mode
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -619,7 +621,7 @@ export default function HomePage() {
 
           <div className="relative z-10 flex flex-col justify-between gap-8 px-6 pt-10 lg:px-0 lg:pt-20">
             <div className="space-y-3">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-warm)]">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-warm)">
                 Aesthetic protocol / 2026
               </p>
               <div className="sevacam-side-stat">
@@ -641,14 +643,14 @@ export default function HomePage() {
 
             {collectionSummary.length > 0 ? (
               <div className="border-t border-white/5 pt-6">
-                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                   Collections in focus
                 </p>
                 <div className="mt-3 space-y-2">
                   {collectionSummary.map((item) => (
                     <p
                       key={item}
-                      className="text-[0.72rem] uppercase tracking-[0.18em] text-[var(--seva-text-soft)]"
+                      className="text-[0.72rem] uppercase tracking-[0.18em] text-(--seva-text-soft)"
                     >
                       {item}
                     </p>
@@ -666,37 +668,37 @@ export default function HomePage() {
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.82fr)] lg:items-center">
             <ServiceVisual
               service={primaryCollection}
-              className="overflow-hidden rounded-[0.35rem] bg-[var(--seva-elevated)]"
+              className="overflow-hidden rounded-[0.35rem] bg-(--seva-elevated)"
               imageClassName="h-[18rem] w-full object-cover sm:h-[24rem] lg:h-[27rem]"
             />
 
             <div className="lg:max-w-[22rem]">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                 {primaryCollection.collectionLabel} /{" "}
                 {primaryCollection.category || "Service"}
               </p>
-              <h2 className="sevacam-display mt-4 text-[clamp(2.4rem,5vw,4rem)] leading-[0.92] text-[var(--seva-text)]">
+              <h2 className="sevacam-display mt-4 text-[clamp(2.4rem,5vw,4rem)] leading-[0.92] text-(--seva-text)">
                 {primaryCollection.publicName || primaryCollection.name}
               </h2>
-              <p className="mt-4 text-base leading-8 text-[var(--seva-text-soft)]">
+              <p className="mt-4 text-base leading-8 text-(--seva-text-soft)">
                 {primaryCollection.description ||
                   "A calm, editorial booking experience centered on craft, timing, and atmosphere."}
               </p>
 
-              <div className="mt-6 grid grid-cols-2 gap-6 border-t border-white/5 pt-6">
+              <div className="mt-6 grid grid-cols-2 gap-6 border-t border-(--seva-border-subtle) pt-6">
                 <div>
-                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                     Duration
                   </p>
-                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-[var(--seva-text)]">
+                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-(--seva-text)">
                     {formatDuration(primaryCollection.durationMinutes)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                     Investment
                   </p>
-                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-[var(--seva-text)]">
+                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-(--seva-text)">
                     {formatCurrency(primaryCollection.price)}
                   </p>
                 </div>
@@ -712,7 +714,7 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/services"
-                  className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-accent)] transition-colors hover:text-[var(--seva-text)]"
+                  className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-accent) transition-colors hover:text-(--seva-text)"
                 >
                   View Full Collection
                 </Link>
@@ -724,32 +726,32 @@ export default function HomePage() {
         <section className="py-6 lg:py-10">
           <div className="grid gap-10 lg:grid-cols-[minmax(16rem,0.8fr)_minmax(0,1.12fr)] lg:items-center">
             <div className="order-2 lg:order-1 lg:max-w-[22rem]">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                 {secondaryCollection.collectionLabel} /{" "}
                 {secondaryCollection.category || "Service"}
               </p>
-              <h2 className="sevacam-display mt-4 text-[clamp(2.2rem,4vw,3.3rem)] leading-[0.94] text-[var(--seva-text)]">
+              <h2 className="sevacam-display mt-4 text-[clamp(2.2rem,4vw,3.3rem)] leading-[0.94] text-(--seva-text)">
                 {secondaryCollection.publicName || secondaryCollection.name}
               </h2>
-              <p className="mt-4 text-sm leading-7 text-[var(--seva-text-soft)] sm:text-base sm:leading-8">
+              <p className="mt-4 text-sm leading-7 text-(--seva-text-soft) sm:text-base sm:leading-8">
                 {secondaryCollection.description ||
                   "A quieter premium service shaped around precision, atmosphere, and a direct booking path."}
               </p>
 
-              <div className="mt-6 grid grid-cols-2 gap-6 border-t border-white/5 pt-6">
+              <div className="mt-6 grid grid-cols-2 gap-6 border-t border-(--seva-border-subtle) pt-6">
                 <div>
-                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                     Duration
                   </p>
-                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-[var(--seva-text)]">
+                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-(--seva-text)">
                     {formatDuration(secondaryCollection.durationMinutes)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                     Investment
                   </p>
-                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-[var(--seva-text)]">
+                  <p className="mt-2 text-sm uppercase tracking-[0.14em] text-(--seva-text)">
                     {formatCurrency(secondaryCollection.price)}
                   </p>
                 </div>
@@ -765,42 +767,42 @@ export default function HomePage() {
 
             <ServiceVisual
               service={secondaryCollection}
-              className="order-1 overflow-hidden rounded-[0.35rem] bg-[var(--seva-elevated)] lg:order-2"
+              className="order-1 overflow-hidden rounded-[0.35rem] bg-(--seva-elevated) lg:order-2"
               imageClassName="h-[18rem] w-full object-cover sm:h-[24rem] lg:h-[26rem]"
             />
           </div>
         </section>
 
-        <section className="mt-10 -mx-6 bg-[var(--seva-surface)]/78 px-6 py-10 sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10 lg:py-12">
+        <section className="mt-10 -mx-6 bg-(--seva-surface)/78 px-6 py-10 sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10 lg:py-12">
           <div className="mx-auto grid max-w-[86rem] gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-center">
             <ServiceVisual
               service={tertiaryCollection}
-              className="overflow-hidden rounded-[0.35rem] bg-[var(--seva-elevated)]"
+              className="overflow-hidden rounded-[0.35rem] bg-(--seva-elevated)"
               imageClassName="h-[14rem] w-full object-cover sm:h-[16rem] lg:h-[18rem]"
             />
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div>
-                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                   {tertiaryCollection.collectionLabel}
                 </p>
-                <h2 className="sevacam-display mt-4 text-[clamp(2.3rem,4vw,3.6rem)] leading-[0.94] italic text-[var(--seva-text)]">
+                <h2 className="sevacam-display mt-4 text-[clamp(2.3rem,4vw,3.6rem)] leading-[0.94] italic text-(--seva-text)">
                   {tertiaryCollection.publicName || tertiaryCollection.name}
                 </h2>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--seva-text-soft)] sm:text-base sm:leading-8">
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-(--seva-text-soft) sm:text-base sm:leading-8">
                   {tertiaryCollection.description ||
                     "A premium service experience guided by material detail, atmosphere, and a minimal booking path."}
                 </p>
-                <p className="mt-4 text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-warm)]">
+                <p className="mt-4 text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-warm)">
                   {tertiaryCollection.availabilityLabel}
                 </p>
               </div>
 
               <div className="lg:text-right">
-                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                   Fee
                 </p>
-                <p className="mt-3 text-[2rem] font-medium tabular-nums text-[var(--seva-text)]">
+                <p className="mt-3 text-[2rem] font-medium tabular-nums text-(--seva-text)">
                   {formatCurrency(tertiaryCollection.price)}
                 </p>
                 <Link
@@ -816,10 +818,10 @@ export default function HomePage() {
 
         <section className="py-16">
           <div className="sevacam-rail px-6 py-12 text-center sm:px-8 lg:px-10 lg:py-16">
-            <h2 className="sevacam-display text-[clamp(2rem,4vw,3.2rem)] leading-[1] text-[var(--seva-text)]">
+            <h2 className="sevacam-display text-[clamp(2rem,4vw,3.2rem)] leading-[1] text-(--seva-text)">
               Seeking a bespoke arrangement?
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[var(--seva-text-soft)] sm:text-base sm:leading-8">
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-(--seva-text-soft) sm:text-base sm:leading-8">
               Our curators are available for private consultations, tailored
               recommendations, and direct service guidance for first-time
               guests.
@@ -827,7 +829,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/services"
-                className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-accent)] transition-colors hover:text-[var(--seva-text)]"
+                className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-accent) transition-colors hover:text-(--seva-text)"
               >
                 Initiate Correspondence
               </Link>
@@ -842,25 +844,25 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/5 bg-[var(--seva-base)]">
-        <div className="mx-auto flex max-w-[86rem] flex-col gap-6 px-6 py-8 text-[0.58rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)] sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
+      <footer className="border-t border-(--seva-border-subtle) bg-(--seva-base)">
+        <div className="mx-auto flex max-w-[86rem] flex-col gap-6 px-6 py-8 text-[0.58rem] uppercase tracking-[0.18em] text-(--seva-text-muted) sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
           <p>Copyright 2026 SevaCam. All rights reserved.</p>
           <nav className="flex flex-wrap gap-x-6 gap-y-3">
-            <Link href="/" className="transition-colors hover:text-[var(--seva-text)]">
+            <Link href="/" className="transition-colors hover:text-(--seva-text)">
               Privacy
             </Link>
-            <Link href="/" className="transition-colors hover:text-[var(--seva-text)]">
+            <Link href="/" className="transition-colors hover:text-(--seva-text)">
               Terms
             </Link>
             <Link
               href="/services"
-              className="transition-colors hover:text-[var(--seva-text)]"
+              className="transition-colors hover:text-(--seva-text)"
             >
               Services
             </Link>
             <Link
               href="/support"
-              className="transition-colors hover:text-[var(--seva-text)]"
+              className="transition-colors hover:text-(--seva-text)"
             >
               Concierge
             </Link>

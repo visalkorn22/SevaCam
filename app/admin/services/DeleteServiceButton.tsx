@@ -107,10 +107,10 @@ export default function DeleteServiceButton({
     >
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent
-        className="w-[min(92vw,31rem)] rounded-[1.15rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] p-0 text-[#f0eeeb] shadow-[0_24px_70px_rgba(0,0,0,0.55)]"
-        overlayClassName="bg-[rgba(6,8,10,0.78)] backdrop-blur-md"
+        className="w-[min(92vw,31rem)] rounded-[1.15rem] border border-(--seva-border-subtle) bg-(--seva-surface) p-0 text-(--seva-text) shadow-[0_24px_70px_rgba(0,0,0,0.55)]"
+        overlayClassName="bg-black/70 backdrop-blur-md"
       >
-        <AlertDialogHeader className="border-b border-white/5 px-6 pb-5 pt-6">
+        <AlertDialogHeader className="border-b border-(--seva-border-subtle) px-6 pb-5 pt-6">
           <div className="mb-4 flex items-start gap-4">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.9rem] border border-[#ffb785]/20 bg-[#ffb785]/10 text-[#ffb785]">
               <AlertTriangle className="h-5 w-5" />
@@ -119,10 +119,10 @@ export default function DeleteServiceButton({
               <span className="inline-flex rounded-full border border-[#ffb785]/20 bg-[#ffb785]/8 px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#ffcfaf]">
                 Archive Service
               </span>
-              <AlertDialogTitle className="text-[1.1rem] font-semibold tracking-[-0.03em] text-[#f0eeeb]">
+              <AlertDialogTitle className="text-[1.1rem] font-semibold tracking-[-0.03em] text-(--seva-text)">
                 {titleText}
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-sm leading-6 text-[#c7c2bb]">
+              <AlertDialogDescription className="text-sm leading-6 text-(--seva-text-soft)">
                 Customers will no longer see this service in the booking flow.
                 You can restore it later by editing it.
               </AlertDialogDescription>
@@ -131,21 +131,21 @@ export default function DeleteServiceButton({
         </AlertDialogHeader>
 
         <div className="space-y-4 px-6 py-5">
-          <div className="rounded-[0.9rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] p-4">
-            <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]">
+          <div className="rounded-[0.9rem] border border-(--seva-border-subtle) bg-(--seva-elevated) p-4">
+            <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">
               Impact
             </p>
             <div className="mt-3 space-y-2 text-sm">
-              <p className="text-[#c7c2bb]">
+              <p className="text-(--seva-text-soft)">
                 Service:
-                <span className="ml-2 font-medium text-[#f0eeeb]">
+                <span className="ml-2 font-medium text-(--seva-text)">
                   {serviceName || "Untitled service"}
                 </span>
               </p>
-              <p className="text-[#c7c2bb]">
+              <p className="text-(--seva-text-soft)">
                 Archive hides this service from customers immediately.
               </p>
-              <p className="text-[#c7c2bb]">
+              <p className="text-(--seva-text-soft)">
                 Existing records stay intact and the service can be restored later.
               </p>
             </div>
@@ -158,10 +158,10 @@ export default function DeleteServiceButton({
           ) : null}
         </div>
 
-        <AlertDialogFooter className="border-t border-white/5 px-6 pb-6 pt-5 sm:justify-between">
+        <AlertDialogFooter className="border-t border-(--seva-border-subtle) px-6 pb-6 pt-5 sm:justify-between">
           <AlertDialogCancel
             disabled={isDeleting}
-            className="mt-0 h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] !text-[#f0eeeb] transition-colors hover:border-[rgba(122,213,221,0.3)] hover:!text-[#7ad5dd]"
+            className="mt-0 h-10 rounded-[0.55rem] border border-(--seva-border-subtle) bg-(--seva-elevated) px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text)! transition-colors hover:border-(--seva-border-interactive) hover:text-(--seva-accent)!"
           >
             Cancel
           </AlertDialogCancel>

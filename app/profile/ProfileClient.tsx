@@ -279,12 +279,12 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
   };
 
   return (
-    <div className="sevacam-home relative overflow-hidden rounded-[1.1rem] border border-white/6 bg-(--seva-base) p-4 sm:p-6 lg:p-8">
+    <div className="sevacam-home relative overflow-hidden rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-base) p-4 sm:p-6 lg:p-8">
       <div className="pointer-events-none absolute -left-16 top-10 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(122,213,221,0.16),transparent_68%)] blur-3xl" />
       <div className="pointer-events-none absolute -right-14 bottom-10 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(255,183,133,0.14),transparent_68%)] blur-3xl" />
 
       <div className="relative space-y-6">
-        <section className="animate-fade-in relative overflow-hidden rounded-2xl border border-white/6 bg-(--seva-surface) px-5 py-6 sm:px-7 sm:py-7">
+        <section className="animate-fade-in relative overflow-hidden rounded-2xl border border-(--seva-border-subtle) bg-(--seva-surface) px-5 py-6 sm:px-7 sm:py-7">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.11),transparent_42%),radial-gradient(circle_at_bottom_left,rgba(255,183,133,0.08),transparent_35%)]" />
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex items-start gap-4">
@@ -303,7 +303,7 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
                   onClick={triggerFilePicker}
                   disabled={avatarUploading}
                   aria-label="Change profile photo"
-                  className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-(--seva-elevated) focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:opacity-60"
+                  className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-(--seva-border-subtle) bg-(--seva-elevated) focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:opacity-60"
                 >
                   {resolvedAvatarSrc ? (
                     <img
@@ -369,11 +369,11 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
             </div>
 
             <div className="grid gap-2 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text-soft) sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-[0.55rem] border border-white/8 bg-(--seva-elevated) px-3 py-2">
+              <div className="rounded-[0.55rem] border border-(--seva-border-subtle) bg-(--seva-elevated) px-3 py-2">
                 <p className="text-(--seva-text-muted)">Role</p>
                 <p className="mt-1 text-(--seva-accent)">{roleLabel}</p>
               </div>
-              <div className="rounded-[0.55rem] border border-white/8 bg-(--seva-elevated) px-3 py-2">
+              <div className="rounded-[0.55rem] border border-(--seva-border-subtle) bg-(--seva-elevated) px-3 py-2">
                 <p className="text-(--seva-text-muted)">Local Time</p>
                 <p className="mt-1 text-(--seva-text)">
                   {timezonePreview ?? "Timezone unavailable"}
@@ -389,7 +389,7 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
               className="sevacam-rail animate-fade-in overflow-hidden"
               style={{ animationDelay: "80ms" }}
             >
-              <div className="border-b border-white/6 px-5 py-4 sm:px-6 sm:py-5">
+              <div className="border-b border-(--seva-border-subtle) px-5 py-4 sm:px-6 sm:py-5">
                 <div className="flex items-start gap-3">
                   <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.65rem] bg-[rgba(122,213,221,0.14)] text-(--seva-accent)">
                     <UserRound className="h-4 w-4" />
@@ -422,7 +422,7 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
                       type="email"
                       value={user.email}
                       disabled
-                      className="sevacam-service-input border-white/8 bg-[rgba(23,23,23,0.9)] pl-11 text-(--seva-text-muted) disabled:opacity-100"
+                      className="sevacam-service-input border-(--seva-border-subtle) bg-(--seva-inset) pl-11 text-(--seva-text-muted) disabled:opacity-100"
                       style={{ paddingLeft: "2.85rem" }}
                     />
                   </div>
@@ -535,7 +535,7 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
               className="sevacam-rail animate-fade-in overflow-hidden"
               style={{ animationDelay: "160ms" }}
             >
-              <div className="border-b border-white/6 px-5 py-4 sm:px-6 sm:py-5">
+              <div className="border-b border-(--seva-border-subtle) px-5 py-4 sm:px-6 sm:py-5">
                 <div className="flex items-start gap-3">
                   <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.65rem] bg-[rgba(255,183,133,0.14)] text-(--seva-warm)">
                     <KeyRound className="h-4 w-4" />
@@ -610,7 +610,7 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
                   />
                 </div>
 
-                <div className="sm:col-span-2 rounded-[0.65rem] border border-white/8 bg-[rgba(37,37,36,0.7)] px-3.5 py-3">
+                <div className="sm:col-span-2 rounded-[0.65rem] border border-(--seva-border-subtle) bg-(--seva-elevated) px-3.5 py-3">
                   <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-(--seva-text-muted)">
                     Password Signal
                   </p>
@@ -685,7 +685,7 @@ export default function ProfileClient({ user }: { user: ProfileUser }) {
                 {securityChecks.map((item) => (
                   <li
                     key={item.label}
-                    className="flex items-start gap-2 rounded-xl border border-white/8 bg-[rgba(37,37,36,0.75)] px-3 py-2 text-[0.76rem] text-(--seva-text-soft)"
+                    className="flex items-start gap-2 rounded-xl border border-(--seva-border-subtle) bg-(--seva-elevated) px-3 py-2 text-[0.76rem] text-(--seva-text-soft)"
                   >
                     {item.ok ? (
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-(--state-success)" />

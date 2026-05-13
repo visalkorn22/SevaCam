@@ -134,17 +134,17 @@ export function AuthShell({
   const fieldLabelClass =
     "text-[0.66rem] font-semibold uppercase tracking-[0.28em] text-white/62";
   const fieldClass =
-    "h-14 w-full rounded-[1rem] border border-white/12 bg-white/[0.06] px-4 text-[0.95rem] text-[var(--seva-text)] placeholder:text-white/35 outline-none transition-[border-color,background-color,box-shadow] duration-200 ease-out focus:border-[rgba(122,213,221,0.35)] focus:bg-white/[0.08] focus:shadow-[0_0_0_3px_rgba(122,213,221,0.08)] disabled:cursor-not-allowed disabled:opacity-55";
+    "h-14 w-full rounded-[1rem] border border-white/12 bg-white/[0.06] px-4 text-[0.95rem] text-(--seva-text) placeholder:text-white/35 outline-none transition-[border-color,background-color,box-shadow] duration-200 ease-out focus:border-[rgba(122,213,221,0.35)] focus:bg-white/[0.08] focus:shadow-[0_0_0_3px_rgba(122,213,221,0.08)] disabled:cursor-not-allowed disabled:opacity-55";
   const iconFieldClass = `${fieldClass} pl-12`;
   const secondaryButtonClass =
-    "inline-flex h-13 w-full items-center justify-center gap-3 rounded-[1rem] border border-white/12 bg-white/[0.04] px-4 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--seva-text)] transition-all duration-200 hover:border-[rgba(122,213,221,0.24)] hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-55";
+    "inline-flex h-13 w-full items-center justify-center gap-3 rounded-[1rem] border border-white/12 bg-white/[0.04] px-4 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-(--seva-text) transition-all duration-200 hover:border-[rgba(122,213,221,0.24)] hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-55";
   const primaryButtonClass =
-    "inline-flex h-14 w-full items-center justify-center gap-3 rounded-[1rem] bg-[var(--seva-accent)] px-5 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[#07292d] shadow-[0_18px_40px_rgba(122,213,221,0.2)] transition-all duration-200 hover:bg-[#92dfe5] disabled:cursor-not-allowed disabled:opacity-55";
+    "inline-flex h-14 w-full items-center justify-center gap-3 rounded-[1rem] bg-(--seva-accent) px-5 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[#07292d] shadow-[0_18px_40px_rgba(122,213,221,0.2)] transition-all duration-200 hover:bg-[#92dfe5] disabled:cursor-not-allowed disabled:opacity-55";
   const dividerClass =
     "flex items-center gap-3 text-[0.64rem] font-semibold uppercase tracking-[0.28em] text-white/34";
 
   return (
-    <div className="sevacam-home relative min-h-screen overflow-hidden bg-[var(--seva-base)] text-[var(--seva-text)]">
+    <div className="sevacam-home relative min-h-screen overflow-hidden bg-(--seva-base) text-(--seva-text)">
       <video
         autoPlay
         muted
@@ -167,17 +167,17 @@ export function AuthShell({
 
             <div className="relative flex items-start justify-between gap-4">
               <div>
-                <p className="sevacam-display text-[2rem] leading-none tracking-[-0.05em] text-[var(--seva-text)] sm:text-[2.4rem]">
+                <p className="sevacam-display text-[2rem] leading-none tracking-[-0.05em] text-(--seva-text) sm:text-[2.4rem]">
                   SevaCam
                 </p>
-                <p className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-[var(--seva-accent)]">
+                <p className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-accent)">
                   Private guest access
                 </p>
               </div>
 
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-text)] transition-colors hover:border-[rgba(122,213,221,0.22)] hover:bg-white/[0.12]"
+                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text) transition-colors hover:border-[rgba(122,213,221,0.22)] hover:bg-white/[0.12]"
               >
                 Back to landing
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -185,10 +185,10 @@ export function AuthShell({
             </div>
 
             <div className="relative mt-10 max-w-[23rem] lg:mt-0">
-              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-[var(--seva-warm)]">
+              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-warm)">
                 Access protocol / 2026
               </p>
-              <h2 className="sevacam-display mt-5 text-[clamp(2.25rem,4.4vw,4rem)] leading-[0.92] tracking-[-0.06em] text-[var(--seva-text)]">
+              <h2 className="sevacam-display mt-5 text-[clamp(2.25rem,4.4vw,4rem)] leading-[0.92] tracking-[-0.06em] text-(--seva-text)">
                 {panelTitle}
               </h2>
               <p className="mt-5 max-w-md text-sm leading-7 text-white/72 sm:text-base">
@@ -200,7 +200,7 @@ export function AuthShell({
                   <p className="text-[0.6rem] uppercase tracking-[0.18em] text-white/42">
                     Booking
                   </p>
-                  <p className="mt-2 text-sm font-medium text-[var(--seva-text)]">
+                  <p className="mt-2 text-sm font-medium text-(--seva-text)">
                     Direct service entry
                   </p>
                 </div>
@@ -208,7 +208,7 @@ export function AuthShell({
                   <p className="text-[0.6rem] uppercase tracking-[0.18em] text-white/42">
                     Payment
                   </p>
-                  <p className="mt-2 text-sm font-medium text-[var(--seva-text)]">
+                  <p className="mt-2 text-sm font-medium text-(--seva-text)">
                     Receipt-first flow
                   </p>
                 </div>
@@ -216,14 +216,14 @@ export function AuthShell({
                   <p className="text-[0.6rem] uppercase tracking-[0.18em] text-white/42">
                     Support
                   </p>
-                  <p className="mt-2 text-sm font-medium text-[var(--seva-text)]">
+                  <p className="mt-2 text-sm font-medium text-(--seva-text)">
                     Account recovery ready
                   </p>
                 </div>
               </div>
 
               <div className="mt-8 flex items-center gap-3">
-                <span className="h-1.5 w-10 rounded-full bg-[var(--seva-accent)]" />
+                <span className="h-1.5 w-10 rounded-full bg-(--seva-accent)" />
                 <span className="h-1.5 w-6 rounded-full bg-white/30" />
                 <span className="h-1.5 w-12 rounded-full bg-white/18" />
               </div>
@@ -233,10 +233,10 @@ export function AuthShell({
           <section className="relative flex min-h-[38rem] items-center p-6 sm:p-7 lg:p-8 xl:p-9">
             <div className="mx-auto w-full max-w-[30rem]">
               <div className="mb-7">
-                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-[var(--seva-accent)]">
+                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-accent)">
                   Authorized access
                 </p>
-                <h1 className="mt-4 text-[clamp(2.1rem,5vw,3.7rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-[var(--seva-text)]">
+                <h1 className="mt-4 text-[clamp(2.1rem,5vw,3.7rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-(--seva-text)">
                   {modeTitle}
                 </h1>
                 <p className="mt-4 max-w-[32rem] text-sm leading-7 text-white/68 sm:text-base">
@@ -246,7 +246,7 @@ export function AuthShell({
 
               <div className="relative mb-8 flex rounded-full border border-white/8 bg-white/[0.04] p-1 text-[0.64rem] font-semibold uppercase tracking-[0.28em] text-white/52">
                 <span
-                  className={`pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-[var(--seva-accent)] shadow-[0_0_18px_rgba(122,213,221,0.24)] transition-transform duration-500 ${
+                  className={`pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-(--seva-accent) shadow-[0_0_18px_rgba(122,213,221,0.24)] transition-transform duration-500 ${
                     mode === "signup" ? "translate-x-full" : "translate-x-0"
                   }`}
                 />
@@ -333,7 +333,7 @@ export function AuthShell({
                         </label>
                         <Link
                           href="/auth/reset-password"
-                          className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--seva-accent)] transition-colors hover:text-[var(--seva-text)]"
+                          className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-(--seva-accent) transition-colors hover:text-(--seva-text)"
                         >
                           Recovery
                         </Link>
@@ -358,7 +358,7 @@ export function AuthShell({
                   <label className="inline-flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/62">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 rounded border border-white/18 bg-white/[0.06] accent-[var(--seva-accent)]"
+                      className="h-4 w-4 rounded border border-white/18 bg-white/[0.06] accent-(--seva-accent)"
                     />
                     Remember credentials
                   </label>
@@ -434,7 +434,7 @@ export function AuthShell({
                             onClick={() =>
                               onDemoLogin(account.email, account.password)
                             }
-                            className="inline-flex h-11 items-center justify-center rounded-[0.9rem] border border-white/10 bg-black/18 px-3 text-[0.64rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-text)] transition-colors hover:border-[rgba(122,213,221,0.24)] hover:bg-white/[0.06]"
+                            className="inline-flex h-11 items-center justify-center rounded-[0.9rem] border border-white/10 bg-black/18 px-3 text-[0.64rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text) transition-colors hover:border-[rgba(122,213,221,0.24)] hover:bg-white/[0.06]"
                           >
                             {account.label}
                           </button>
@@ -448,7 +448,7 @@ export function AuthShell({
                     <button
                       type="button"
                       onClick={() => onModeChange("signup")}
-                      className="text-[var(--seva-accent)] transition-colors hover:text-[var(--seva-text)]"
+                      className="text-(--seva-accent) transition-colors hover:text-(--seva-text)"
                     >
                       Create access
                     </button>
@@ -616,7 +616,7 @@ export function AuthShell({
                             onClick={() =>
                               onDemoLogin(account.email, account.password)
                             }
-                            className="inline-flex h-11 items-center justify-center rounded-[0.9rem] border border-white/10 bg-black/18 px-3 text-[0.64rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-text)] transition-colors hover:border-[rgba(122,213,221,0.24)] hover:bg-white/[0.06]"
+                            className="inline-flex h-11 items-center justify-center rounded-[0.9rem] border border-white/10 bg-black/18 px-3 text-[0.64rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text) transition-colors hover:border-[rgba(122,213,221,0.24)] hover:bg-white/[0.06]"
                           >
                             {account.label}
                           </button>
@@ -630,7 +630,7 @@ export function AuthShell({
                     <button
                       type="button"
                       onClick={() => onModeChange("login")}
-                      className="text-[var(--seva-accent)] transition-colors hover:text-[var(--seva-text)]"
+                      className="text-(--seva-accent) transition-colors hover:text-(--seva-text)"
                     >
                       Sign in
                     </button>

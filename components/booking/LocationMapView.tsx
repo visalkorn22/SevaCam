@@ -76,9 +76,9 @@ export default function LocationMapView({
   return (
     <div className="space-y-3">
       <div className="flex items-start gap-2">
-        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
+        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
         <div>
-          <p className="text-sm font-semibold text-[var(--text-primary)]">{location.name}</p>
+          <p className="text-sm font-semibold text-(--text-primary)">{location.name}</p>
           {location.address && (
             <p className="text-xs text-(--text-disabled)">{location.address}</p>
           )}
@@ -88,14 +88,14 @@ export default function LocationMapView({
       <div
         ref={mapRef}
         style={{ height: mapHeight }}
-        className="w-full overflow-hidden rounded-[0.7rem] border border-[var(--border-subtle)]"
+        className="w-full overflow-hidden rounded-[0.7rem] border border-(--border-subtle)"
       />
 
       <a
         href={directionsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 rounded-[0.55rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
+        className="inline-flex items-center gap-1.5 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-3 py-1.5 text-xs font-medium text-(--text-secondary) transition-colors hover:bg-(--bg-elevated) hover:text-(--text-primary)"
       >
         <Navigation className="h-3.5 w-3.5" />
         Get Directions

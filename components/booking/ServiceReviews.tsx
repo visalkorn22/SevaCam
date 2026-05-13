@@ -26,7 +26,7 @@ function StarDisplay({ rating, max = 5 }: { rating: number; max?: number }) {
         <Star
           key={index}
           className={`h-3.5 w-3.5 ${
-            index < filled ? "fill-current" : "text-white/20"
+            index < filled ? "fill-current" : "text-(--seva-border-interactive)"
           }`}
         />
       ))}

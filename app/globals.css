@@ -556,6 +556,56 @@
   ); /* Darker for better visibility (was 0.922) */
   --sidebar-ring: oklch(0.65 0 0); /* Darker (was 0.708) */
 
+  /* Seva admin shell — light mode */
+  --seva-base: #f7f6f4;
+  --seva-surface: #ffffff;
+  --seva-elevated: #eeede9;
+  --seva-overlay: #e5e3df;
+  --seva-inset: #f3f2ef;
+  --seva-text: #111110;
+  --seva-text-soft: #3b3733;
+  --seva-text-muted: #706b65;
+  --seva-accent: #0a8892;
+  --seva-accent-deep: #076870;
+  --seva-accent-ink: #ffffff;
+  --seva-warm: #c4671a;
+  --seva-violet: #7c5fb8;
+  --seva-rose: #c4527a;
+  --seva-header-bg: rgba(247, 246, 244, 0.92);
+  --seva-dropdown-bg: #ffffff;
+  --seva-border-subtle: rgba(15, 14, 13, 0.07);
+  --seva-border-muted: rgba(15, 14, 13, 0.1);
+  --seva-border-interactive: rgba(10, 136, 146, 0.3);
+  --seva-border-focus: rgba(10, 136, 146, 0.4);
+  --seva-hover-bg: rgba(15, 14, 13, 0.05);
+  --seva-accent-subtle: rgba(10, 136, 146, 0.1);
+  --seva-warning-subtle: rgba(196, 103, 26, 0.1);
+
+  /* Success animation — light mode */
+  --sa-circle-bg: radial-gradient(circle at 45% 38%, #daf2f4, #b8e8ec);
+  --sa-shutter: #f0fbfc;
+  --sa-check-color: #0a8892;
+  --sa-glow-color: rgba(10, 136, 146, 0.18);
+
+  /* Receipt page — outer shell + actions card (follows theme) */
+  --receipt-page-bg: #f0ece5;
+  --receipt-page-heading: #1c2740;
+  --receipt-page-subtitle: rgba(43, 61, 95, 0.8);
+  --receipt-page-eyebrow: #0a8892;
+  --receipt-card-bg: #f4efe7;
+  --receipt-card-border: #c8c2b8;
+  --receipt-card-text: #1c2740;
+  --receipt-card-soft: rgba(43, 61, 95, 0.72);
+  --receipt-card-muted: rgba(43, 61, 95, 0.6);
+  --receipt-card-alt: #ece8e1;
+  --receipt-card-alt-hover: #e4dfd7;
+  --receipt-card-accent: #0a8892;
+  --receipt-card-accent-hover: #076870;
+  /* Receipt paper itself — always light/cream, never changes */
+  --receipt-paper: #f4efe7;
+  --receipt-paper-ink: #1c2740;
+  --receipt-barcode: #192744;
+
   /* Motion tokens - subtle, fast, and functional */
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-duration-standard: 180ms;
@@ -624,6 +674,64 @@
     0.3 0 0
   ); /* Lighter for better visibility (was 0.269) */
   --sidebar-ring: oklch(0.5 0 0); /* Lighter (was 0.439) */
+
+  /* Seva admin shell — dark mode */
+  --seva-base: #131313;
+  --seva-surface: #1c1b1b;
+  --seva-elevated: #252524;
+  --seva-overlay: #353534;
+  --seva-inset: #171717;
+  --seva-text: #f0eeeb;
+  --seva-text-soft: #c7c2bb;
+  --seva-text-muted: #8a837c;
+  --seva-accent: #7ad5dd;
+  --seva-accent-deep: #56aeb6;
+  --seva-accent-ink: #07292d;
+  --seva-warm: #ffb785;
+  --seva-violet: #c4b0fd;
+  --seva-rose: #f9a8c4;
+  --seva-header-bg: rgba(19, 19, 19, 0.9);
+  --seva-dropdown-bg: #151515;
+  --seva-border-subtle: rgba(240, 238, 235, 0.06);
+  --seva-border-muted: rgba(240, 238, 235, 0.09);
+  --seva-border-interactive: rgba(122, 213, 221, 0.22);
+  --seva-border-focus: rgba(122, 213, 221, 0.34);
+  --seva-hover-bg: rgba(53, 53, 52, 0.72);
+  --seva-accent-subtle: rgba(122, 213, 221, 0.12);
+  --seva-warning-subtle: rgba(255, 183, 133, 0.14);
+
+  /* Success animation — dark mode */
+  --sa-circle-bg: radial-gradient(circle at 45% 38%, #1a2829, #0f1a1b);
+  --sa-shutter: #151515;
+  --sa-check-color: #7ad5dd;
+  --sa-glow-color: rgba(122, 213, 221, 0.22);
+
+  /* Receipt page — outer shell + actions card (dark overrides) */
+  --receipt-page-bg: #0f1117;
+  --receipt-page-heading: #e8e4de;
+  --receipt-page-subtitle: rgba(154, 176, 204, 0.8);
+  --receipt-page-eyebrow: #7ad5dd;
+  --receipt-card-bg: #1a2235;
+  --receipt-card-border: #2d3d55;
+  --receipt-card-text: #e8e4de;
+  --receipt-card-soft: rgba(154, 176, 204, 0.8);
+  --receipt-card-muted: rgba(154, 176, 204, 0.6);
+  --receipt-card-alt: #1e2a3a;
+  --receipt-card-alt-hover: #243350;
+  --receipt-card-accent: #7ad5dd;
+  --receipt-card-accent-hover: #56aeb6;
+  /* Receipt paper itself — always stays cream */
+  --receipt-paper: #f4efe7;
+  --receipt-paper-ink: #1c2740;
+  --receipt-barcode: #192744;
+}
+
+.receipt-paper {
+  color: var(--receipt-paper-ink);
+}
+
+.receipt-paper * {
+  color: var(--receipt-paper-ink) !important;
 }
 
 @theme inline {
@@ -1247,25 +1355,13 @@
 
 @layer utilities {
   .sevacam-home {
-    --seva-base: #131313;
-    --seva-surface: #1c1b1b;
-    --seva-elevated: #252524;
-    --seva-overlay: #353534;
-    --seva-text: #f0eeeb;
-    --seva-text-soft: #c7c2bb;
-    --seva-text-muted: #8a837c;
-    --seva-accent: #7ad5dd;
-    --seva-accent-deep: #56aeb6;
-    --seva-accent-ink: #07292d;
-    --seva-warm: #ffb785;
-    --seva-violet: #c4b0fd;
-    --seva-rose: #f9a8c4;
+    /* All color values come from :root (light) or .dark overrides — no hardcoding here */
     --bg-base: var(--seva-base);
     --bg-surface: var(--seva-surface);
     --bg-elevated: var(--seva-elevated);
     --bg-overlay: var(--seva-overlay);
-    --bg-inset: #171717;
-    --bg-hover: rgba(53, 53, 52, 0.72);
+    --bg-inset: var(--seva-inset);
+    --bg-hover: var(--seva-hover-bg);
     --text-primary: var(--seva-text);
     --text-secondary: var(--seva-text-soft);
     --text-disabled: var(--seva-text-muted);
@@ -1274,24 +1370,24 @@
     --accent-primary: var(--seva-accent);
     --accent-primary-hover: color-mix(in srgb, var(--seva-accent) 92%, white);
     --accent-primary-active: var(--seva-accent-deep);
-    --accent-subtle: rgba(122, 213, 221, 0.12);
+    --accent-subtle: var(--seva-accent-subtle);
     --state-warning: var(--seva-warm);
-    --state-warning-subtle: rgba(255, 183, 133, 0.14);
-    --border-subtle: rgba(240, 238, 235, 0.06);
-    --border-muted: rgba(240, 238, 235, 0.08);
-    --border-interactive: rgba(122, 213, 221, 0.22);
-    --border-focus: rgba(122, 213, 221, 0.34);
-    --ghost-hover-bg: rgba(53, 53, 52, 0.78);
+    --state-warning-subtle: var(--seva-warning-subtle);
+    --border-subtle: var(--seva-border-subtle);
+    --border-muted: var(--seva-border-muted);
+    --border-interactive: var(--seva-border-interactive);
+    --border-focus: var(--seva-border-focus);
+    --ghost-hover-bg: var(--seva-hover-bg);
     --ghost-hover-text: var(--seva-text);
     background: var(--seva-base);
     color: var(--seva-text);
   }
 
-  /* ── Kill browser autofill light-blue override ── */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
+  /* ── Kill browser autofill override — scoped to dark mode only ── */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 1000px #171717 inset !important;
     -webkit-text-fill-color: #f0eeeb !important;
     caret-color: #f0eeeb;
@@ -1338,11 +1434,9 @@
   }
 
   .sevacam-rail {
-    border: 1px solid rgba(240, 238, 235, 0.04);
+    border: 1px solid var(--seva-border-subtle);
     border-radius: 0.55rem;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0)),
-      var(--seva-surface);
+    background: var(--seva-surface);
   }
 
   .sevacam-section-anchor {
@@ -1387,9 +1481,9 @@
   }
 
   .sevacam-secondary-button {
-    border: 1px solid rgba(240, 238, 235, 0.06);
-    background: rgba(37, 37, 36, 0.92);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.14);
+    border: 1px solid var(--seva-border-subtle);
+    background: var(--seva-elevated);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
     color: var(--seva-text);
     transition:
       border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -1399,10 +1493,10 @@
   }
 
   .sevacam-secondary-button:hover {
-    border-color: transparent;
+    border-color: var(--seva-border-interactive);
     color: var(--seva-text);
-    background: rgba(53, 53, 52, 0.96);
-    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.18);
+    background: var(--seva-overlay);
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.12);
   }
 
   .sevacam-side-chip {
@@ -1437,7 +1531,8 @@
     justify-content: space-between;
     gap: 1rem;
     border-radius: 0.4rem;
-    background: rgba(37, 37, 36, 0.82);
+    border: 1px solid var(--seva-border-subtle);
+    background: var(--seva-elevated);
     padding: 0.8rem 0.95rem;
     font-size: 0.76rem;
     line-height: 1.35;
@@ -1452,9 +1547,9 @@
   .sevacam-service-input {
     min-height: 2.8rem;
     width: 100%;
-    border: 1px solid rgba(240, 238, 235, 0.08);
+    border: 1px solid var(--seva-border-subtle);
     border-radius: 0.45rem;
-    background: rgba(37, 37, 36, 0.88);
+    background: var(--seva-inset);
     color: var(--seva-text);
     padding: 0.7rem 0.9rem;
     font-size: 0.92rem;
@@ -1471,8 +1566,8 @@
   }
 
   .sevacam-service-input:focus {
-    border-color: rgba(122, 213, 221, 0.28);
-    background: rgba(53, 53, 52, 0.92);
+    border-color: var(--seva-border-focus);
+    background: var(--seva-elevated);
     box-shadow: 0 0 0 3px rgba(122, 213, 221, 0.08);
   }
 

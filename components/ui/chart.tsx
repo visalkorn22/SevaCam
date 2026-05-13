@@ -48,7 +48,7 @@ function ChartContainer({
         data-slot="chart"
         data-chart={chartId}
         className={cn(
-          "[&_.recharts-cartesian-axis-tick_text]:fill-[var(--seva-text-muted,rgba(240,238,235,0.42))] [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-[rgba(240,238,235,0.06)] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[rgba(240,238,235,0.08)] [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-[rgba(240,238,235,0.06)] [&_.recharts-radial-bar-background-sector]:fill-[var(--seva-elevated)] [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[rgba(255,255,255,0.03)] [&_.recharts-reference-line_[stroke='#ccc']]:stroke-[rgba(240,238,235,0.08)] [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
+          "[&_.recharts-cartesian-axis-tick_text]:fill-[var(--seva-text-muted,rgba(240,238,235,0.42))] [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-[rgba(240,238,235,0.06)] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[rgba(240,238,235,0.08)] [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-[rgba(240,238,235,0.06)] [&_.recharts-radial-bar-background-sector]:fill-(--seva-elevated) [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[rgba(255,255,255,0.03)] [&_.recharts-reference-line_[stroke='#ccc']]:stroke-[rgba(240,238,235,0.08)] [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
           className
         )}
         {...props}
@@ -151,7 +151,7 @@ function ChartTooltipContent({
             <div
               key={item.dataKey}
               className={cn(
-                "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-[var(--seva-text-muted)]",
+                "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-(--seva-text-muted)",
                 indicator === "dot" && "items-center"
               )}
             >
@@ -189,7 +189,7 @@ function ChartTooltipContent({
                   </span>
                 </div>
                 {item.value && (
-                  <span className="font-mono font-medium tabular-nums text-[#f0eeeb]">
+                  <span className="font-mono font-medium tabular-nums text-(--seva-text,#f0eeeb)">
                     {formatter ? formatter(item.value, item.name ?? "", item, index, payload) : item.value.toLocaleString()}
                   </span>
                 )}
@@ -233,7 +233,7 @@ function ChartLegendContent({
         return (
           <div
             key={item.value}
-            className="flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-[var(--seva-text-muted)]"
+            className="flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-(--seva-text-muted)"
           >
             {itemConfig?.icon && !hideIcon ? (
               <itemConfig.icon />

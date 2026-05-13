@@ -72,7 +72,7 @@ export default async function AdminStaffPage() {
       <div className="space-y-6">
 
         {/* ── Hero strip ── */}
-        <section className="relative overflow-hidden rounded-[1.1rem] border border-white/6 bg-(--seva-surface) px-8 py-8 lg:px-10 lg:py-10">
+        <section className="relative overflow-hidden rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-8 py-8 lg:px-10 lg:py-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.08),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(196,176,253,0.05),transparent_30%)]" />
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>

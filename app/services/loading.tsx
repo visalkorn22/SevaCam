@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ServicesLoading() {
   return (
-    <div className="sevacam-home min-h-screen bg-[var(--seva-base)] text-[var(--seva-text)]">
+    <div className="sevacam-home min-h-screen bg-(--seva-base) text-(--seva-text)">
       <div className="mx-auto max-w-[86rem] space-y-12 px-6 py-10 sm:px-8 lg:px-10 lg:py-12">
         <div className="grid gap-8 border-b border-white/5 pb-12 md:grid-cols-[1.5fr_1fr]">
           <div className="space-y-4">

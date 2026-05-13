@@ -41,8 +41,8 @@ export default function BranchSelectionStep({
               key={loc.id}
               className={`rounded-[0.85rem] border p-4 transition-colors cursor-pointer ${
                 selected
-                  ? "border-[var(--accent-primary)] bg-[rgba(122,213,221,0.06)]"
-                  : "border-[var(--border-subtle)] bg-[var(--bg-inset)] hover:bg-[var(--bg-elevated)]"
+                  ? "border-(--accent-primary) bg-[rgba(122,213,221,0.06)]"
+                  : "border-(--border-subtle) bg-(--bg-inset) hover:bg-(--bg-elevated)"
               }`}
               onClick={() => onSelect(loc.id)}
             >
@@ -50,8 +50,8 @@ export default function BranchSelectionStep({
                 <div
                   className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
                     selected
-                      ? "border-[var(--accent-primary)] bg-[var(--accent-primary)]"
-                      : "border-[var(--border-subtle)]"
+                      ? "border-(--accent-primary) bg-(--accent-primary)"
+                      : "border-(--border-subtle)"
                   }`}
                 >
                   {selected && <Check className="h-3 w-3 text-black" />}

@@ -1,11 +1,33 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+
 from app.api import auth, avatar, google_oauth, users, services, staff, availability, admin, locations, telegram
 from app.core.config import settings
 
-app = FastAPI(title="Appointment Booking API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start Telegram long-polling when no webhook URL is configured
+    polling_task = None
+    if settings.TELEGRAM_BOT_TOKEN and not settings.TELEGRAM_WEBHOOK_URL:
+        polling_task = asyncio.create_task(telegram.run_polling())
+
+    yield
+
+    if polling_task:
+        polling_task.cancel()
+        try:
+            await polling_task
+        except asyncio.CancelledError:
+            pass
+
+
+app = FastAPI(title="Appointment Booking API", lifespan=lifespan)
 
 uploads_dir = Path(__file__).resolve().parent.parent / "uploads"
 uploads_dir.mkdir(parents=True, exist_ok=True)
@@ -40,6 +62,7 @@ if settings.FEATURE_SET == "full":
     app.include_router(customers.router)
     app.include_router(waitlist.router, prefix="/api/waitlist")
     app.include_router(reviews.router, prefix="/api/reviews")
+
 
 @app.get("/health")
 def health():

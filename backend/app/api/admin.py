@@ -337,6 +337,65 @@ def list_reviews(
     ]
 
 
+@router.get("/audit-logs")
+def list_audit_logs(
+    limit: int = 50,
+    offset: int = 0,
+    entity_type: str | None = None,
+    action: str | None = None,
+    current_user: dict = Depends(require_roles("superadmin")),
+    db: Session = Depends(get_db),
+):
+    filters = []
+    params: dict = {"limit": limit, "offset": offset}
+
+    if entity_type:
+        filters.append("a.entity_type = :entity_type")
+        params["entity_type"] = entity_type
+    if action:
+        filters.append("a.action = :action")
+        params["action"] = action
+
+    where = ("WHERE " + " AND ".join(filters)) if filters else ""
+
+    rows = db.execute(
+        text(f"""
+            SELECT a.id, a.actor_id, a.action, a.entity_type, a.entity_id,
+                   a.changes, a.created_at,
+                   u.full_name AS actor_name, u.email AS actor_email
+            FROM audit_logs a
+            LEFT JOIN users u ON a.actor_id::uuid = u.id
+            {where}
+            ORDER BY a.created_at DESC
+            LIMIT :limit OFFSET :offset
+        """),
+        params,
+    ).fetchall()
+
+    total = db.execute(
+        text(f"SELECT COUNT(*) FROM audit_logs a {where}"),
+        {k: v for k, v in params.items() if k not in ("limit", "offset")},
+    ).scalar()
+
+    return {
+        "total": total,
+        "items": [
+            {
+                "id": str(row.id),
+                "actor_id": str(row.actor_id) if row.actor_id else None,
+                "actor_name": row.actor_name,
+                "actor_email": row.actor_email,
+                "action": row.action,
+                "entity_type": row.entity_type,
+                "entity_id": str(row.entity_id) if row.entity_id else None,
+                "changes": row.changes,
+                "created_at": row.created_at.isoformat() if row.created_at else None,
+            }
+            for row in rows
+        ],
+    }
+
+
 @router.get("/reports/bookings.csv")
 def report_bookings(
     current_user: dict = Depends(require_roles("admin", "superadmin")),

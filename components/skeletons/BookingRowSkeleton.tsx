@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function BookingRowSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-(--shadow-card)">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-5 w-48" />

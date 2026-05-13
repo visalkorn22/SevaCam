@@ -18,13 +18,13 @@ type NumericFieldKey =
   | "buffer_minutes";
 
 const fieldLabel =
-  "mb-2 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-disabled)]";
+  "mb-2 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
 const fieldInput =
-  "sevacam-number-input h-12 rounded-[0.8rem] border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.03)] text-base font-medium text-white placeholder:text-[var(--text-disabled)] focus-visible:border-[var(--accent-primary)] focus-visible:bg-[var(--bg-elevated)] focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] transition-colors";
+  "sevacam-number-input h-12 rounded-[0.8rem] border border-(--border-subtle) bg-(--bg-inset) text-base font-medium text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:bg-(--bg-elevated) focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] transition-colors";
 const iconShell =
-  "pointer-events-none absolute left-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(122,213,221,0.08)] text-[var(--accent-primary)]";
+  "pointer-events-none absolute left-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(122,213,221,0.08)] text-(--accent-primary)";
 const stepperButton =
-  "sevacam-stepper-button flex h-[1.15rem] w-[1.35rem] items-center justify-center rounded-[0.4rem] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] transition-colors hover:border-[rgba(122,213,221,0.22)] hover:bg-[rgba(122,213,221,0.1)] hover:text-white";
+  "sevacam-stepper-button flex h-[1.15rem] w-[1.35rem] items-center justify-center rounded-[0.4rem] border border-(--border-subtle) bg-(--bg-elevated) text-(--text-secondary) transition-colors hover:border-[rgba(122,213,221,0.22)] hover:bg-[rgba(122,213,221,0.1)] hover:text-(--text-primary)";
 
 function clampNumber(value: number, min: number, decimals = 0) {
   const safe = Number.isFinite(value) ? value : min;
@@ -99,7 +99,7 @@ function NumericField({
         </div>
       </div>
       {helpText ? (
-        <p className="mt-1.5 text-[0.68rem] text-[var(--text-disabled)]">{helpText}</p>
+        <p className="mt-1.5 text-[0.68rem] text-(--text-disabled)">{helpText}</p>
       ) : null}
     </div>
   );
@@ -168,28 +168,28 @@ export default function EnhancedPricingDuration({
         updateField={updateField}
       />
 
-      <div className="grid grid-cols-3 gap-3 rounded-[0.85rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)] p-4">
+      <div className="grid grid-cols-3 gap-3 rounded-[0.85rem] border border-(--border-subtle) bg-(--bg-inset) p-4">
         <div className="rounded-[0.65rem] bg-[rgba(255,255,255,0.03)] px-3 py-3">
-          <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-disabled)]">
+          <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
             Total slot
           </p>
-          <p className="mt-1.5 text-sm font-semibold text-[var(--text-primary)]">
+          <p className="mt-1.5 text-sm font-semibold text-(--text-primary)">
             {formData.duration_minutes + formData.buffer_minutes} min
           </p>
         </div>
         <div className="rounded-[0.65rem] bg-[rgba(255,255,255,0.03)] px-3 py-3">
-          <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-disabled)]">
+          <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
             Full price
           </p>
-          <p className="mt-1.5 text-sm font-semibold text-[var(--text-primary)]">
+          <p className="mt-1.5 text-sm font-semibold text-(--text-primary)">
             ${Number(formData.price).toFixed(2)}
           </p>
         </div>
         <div className="rounded-[0.65rem] bg-[rgba(122,213,221,0.06)] px-3 py-3">
-          <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-disabled)]">
+          <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
             Due today
           </p>
-          <p className="mt-1.5 text-sm font-semibold text-[var(--accent-primary)]">
+          <p className="mt-1.5 text-sm font-semibold text-(--accent-primary)">
             $
             {formData.deposit_amount > 0
               ? Number(formData.deposit_amount).toFixed(2)

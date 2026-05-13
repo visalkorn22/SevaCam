@@ -7,6 +7,7 @@ import { PaymentForm } from "@/components/payment/payment-form";
 import { PaymentReceiptActions } from "@/components/payment/payment-receipt-actions";
 import { PaymentReturnStatus } from "@/components/payment/payment-return-status";
 import TelegramShareButton from "@/components/payment/TelegramShareButton";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   formatDateTimeInTimeZone,
   formatLongDateInTimeZone,
@@ -42,6 +43,16 @@ type BookingRow = {
 };
 
 const DEFAULT_CUSTOMER_TIMEZONE = "Asia/Phnom_Penh";
+
+const RECEIPT_PAPER_COLORS = {
+  ink: "#1c2740",
+  accent: "#1c2740",
+  strong: "#1c2740",
+  soft: "#1c2740",
+  muted: "#1c2740",
+  border: "rgba(43, 61, 95, 0.35)",
+  dot: "rgba(43, 61, 95, 0.45)",
+} as const;
 
 type PaymentRecord = {
   id: string;
@@ -204,19 +215,23 @@ function ConfirmedView({
   ];
 
   return (
-    <div className="sevacam-home relative min-h-screen overflow-hidden bg-(--bg-base) text-(--text-primary) print:bg-white print:text-black">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-(--accent-primary)/8 blur-[120px] print:hidden" />
+    <div className="relative min-h-screen overflow-hidden bg-(--receipt-page-bg) text-(--receipt-page-heading) print:bg-white print:text-black">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[#0a8892]/8 blur-[120px] print:hidden" />
+
+      <div className="absolute right-4 top-4 z-10 print:hidden sm:right-6 sm:top-5">
+        <ThemeToggle compact />
+      </div>
 
       <div className="relative flex w-full justify-center px-4 py-12 sm:px-6 sm:py-16 print:px-0 print:py-0">
         <div className="w-full max-w-3xl">
           <div className="mb-10 text-center motion-preset-slide-up-sm motion-duration-500 print:hidden">
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-(--accent-primary)">
+            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-(--receipt-page-eyebrow)">
               Payment Receipt
             </p>
-            <h1 className="sevacam-display mt-4 text-[clamp(2.8rem,7vw,5rem)] leading-[0.92] tracking-[-0.05em] text-(--text-primary)">
+            <h1 className="sevacam-display mt-4 text-[clamp(2.8rem,7vw,5rem)] leading-[0.92] tracking-[-0.05em] text-(--receipt-page-heading)">
               Reservation secured
             </h1>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-(--text-secondary)">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-(--receipt-page-subtitle)">
               A clean printable receipt with the booking details your customer
               actually needs to keep.
             </p>
@@ -228,32 +243,53 @@ function ConfirmedView({
                 className="absolute inset-x-7 -top-3 h-4 print:hidden sm:inset-x-2"
                 style={{
                   backgroundImage:
-                    "linear-gradient(-45deg, transparent 8px, #f4efe7 0), linear-gradient(45deg, transparent 8px, #f4efe7 0)",
+                    "linear-gradient(-45deg, transparent 8px, var(--receipt-paper) 0), linear-gradient(45deg, transparent 8px, var(--receipt-paper) 0)",
                   backgroundPosition: "0 0, 8px 0",
                   backgroundSize: "16px 16px",
                   backgroundRepeat: "repeat-x",
                 }}
               />
 
-              <article className="relative bg-[#f4efe7] px-7 pb-8 pt-9 text-[#1c2740] shadow-[0_32px_90px_rgba(0,0,0,0.42)] print:shadow-none sm:px-9">
+              <article
+                className="receipt-paper relative bg-[#f4efe7] px-7 pb-8 pt-9 shadow-[0_32px_90px_rgba(0,0,0,0.42)] print:shadow-none sm:px-9"
+                style={{ color: RECEIPT_PAPER_COLORS.ink }}
+              >
                 <div className="text-center font-mono">
-                  <p className="text-[0.72rem] font-bold uppercase tracking-[0.45em] text-[#1f3453]">
+                  <p
+                    className="text-[0.72rem] font-bold uppercase tracking-[0.45em]"
+                    style={{ color: RECEIPT_PAPER_COLORS.accent }}
+                  >
                     SevaCam
                   </p>
-                  <h2 className="mt-4 text-[2.15rem] font-black uppercase tracking-[0.34em] text-[#1c2740] sm:text-[2.55rem]">
+                  <h2
+                    className="mt-4 text-[2.15rem] font-black uppercase tracking-[0.34em] sm:text-[2.55rem]"
+                    style={{ color: RECEIPT_PAPER_COLORS.ink }}
+                  >
                     Receipt
                   </h2>
-                  <p className="mx-auto mt-3 max-w-[18rem] text-[0.76rem] leading-5 text-[#2b3d5f]/78">
+                  <p
+                    className="mx-auto mt-3 max-w-[18rem] text-[0.76rem] leading-5"
+                    style={{ color: RECEIPT_PAPER_COLORS.soft }}
+                  >
                     Premium booking confirmation and payment record.
                   </p>
-                  <p className="mt-4 text-[0.82rem] font-semibold text-[#1f3453]">
+                  <p
+                    className="mt-4 text-[0.82rem] font-semibold"
+                    style={{ color: RECEIPT_PAPER_COLORS.accent }}
+                  >
                     Ref: {receiptId}
                   </p>
                 </div>
 
-                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
+                <div
+                  className="my-6 border-t border-dashed"
+                  style={{ borderColor: RECEIPT_PAPER_COLORS.border }}
+                />
 
-                <div className="space-y-1.5 font-mono text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-[#223552]">
+                <div
+                  className="space-y-1.5 font-mono text-[0.8rem] font-semibold uppercase tracking-[0.14em]"
+                  style={{ color: RECEIPT_PAPER_COLORS.strong }}
+                >
                   <div className="flex items-start justify-between gap-4">
                     <span>Date</span>
                     <span className="text-right normal-case tracking-[0.08em]">
@@ -274,9 +310,15 @@ function ConfirmedView({
                   </div>
                 </div>
 
-                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
+                <div
+                  className="my-6 border-t border-dashed"
+                  style={{ borderColor: RECEIPT_PAPER_COLORS.border }}
+                />
 
-                <div className="space-y-1 font-mono text-[0.74rem] leading-5 text-[#2c3f61]">
+                <div
+                  className="space-y-1 font-mono text-[0.74rem] leading-5"
+                  style={{ color: RECEIPT_PAPER_COLORS.muted }}
+                >
                   <p className="break-all">Customer: {customerEmail}</p>
                   <p>Provider: {staffName}</p>
                   <p>When: {formatLongDateInTimeZone(startDate, timeZone)}</p>
@@ -288,9 +330,15 @@ function ConfirmedView({
                   <p className="break-all">Payment ref: {paymentReference}</p>
                 </div>
 
-                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
+                <div
+                  className="my-6 border-t border-dashed"
+                  style={{ borderColor: RECEIPT_PAPER_COLORS.border }}
+                />
 
-                <div className="space-y-3 font-mono text-[0.78rem] text-[#1d2c47]">
+                <div
+                  className="space-y-3 font-mono text-[0.78rem]"
+                  style={{ color: RECEIPT_PAPER_COLORS.ink }}
+                >
                   {receiptRows.map((row) => (
                     <div
                       key={row.label}
@@ -300,7 +348,10 @@ function ConfirmedView({
                         <p className="font-bold uppercase tracking-[0.12em]">
                           {row.label}
                         </p>
-                        <p className="mt-0.5 break-words leading-5 text-[#2c3f61]">
+                        <p
+                          className="mt-0.5 break-words leading-5"
+                          style={{ color: RECEIPT_PAPER_COLORS.muted }}
+                        >
                           {row.value}
                         </p>
                       </div>
@@ -315,7 +366,10 @@ function ConfirmedView({
                         <p className="font-bold uppercase tracking-[0.12em]">
                           Remaining
                         </p>
-                        <p className="mt-0.5 leading-5 text-[#2c3f61]">
+                        <p
+                          className="mt-0.5 leading-5"
+                          style={{ color: RECEIPT_PAPER_COLORS.muted }}
+                        >
                           Outstanding after this payment
                         </p>
                       </div>
@@ -326,27 +380,48 @@ function ConfirmedView({
                   )}
                 </div>
 
-                <div className="my-6 border-t border-dashed border-[#2b3d5f]/35" />
+                <div
+                  className="my-6 border-t border-dashed"
+                  style={{ borderColor: RECEIPT_PAPER_COLORS.border }}
+                />
 
                 <div className="flex items-end justify-between gap-4 font-mono">
                   <div>
-                    <p className="text-[0.82rem] font-bold uppercase tracking-[0.14em] text-[#2b3d5f]/72">
+                    <p
+                      className="text-[0.82rem] font-bold uppercase tracking-[0.14em]"
+                      style={{ color: RECEIPT_PAPER_COLORS.soft }}
+                    >
                       Total Paid
                     </p>
-                    <p className="mt-2 text-[2.2rem] font-black tracking-[0.04em] text-[#1c2740]">
+                    <p
+                      className="mt-2 text-[2.2rem] font-black tracking-[0.04em]"
+                      style={{ color: RECEIPT_PAPER_COLORS.ink }}
+                    >
                       {formatMoney(amountPaid, currency)}
                     </p>
                   </div>
-                  <p className="pb-2 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-[#2b3d5f]/72">
+                  <p
+                    className="pb-2 text-[0.78rem] font-bold uppercase tracking-[0.16em]"
+                    style={{ color: RECEIPT_PAPER_COLORS.soft }}
+                  >
                     {providerLabel}
                   </p>
                 </div>
 
-                <div className="mt-6 flex items-center justify-center gap-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em] text-[#2b3d5f]/75">
+                <div
+                  className="mt-6 flex items-center justify-center gap-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.22em]"
+                  style={{ color: RECEIPT_PAPER_COLORS.soft }}
+                >
                   <span>Paid</span>
-                  <span className="h-1 w-1 rounded-full bg-[#2b3d5f]/45" />
+                  <span
+                    className="h-1 w-1 rounded-full"
+                    style={{ backgroundColor: RECEIPT_PAPER_COLORS.dot }}
+                  />
                   <span>{booking.services.duration_minutes} min</span>
-                  <span className="h-1 w-1 rounded-full bg-[#2b3d5f]/45" />
+                  <span
+                    className="h-1 w-1 rounded-full"
+                    style={{ backgroundColor: RECEIPT_PAPER_COLORS.dot }}
+                  />
                   <span>{booking.id.slice(0, 6).toUpperCase()}</span>
                 </div>
 
@@ -355,7 +430,7 @@ function ConfirmedView({
                     className="h-20 w-full"
                     style={{
                       backgroundImage:
-                        "repeating-linear-gradient(90deg, #192744 0 3px, transparent 3px 5px, #192744 5px 8px, transparent 8px 10px, #192744 10px 13px, transparent 13px 15px)",
+                        "repeating-linear-gradient(90deg, var(--receipt-barcode) 0 3px, transparent 3px 5px, var(--receipt-barcode) 5px 8px, transparent 8px 10px, var(--receipt-barcode) 10px 13px, transparent 13px 15px)",
                     }}
                   />
                 </div>
@@ -365,7 +440,7 @@ function ConfirmedView({
                 className="absolute inset-x-7 -bottom-3 h-4 rotate-180 print:hidden sm:inset-x-2"
                 style={{
                   backgroundImage:
-                    "linear-gradient(-45deg, transparent 8px, #f4efe7 0), linear-gradient(45deg, transparent 8px, #f4efe7 0)",
+                    "linear-gradient(-45deg, transparent 8px, var(--receipt-paper) 0), linear-gradient(45deg, transparent 8px, var(--receipt-paper) 0)",
                   backgroundPosition: "0 0, 8px 0",
                   backgroundSize: "16px 16px",
                   backgroundRepeat: "repeat-x",
@@ -396,15 +471,15 @@ function ConfirmedView({
           </div>
           {booking.location && (booking.location.name || booking.location.address) && (
             <div className="mx-auto mt-6 max-w-md">
-              <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-elevated) p-4">
+              <div className="rounded-[0.7rem] border border-(--receipt-card-border) bg-(--receipt-card-bg) p-4">
                 <div className="flex items-start gap-2">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--receipt-card-accent)" />
                   <div>
-                    <p className="text-sm font-semibold text-(--text-primary)">
+                    <p className="text-sm font-semibold text-(--receipt-card-text)">
                       {booking.location.name || booking.location.address}
                     </p>
                     {booking.location.name && booking.location.address && (
-                      <p className="mt-1 text-xs text-(--text-disabled)">
+                      <p className="mt-1 text-xs text-(--receipt-card-soft)">
                         {booking.location.address}
                       </p>
                     )}

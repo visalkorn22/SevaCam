@@ -1,41 +1,56 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ShieldCheck } from "lucide-react";
+import { AdminsClient } from "@/components/admin/admins-client";
 
 type MeUser = {
   id: string;
-  email: string;
   role: "customer" | "staff" | "admin" | "superadmin";
+};
+
+export type StaffUser = {
+  id: string;
+  full_name: string | null;
+  email: string;
+  role: "staff" | "admin" | "superadmin";
+  phone: string | null;
+  is_active: boolean;
+  created_at?: string | null;
 };
 
 async function getMe(): Promise<MeUser | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const cookie = (await headers()).get("cookie") ?? "";
-
   const res = await fetch(`${apiUrl}/api/auth/me`, {
-    method: "GET",
     headers: { Cookie: cookie },
     cache: "no-store",
   });
-
   if (!res.ok) return null;
   return (await res.json()) as MeUser;
 }
 
+async function getStaffUsers(cookie: string): Promise<StaffUser[]> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  try {
+    const res = await fetch(`${apiUrl}/api/users?role=staff,admin,superadmin`, {
+      headers: { Cookie: cookie },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function AdminManagementPage() {
+  const cookie = (await headers()).get("cookie") ?? "";
   const me = await getMe();
   if (!me) redirect("/auth/login");
   if (me.role !== "superadmin") redirect("/dashboard");
+
+  const users = await getStaffUsers(cookie);
 
   return (
     <DashboardLayout>
@@ -45,26 +60,7 @@ export default async function AdminManagementPage() {
           Promote staff to admin and manage administrator accounts.
         </p>
       </div>
-
-      <Card className="">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="size-5 text-muted-foreground" />
-            <CardTitle>Administrator Access</CardTitle>
-          </div>
-          <CardDescription>
-            Only one admin account is allowed at a time.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            Use the user management page to promote staff to admin.
-          </p>
-          <Button asChild variant="outline">
-            <Link href="/admin/staff">Manage Users</Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <AdminsClient users={users} currentUserId={me.id} />
     </DashboardLayout>
   );
 }

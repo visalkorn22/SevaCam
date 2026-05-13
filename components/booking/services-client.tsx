@@ -164,7 +164,7 @@ function FilterSection({
 }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="border-b border-white/5 pb-4 last:border-0 last:pb-0">
+    <div className="border-b border-(--seva-border-subtle) pb-4 last:border-0 last:pb-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -173,20 +173,20 @@ function FilterSection({
         <span
           className={cn(
             "flex items-center gap-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em]",
-            active ? "text-[var(--seva-accent)]" : "text-[var(--seva-text-muted)]",
+            active ? "text-(--seva-accent)" : "text-(--seva-text-muted)",
           )}
         >
           <Icon className="h-3.5 w-3.5" />
           {title}
           {active && (
-            <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-1.5 py-0.5 text-[9px] font-bold text-[var(--seva-accent)]">
+            <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-1.5 py-0.5 text-[9px] font-bold text-(--seva-accent)">
               ON
             </span>
           )}
         </span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-[var(--seva-text-muted)] transition-transform duration-200",
+            "h-3.5 w-3.5 text-(--seva-text-muted) transition-transform duration-200",
             open && "rotate-180",
           )}
         />
@@ -202,12 +202,12 @@ function FilterSection({
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="flex items-center gap-1 rounded-full border border-white/10 bg-[var(--seva-elevated)] px-3 py-1.5 text-[11px] font-medium text-[var(--seva-text-soft)]">
+    <span className="flex items-center gap-1 rounded-full border border-(--seva-border-subtle) bg-(--seva-elevated) px-3 py-1.5 text-[11px] font-medium text-(--seva-text-soft)">
       {label}
       <button
         type="button"
         onClick={onRemove}
-        className="ml-0.5 text-[var(--seva-text-muted)] transition-colors hover:text-[var(--seva-text)]"
+        className="ml-0.5 text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
         aria-label={`Remove ${label} filter`}
       >
         <X className="h-2.5 w-2.5" />
@@ -400,12 +400,12 @@ export function ServicesClient({
         )}
       >
         <div className="sevacam-rail px-5 py-5 sm:px-6">
-          <div className="flex items-center justify-between border-b border-white/5 pb-5">
-            <span className="flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-text-soft)]">
+          <div className="flex items-center justify-between border-b border-(--seva-border-subtle) pb-5">
+            <span className="flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-soft)">
               <SlidersHorizontal className="h-4 w-4" />
               Refine selection
               {activeFilterCount > 0 && (
-                <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--seva-accent)]">
+                <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-1.5 py-0.5 text-[10px] font-bold text-(--seva-accent)">
                   {activeFilterCount}
                 </span>
               )}
@@ -414,7 +414,7 @@ export function ServicesClient({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-[0.62rem] uppercase tracking-[0.16em] text-[var(--seva-text-muted)] transition-colors hover:text-[var(--seva-text)]"
+                className="text-[0.62rem] uppercase tracking-[0.16em] text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
               >
                 Clear all
               </button>
@@ -434,8 +434,8 @@ export function ServicesClient({
                     className={cn(
                       "flex w-full items-center justify-between rounded-[0.45rem] px-3 py-2.5 text-sm transition-colors",
                       sortKey === opt.value
-                        ? "bg-[rgba(122,213,221,0.12)] font-semibold text-[var(--seva-accent)]"
-                        : "text-[var(--seva-text-soft)] hover:bg-[var(--seva-elevated)] hover:text-[var(--seva-text)]",
+                        ? "bg-[rgba(122,213,221,0.12)] font-semibold text-(--seva-accent)"
+                        : "text-(--seva-text-soft) hover:bg-(--seva-elevated) hover:text-(--seva-text)",
                     )}
                   >
                     {opt.label}
@@ -457,8 +457,8 @@ export function ServicesClient({
                       className={cn(
                         "flex w-full items-center justify-between rounded-[0.45rem] px-3 py-2.5 text-sm capitalize transition-colors",
                         selectedCategory === cat
-                          ? "bg-[rgba(122,213,221,0.12)] font-semibold text-[var(--seva-accent)]"
-                          : "text-[var(--seva-text-soft)] hover:bg-[var(--seva-elevated)] hover:text-[var(--seva-text)]",
+                          ? "bg-[rgba(122,213,221,0.12)] font-semibold text-(--seva-accent)"
+                          : "text-(--seva-text-soft) hover:bg-(--seva-elevated) hover:text-(--seva-text)",
                       )}
                     >
                       {cat === "all" ? "All categories" : cat}
@@ -517,8 +517,8 @@ export function ServicesClient({
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                       durationPreset === p.value
-                        ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-[var(--seva-accent)]"
-                        : "border-white/10 bg-[var(--seva-elevated)] text-[var(--seva-text-soft)] hover:text-[var(--seva-text)]",
+                        ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
+                        : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
                     )}
                   >
                     {p.label}
@@ -538,8 +538,8 @@ export function ServicesClient({
                     className={cn(
                       "flex w-full items-center justify-between rounded-[0.45rem] px-3 py-2.5 text-sm transition-colors",
                       depositFilter === opt.value
-                        ? "bg-[rgba(122,213,221,0.12)] font-semibold text-[var(--seva-accent)]"
-                        : "text-[var(--seva-text-soft)] hover:bg-[var(--seva-elevated)] hover:text-[var(--seva-text)]",
+                        ? "bg-[rgba(122,213,221,0.12)] font-semibold text-(--seva-accent)"
+                        : "text-(--seva-text-soft) hover:bg-(--seva-elevated) hover:text-(--seva-text)",
                     )}
                   >
                     {opt.label}
@@ -563,8 +563,8 @@ export function ServicesClient({
                         className={cn(
                           "flex items-center gap-1 rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors",
                           active
-                            ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-[var(--seva-accent)]"
-                            : "border-white/10 bg-[var(--seva-elevated)] text-[var(--seva-text-soft)] hover:text-[var(--seva-text)]",
+                            ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
+                            : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
                         )}
                       >
                         {active && <Check className="h-2.5 w-2.5" />}
@@ -577,7 +577,7 @@ export function ServicesClient({
                   <button
                     type="button"
                     onClick={() => setSelectedTags([])}
-                    className="mt-2 text-[11px] uppercase tracking-[0.14em] text-[var(--seva-text-muted)] transition-colors hover:text-[var(--seva-text)]"
+                    className="mt-2 text-[11px] uppercase tracking-[0.14em] text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
                   >
                     Clear tags
                   </button>
@@ -599,12 +599,12 @@ export function ServicesClient({
                   <div className="flex items-center justify-between">
                     <p className="text-[11px]">
                       {availabilityChecking ? (
-                        <span className="flex items-center gap-1.5 text-[var(--seva-accent)]">
+                        <span className="flex items-center gap-1.5 text-(--seva-accent)">
                           <Loader2 className="h-3 w-3 animate-spin" />
                           Checking availability&hellip;
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1.5 text-[var(--seva-text-soft)]">
+                        <span className="flex items-center gap-1.5 text-(--seva-text-soft)">
                           <CalendarCheck className="h-3 w-3" />
                           Availability checked
                         </span>
@@ -613,13 +613,13 @@ export function ServicesClient({
                     <button
                       type="button"
                       onClick={() => setAvailableDate("")}
-                      className="text-[11px] uppercase tracking-[0.14em] text-[var(--seva-text-muted)] transition-colors hover:text-[var(--seva-text)]"
+                      className="text-[11px] uppercase tracking-[0.14em] text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
                     >
                       Clear
                     </button>
                   </div>
                 )}
-                <p className="text-[11px] leading-5 text-[var(--seva-text-muted)]">
+                <p className="text-[11px] leading-5 text-(--seva-text-muted)">
                   Only shows services with open slots on this date.
                 </p>
               </div>
@@ -631,9 +631,9 @@ export function ServicesClient({
 
       <div className="min-w-0 flex-1 space-y-8">
 
-        <div className="sticky top-4 z-20 flex gap-3 bg-[var(--seva-base)]/95 pb-3 backdrop-blur">
+        <div className="sticky top-4 z-20 flex gap-3 bg-(--seva-base)/95 pb-3 backdrop-blur">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--seva-text-muted)]" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-(--seva-text-muted)" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -644,7 +644,7 @@ export function ServicesClient({
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--seva-text-muted)] transition-colors hover:text-[var(--seva-text)]"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
                 aria-label="Clear search"
               >
                 <X className="h-3.5 w-3.5" />
@@ -658,14 +658,14 @@ export function ServicesClient({
             className={cn(
               "flex items-center gap-2 rounded-[0.35rem] border px-4 py-2.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] transition-colors lg:hidden",
               showFilters || activeFilterCount > 0
-                ? "border-[rgba(122,213,221,0.24)] bg-[rgba(122,213,221,0.12)] text-[var(--seva-accent)]"
-                : "border-white/10 bg-[var(--seva-elevated)] text-[var(--seva-text-soft)] hover:text-[var(--seva-text)]",
+                ? "border-[rgba(122,213,221,0.24)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
+                : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
             )}
           >
             <SlidersHorizontal className="h-4 w-4" />
             <span>Filters</span>
             {activeFilterCount > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--seva-accent)] px-1 text-[9px] font-bold text-[#07292d]">
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-(--seva-accent) px-1 text-[9px] font-bold text-[#07292d]">
                 {activeFilterCount}
               </span>
             )}
@@ -683,7 +683,7 @@ export function ServicesClient({
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--seva-text-muted)]" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--seva-text-muted)" />
           </div>
         </div>
 
@@ -721,20 +721,20 @@ export function ServicesClient({
         )}
 
         {/* Results count */}
-        <div className="flex items-center justify-between border-b border-white/5 pb-5">
-          <p className="text-sm text-[var(--seva-text-soft)]">
-            <span className="font-semibold text-[var(--seva-text)]">{filtered.length}</span>{" "}
+        <div className="flex items-center justify-between border-b border-(--seva-border-subtle) pb-5">
+          <p className="text-sm text-(--seva-text-soft)">
+            <span className="font-semibold text-(--seva-text)">{filtered.length}</span>{" "}
             service{filtered.length !== 1 ? "s" : ""}
             {hasActiveFilters ? " found" : " available"}
             {availabilityChecking && (
-              <span className="ml-2 inline-flex items-center gap-1 text-[var(--seva-accent)]">
+              <span className="ml-2 inline-flex items-center gap-1 text-(--seva-accent)">
                 <Loader2 className="h-3 w-3 animate-spin" />
                 checking dates&hellip;
               </span>
             )}
           </p>
           {categories.length > 0 && !hasActiveFilters && (
-            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
               {categories.length} categories
             </p>
           )}
@@ -745,10 +745,10 @@ export function ServicesClient({
             {serviceGroups.map((group, groupIndex) => (
               <section key={group.id} className="space-y-8">
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="sevacam-display text-[clamp(1.9rem,3vw,2.9rem)] italic text-[var(--seva-text)]">
+                  <h2 className="sevacam-display text-[clamp(1.9rem,3vw,2.9rem)] italic text-(--seva-text)">
                     {group.title}
                   </h2>
-                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                     {group.services.length.toString().padStart(2, "0")} options
                   </p>
                 </div>
@@ -772,7 +772,7 @@ export function ServicesClient({
                         key={service.id}
                         className="sevacam-rail sevacam-service-card flex h-full max-w-none flex-col overflow-hidden p-4 sm:p-5"
                       >
-                        <div className="overflow-hidden rounded-[0.45rem] bg-[var(--seva-elevated)]">
+                        <div className="overflow-hidden rounded-[0.45rem] bg-(--seva-elevated)">
                           {images.length > 0 ? (
                             <ImageCarousel
                               images={images}
@@ -789,25 +789,25 @@ export function ServicesClient({
 
                         <div className="mt-5 flex items-start justify-between gap-4">
                           <div className="min-w-0">
-                            <p className="mb-3 text-[0.62rem] uppercase tracking-[0.18em] text-[var(--seva-text-muted)]">
+                            <p className="mb-3 text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                               {service.category || "Curated service"}
                             </p>
-                            <h3 className="sevacam-display text-[1.65rem] leading-[1.02] text-[var(--seva-text)] sm:text-[1.9rem]">
+                            <h3 className="sevacam-display text-[1.65rem] leading-[1.02] text-(--seva-text) sm:text-[1.9rem]">
                               {displayName}
                             </h3>
                           </div>
                           <div className="shrink-0 text-right">
-                            <p className="text-[1.15rem] font-medium tabular-nums text-[var(--seva-warm)] sm:text-[1.3rem]">
+                            <p className="text-[1.15rem] font-medium tabular-nums text-(--seva-warm) sm:text-[1.3rem]">
                               {formatPrice(service.price)}
                             </p>
-                            <p className="mt-1 text-[0.62rem] uppercase tracking-[0.16em] text-[var(--seva-text-muted)]">
+                            <p className="mt-1 text-[0.62rem] uppercase tracking-[0.16em] text-(--seva-text-muted)">
                               {formatDuration(service.duration_minutes)}
                             </p>
                           </div>
                         </div>
 
                         {service.description ? (
-                          <p className="mt-4 line-clamp-3 text-sm leading-7 text-[var(--seva-text-soft)]">
+                          <p className="mt-4 line-clamp-3 text-sm leading-7 text-(--seva-text-soft)">
                             {service.description}
                           </p>
                         ) : null}
@@ -825,8 +825,8 @@ export function ServicesClient({
                                 className={cn(
                                   "rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors",
                                   selectedTags.includes(tag)
-                                    ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-[var(--seva-accent)]"
-                                    : "border-white/10 bg-[var(--seva-elevated)] text-[var(--seva-text-soft)] hover:text-[var(--seva-text)]",
+                                    ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
+                                    : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
                                 )}
                               >
                                 #{tag}
@@ -836,7 +836,7 @@ export function ServicesClient({
                         ) : null}
 
                         <div className="mt-auto pt-6">
-                          <div className="flex flex-wrap gap-x-4 gap-y-2 text-[0.62rem] uppercase tracking-[0.16em] text-[var(--seva-text-muted)]">
+                          <div className="flex flex-wrap gap-x-4 gap-y-2 text-[0.62rem] uppercase tracking-[0.16em] text-(--seva-text-muted)">
                             {service.deposit_amount > 0 ? (
                               <span>{formatPrice(service.deposit_amount)} deposit</span>
                             ) : (
@@ -844,11 +844,11 @@ export function ServicesClient({
                             )}
                             {availableDate ? (
                               avail === "available" ? (
-                                <span className="text-[var(--seva-accent)]">
+                                <span className="text-(--seva-accent)">
                                   Available on selected date
                                 </span>
                               ) : avail === "loading" ? (
-                                <span className="inline-flex items-center gap-1 text-[var(--seva-accent)]">
+                                <span className="inline-flex items-center gap-1 text-(--seva-accent)">
                                   <Loader2 className="h-3 w-3 animate-spin" />
                                   Checking slots
                                 </span>
@@ -878,11 +878,11 @@ export function ServicesClient({
           </div>
         ) : (
           <div className="sevacam-rail flex flex-col items-center justify-center px-8 py-24 text-center">
-            <Search className="mb-3 h-8 w-8 text-[var(--seva-text-muted)]" />
-            <p className="sevacam-display text-[2rem] text-[var(--seva-text)]">
+            <Search className="mb-3 h-8 w-8 text-(--seva-text-muted)" />
+            <p className="sevacam-display text-[2rem] text-(--seva-text)">
               No services match this view.
             </p>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-[var(--seva-text-soft)]">
+            <p className="mt-3 max-w-xl text-sm leading-7 text-(--seva-text-soft)">
               Try adjusting the current filters or clear them to reopen the full
               selection.
             </p>

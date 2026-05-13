@@ -95,7 +95,7 @@ export default function TelegramShareButton({ bookingId }: TelegramShareButtonPr
 
   if (state === "not_connected" || state === "awaiting_start") {
     return (
-      <div className="space-y-3 rounded-[0.85rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)] p-4">
+      <div className="space-y-3 rounded-[0.85rem] border border-(--border-subtle) bg-(--bg-inset) p-4">
         <p className="text-sm font-medium text-(--text-primary)">Connect Telegram first</p>
         <p className="text-xs text-(--text-disabled)">
           Open our Telegram bot and tap <strong>Start</strong> to link your account. Then come back here.
@@ -132,7 +132,7 @@ export default function TelegramShareButton({ bookingId }: TelegramShareButtonPr
       size="sm"
       onClick={sendLocation}
       disabled={state === "sending"}
-      className="gap-1.5 border-[var(--border-subtle)] text-(--text-secondary)"
+      className="gap-1.5 border-(--border-subtle) text-(--text-secondary)"
     >
       {state === "sending" ? (
         <Loader2 className="h-4 w-4 animate-spin" />

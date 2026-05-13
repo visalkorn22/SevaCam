@@ -95,7 +95,7 @@ export default async function AdminPaymentsPage() {
       <div className="space-y-6 text-(--seva-text)">
 
         {/* ── Hero strip ── */}
-        <section className="relative overflow-hidden rounded-[1.1rem] border border-white/6 bg-(--seva-surface) px-8 py-8 lg:px-10 lg:py-10">
+        <section className="relative overflow-hidden rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-8 py-8 lg:px-10 lg:py-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.08),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(255,183,133,0.05),transparent_30%)]" />
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -187,7 +187,7 @@ export default async function AdminPaymentsPage() {
         {payments.length > 0 ? (
           <div className="sevacam-rail overflow-hidden">
             {/* Section header */}
-            <div className="border-b border-white/5 px-5 py-4">
+            <div className="border-b border-(--seva-border-subtle) px-5 py-4">
               <p className="sevacam-eyebrow">Recent Transactions</p>
               <p className="mt-1 text-[0.76rem] text-(--text-disabled)">
                 Latest {total} payment records across all booking channels.
@@ -195,7 +195,7 @@ export default async function AdminPaymentsPage() {
             </div>
 
             {/* Column labels */}
-            <div className="hidden grid-cols-[1.5fr_1.5fr_1.8fr_0.9fr_1fr_1fr] gap-4 border-b border-white/5 px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled) md:grid">
+            <div className="hidden grid-cols-[1.5fr_1.5fr_1.8fr_0.9fr_1fr_1fr] gap-4 border-b border-(--seva-border-subtle) px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled) md:grid">
               <span>Date</span>
               <span>Customer</span>
               <span>Service</span>

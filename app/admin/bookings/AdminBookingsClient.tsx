@@ -144,19 +144,19 @@ const formatDetailValue = (value: unknown) => {
 };
 
 const panelClass =
-  "rounded-[1.1rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] text-[#f0eeeb] shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
+  "rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) text-(--seva-text) shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
 const insetPanelClass =
-  "rounded-[0.8rem] border border-[rgba(240,238,235,0.08)] bg-[#171717]";
+  "rounded-[0.8rem] border border-(--seva-border-subtle) bg-(--seva-inset)";
 const fieldClass =
-  "h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#f0eeeb] placeholder:text-[#8a837c] focus-visible:border-[rgba(122,213,221,0.4)] focus-visible:ring-1 focus-visible:ring-[#7ad5dd]";
+  "h-10 rounded-[0.55rem] border border-(--seva-border-subtle) bg-(--seva-inset) text-(--seva-text) placeholder:text-(--seva-text-muted) focus-visible:border-(--seva-border-focus) focus-visible:ring-1 focus-visible:ring-(--seva-accent)";
 const triggerClass =
-  "h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#f0eeeb] data-[placeholder]:text-[#8a837c]";
+  "h-10 rounded-[0.55rem] border border-(--seva-border-subtle) bg-(--seva-inset) text-(--seva-text) data-[placeholder]:text-(--seva-text-muted)";
 const primaryButtonClass =
   "sevacam-primary-button h-10 rounded-[0.45rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.16em]";
 const secondaryButtonClass =
-  "h-10 rounded-[0.55rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[#f0eeeb] transition-colors hover:border-[rgba(122,213,221,0.3)] hover:text-[#7ad5dd]";
+  "h-10 rounded-[0.55rem] border border-(--seva-border-subtle) bg-(--seva-inset) px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text) transition-colors hover:border-(--seva-border-interactive) hover:text-(--seva-accent)";
 const actionButtonClass =
-  "h-8 rounded-[0.5rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-[#c7c2bb] transition-colors hover:border-[rgba(122,213,221,0.3)] hover:text-[#7ad5dd]";
+  "h-8 rounded-[0.5rem] border border-(--seva-border-subtle) bg-(--seva-inset) px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text-soft) transition-colors hover:border-(--seva-border-interactive) hover:text-(--seva-accent)";
 const actionPrimaryClass =
   "sevacam-primary-button h-8 rounded-[0.5rem] px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] shadow-none";
 const actionWarmClass =
@@ -164,14 +164,11 @@ const actionWarmClass =
 const actionDangerClass =
   "h-8 rounded-[0.5rem] border border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] px-3 text-[0.56rem] font-semibold uppercase tracking-[0.16em] text-[#ff9c9c] transition-colors hover:bg-[rgba(255,125,125,0.14)]";
 const detailSheetClass =
-  "flex w-full flex-col overflow-hidden border-l border-[rgba(240,238,235,0.08)] bg-[#131313] p-0 text-[#f0eeeb] sm:max-w-[30rem]";
+  "flex w-full flex-col overflow-hidden border-l border-(--seva-border-subtle) bg-(--seva-base) p-0 text-(--seva-text) sm:max-w-[30rem]";
 const detailSectionClass =
-  "rounded-[0.85rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] px-4 py-4";
+  "rounded-[0.85rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-4 py-4";
 const detailLabelClass =
-  "mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]";
-const detailTextPrimaryClass = "text-[#f0eeeb]";
-const detailTextSecondaryClass = "text-[#c7c2bb]";
-const detailTextMutedClass = "text-[#8a837c]";
+  "mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)";
 
 const statusChipClass = (status: string) => {
   if (status === "confirmed" || status === "completed") {
@@ -183,7 +180,7 @@ const statusChipClass = (status: string) => {
   if (status === "cancelled" || status === "no-show") {
     return "border-[rgba(255,125,125,0.24)] bg-[rgba(255,125,125,0.10)] text-[#ff9c9c]";
   }
-  return "border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#c7c2bb]";
+  return "border-(--seva-border-subtle) bg-(--seva-inset) text-(--seva-text-soft)";
 };
 
 const paymentChipClass = (status: string) => {
@@ -196,7 +193,7 @@ const paymentChipClass = (status: string) => {
   if (status === "refunded") {
     return "border-[#ffb785]/30 bg-[#ffb785]/10 text-[#ffb785]";
   }
-  return "border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#c7c2bb]";
+  return "border-(--seva-border-subtle) bg-(--seva-inset) text-(--seva-text-soft)";
 };
 
 export default function AdminBookingsClient({
@@ -675,53 +672,53 @@ export default function AdminBookingsClient({
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {/* Total Bookings — teal */}
         <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(122,213,221,0.2)] bg-[rgba(122,213,221,0.07)] p-4">
-          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-accent)]" />
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-(--seva-accent)" />
           <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(122,213,221,0.08)] blur-xl" />
-          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-accent)]">Total Bookings</p>
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-accent)">Total Bookings</p>
           <div className="mt-3 flex items-center gap-2">
-            <Calendar className="size-4 text-[var(--seva-accent)]" />
-            <span className="text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[#f0eeeb]">{summary.total}</span>
+            <Calendar className="size-4 text-(--seva-accent)" />
+            <span className="text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-(--seva-text)">{summary.total}</span>
           </div>
         </div>
 
         {/* Pending — warm/amber */}
         <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(255,183,133,0.2)] bg-[rgba(255,183,133,0.07)] p-4">
-          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-warm)]" />
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-(--seva-warm)" />
           <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(255,183,133,0.08)] blur-xl" />
-          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-warm)]">Pending</p>
-          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[var(--seva-warm)]">{summary.pending}</span>
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-warm)">Pending</p>
+          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-(--seva-warm)">{summary.pending}</span>
         </div>
 
         {/* Confirmed — violet */}
         <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(196,176,253,0.2)] bg-[rgba(196,176,253,0.07)] p-4">
-          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-violet)]" />
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-(--seva-violet)" />
           <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(196,176,253,0.08)] blur-xl" />
-          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-violet)]">Confirmed</p>
-          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[var(--seva-violet)]">{summary.confirmed}</span>
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-violet)">Confirmed</p>
+          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-(--seva-violet)">{summary.confirmed}</span>
         </div>
 
         {/* Paid — teal */}
         <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(122,213,221,0.2)] bg-[rgba(122,213,221,0.07)] p-4">
-          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-accent)]" />
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-(--seva-accent)" />
           <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(122,213,221,0.08)] blur-xl" />
-          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-accent)]">Paid</p>
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-accent)">Paid</p>
           <div className="mt-3 flex items-center gap-2">
-            <Wallet className="size-4 text-[var(--seva-accent)]" />
-            <span className="text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[#f0eeeb]">{summary.paid}</span>
+            <Wallet className="size-4 text-(--seva-accent)" />
+            <span className="text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-(--seva-text)">{summary.paid}</span>
           </div>
         </div>
 
         {/* Needs Attention — rose */}
         <div className="relative overflow-hidden rounded-[0.9rem] border border-[rgba(249,168,196,0.2)] bg-[rgba(249,168,196,0.07)] p-4">
-          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[var(--seva-rose)]" />
+          <div className="absolute inset-x-0 top-0 h-[2.5px] bg-(--seva-rose)" />
           <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[rgba(249,168,196,0.08)] blur-xl" />
-          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-rose)]">Needs Attention</p>
-          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-[var(--seva-rose)]">{summary.attention}</span>
+          <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-rose)">Needs Attention</p>
+          <span className="mt-3 block text-[1.65rem] font-medium leading-none tracking-[-0.05em] text-(--seva-rose)">{summary.attention}</span>
         </div>
       </div>
 
       <div className="sevacam-rail overflow-hidden">
-        <div className="flex items-center justify-between gap-4 border-b border-white/5 px-5 py-4">
+        <div className="flex items-center justify-between gap-4 border-b border-(--seva-border-subtle) px-5 py-4">
           <div>
             <p className="sevacam-eyebrow">Filters</p>
             <p className="mt-1 text-[0.76rem] text-(--seva-text-muted)">
@@ -745,7 +742,7 @@ export default function AdminBookingsClient({
         <div className="space-y-4 p-5">
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_220px_220px]">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a837c]" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-(--seva-text-muted)" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -758,7 +755,7 @@ export default function AdminBookingsClient({
               <SelectTrigger className={triggerClass}>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent className="border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] text-[#f0eeeb]">
+              <SelectContent className="border border-(--seva-border-subtle) bg-(--seva-surface) text-(--seva-text)">
                 <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="confirmed">Confirmed</SelectItem>
@@ -772,7 +769,7 @@ export default function AdminBookingsClient({
               <SelectTrigger className={triggerClass}>
                 <SelectValue placeholder="Payment" />
               </SelectTrigger>
-              <SelectContent className="border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] text-[#f0eeeb]">
+              <SelectContent className="border border-(--seva-border-subtle) bg-(--seva-surface) text-(--seva-text)">
                 <SelectItem value="all">All payments</SelectItem>
                 {paymentStatuses.map((status) => (
                   <SelectItem key={status} value={status}>
@@ -783,14 +780,14 @@ export default function AdminBookingsClient({
             </Select>
           </div>
 
-          <div className="flex items-center justify-between text-[0.78rem] text-[#c7c2bb]">
+          <div className="flex items-center justify-between text-[0.78rem] text-(--seva-text-soft)">
             <span>
-              Showing <span className="font-semibold text-[#f0eeeb]">{filteredBookings.length}</span> of {bookings.length} bookings
+              Showing <span className="font-semibold text-(--seva-text)">{filteredBookings.length}</span> of {bookings.length} bookings
             </span>
             {(search || statusFilter !== "all" || paymentFilter !== "all") && (
               <button
                 type="button"
-                className="font-semibold text-[#7ad5dd] hover:underline"
+                className="font-semibold text-(--seva-accent) hover:underline"
                 onClick={() => {
                   setSearch("");
                   setStatusFilter("all");
@@ -805,7 +802,7 @@ export default function AdminBookingsClient({
       </div>
 
       {filteredBookings.length > 0 ? (
-        <div className="overflow-hidden rounded-[1.1rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
+        <div className="overflow-hidden rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
           {filteredBookings.map((booking, idx) => {
             const isPast = new Date(booking.start_time_utc).getTime() < Date.now();
             const isLast = idx === filteredBookings.length - 1;
@@ -816,15 +813,15 @@ export default function AdminBookingsClient({
                 type="button"
                 onClick={() => void openDetails(booking)}
                 className={cn(
-                  "flex w-full cursor-pointer flex-col gap-2 px-5 py-4 text-left transition-colors hover:bg-[#171717]/50 sm:flex-row sm:items-center sm:justify-between",
-                  !isLast && "border-b border-[rgba(240,238,235,0.08)]",
+                  "flex w-full cursor-pointer flex-col gap-2 px-5 py-4 text-left transition-colors hover:bg-(--seva-hover-bg) sm:flex-row sm:items-center sm:justify-between",
+                  !isLast && "border-b border-(--seva-border-subtle)",
                   isPast && booking.status === "pending" && "border-l-2 border-l-[#ffb785]/60",
                 )}
               >
                 {/* Left: identity */}
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-[#f0eeeb]">
+                    <span className="text-sm font-semibold text-(--seva-text)">
                       {booking.service?.name || "Service"}
                     </span>
                     <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em]", statusChipClass(booking.status))}>
@@ -834,25 +831,25 @@ export default function AdminBookingsClient({
                       {formatStatusLabel(booking.payment_status)}
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-[#c7c2bb]">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-(--seva-text-soft)">
                     <span className="inline-flex items-center gap-1">
                       <UserRound className="size-3" />
                       {booking.customer?.full_name || "—"}
                     </span>
-                    <span className="text-[#8a837c]">·</span>
+                    <span className="text-(--seva-text-muted)">·</span>
                     <span className="inline-flex items-center gap-1">
                       <Calendar className="size-3" />
                       {formatDateTime(booking.start_time_utc)}
                     </span>
-                    <span className="text-[#8a837c]">·</span>
+                    <span className="text-(--seva-text-muted)">·</span>
                     <span>{booking.service?.duration_minutes || 0} min</span>
-                    <span className="text-[#8a837c]">·</span>
-                    <span className="font-medium text-[#7ad5dd]">{formatMoney(booking.service?.price)}</span>
+                    <span className="text-(--seva-text-muted)">·</span>
+                    <span className="font-medium text-(--seva-accent)">{formatMoney(booking.service?.price)}</span>
                   </div>
                 </div>
 
                 {/* Right: chevron hint */}
-                <div className="shrink-0 text-xs font-medium text-[#8a837c]">
+                <div className="shrink-0 text-xs font-medium text-(--seva-text-muted)">
                   View →
                 </div>
               </button>
@@ -862,9 +859,9 @@ export default function AdminBookingsClient({
       ) : (
         <div className={panelClass}>
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Calendar className="mb-4 size-12 text-[#8a837c]" />
-            <p className="text-[1rem] font-semibold text-[#f0eeeb]">No bookings match these filters</p>
-            <p className="mt-2 text-sm text-[#c7c2bb]">Try widening the search or clearing the active filters.</p>
+            <Calendar className="mb-4 size-12 text-(--seva-text-muted)" />
+            <p className="text-[1rem] font-semibold text-(--seva-text)">No bookings match these filters</p>
+            <p className="mt-2 text-sm text-(--seva-text-soft)">Try widening the search or clearing the active filters.</p>
             <Button
               variant="ghost"
               className={`mt-5 ${secondaryButtonClass}`}
@@ -894,7 +891,7 @@ export default function AdminBookingsClient({
           {detailsBooking ? (
             <>
               {/* ── Header: bg-surface (lifted from page) ── */}
-              <div className="shrink-0 border-b border-[rgba(240,238,235,0.08)] bg-[#131313] px-6 pb-5 pt-6">
+              <div className="shrink-0 border-b border-(--seva-border-subtle) bg-(--seva-base) px-6 pb-5 pt-6">
                 <SheetTitle className="sr-only">Booking Details</SheetTitle>
                 <SheetDescription className="sr-only">Booking record detail view</SheetDescription>
 
@@ -906,31 +903,31 @@ export default function AdminBookingsClient({
                     {formatStatusLabel(detailsBooking.payment_status)}
                   </span>
                 </div>
-                <p className="mt-3 text-[1.2rem] font-semibold leading-tight tracking-[-0.03em] text-[#f0eeeb]">
+                <p className="mt-3 text-[1.2rem] font-semibold leading-tight tracking-[-0.03em] text-(--seva-text)">
                   {detailsBooking.service?.name || "—"}
                 </p>
-                <p className="mt-0.5 font-mono text-[0.7rem] text-[#8a837c]">
+                <p className="mt-0.5 font-mono text-[0.7rem] text-(--seva-text-muted)">
                   #{detailsBooking.id.slice(0, 8).toUpperCase()}
                 </p>
 
                 {/* Schedule strip — elevated card inside surface header */}
-                <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[0.8rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] px-4 py-3 text-sm">
-                  <span className="flex items-center gap-1.5 font-medium text-[#f0eeeb]">
-                    <Calendar className="size-3.5 text-[#7ad5dd]" />
+                <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[0.8rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-4 py-3 text-sm">
+                  <span className="flex items-center gap-1.5 font-medium text-(--seva-text)">
+                    <Calendar className="size-3.5 text-(--seva-accent)" />
                     {formatDateOnly(detailsBooking.start_time_utc)}
                   </span>
-                  <span className="text-white/20">·</span>
-                  <span className="flex items-center gap-1.5 text-[#c7c2bb]">
-                    <Clock3 className="size-3.5 text-[#8a837c]" />
+                  <span className="text-(--seva-border-muted)">·</span>
+                  <span className="flex items-center gap-1.5 text-(--seva-text-soft)">
+                    <Clock3 className="size-3.5 text-(--seva-text-muted)" />
                     {formatTime(detailsBooking.start_time_utc)}
                   </span>
-                  <span className="text-white/20">·</span>
-                  <span className="text-[#c7c2bb]">{detailsBooking.service?.duration_minutes || 0} min</span>
+                  <span className="text-(--seva-border-muted)">·</span>
+                  <span className="text-(--seva-text-soft)">{detailsBooking.service?.duration_minutes || 0} min</span>
                 </div>
               </div>
 
               {/* ── Scrollable body ── */}
-              <div className="flex-1 overflow-y-auto bg-[#131313] px-5 py-5">
+              <div className="flex-1 overflow-y-auto bg-(--seva-base) px-5 py-5">
                 <div className="space-y-3">
 
                   {/* Customer card */}
@@ -938,19 +935,19 @@ export default function AdminBookingsClient({
                     <p className={detailLabelClass}>Customer</p>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2.5 text-sm">
-                        <UserRound className="size-4 shrink-0 text-[#8a837c]" />
-                        <span className="font-medium text-[#f0eeeb]">{detailsBooking.customer?.full_name || "—"}</span>
+                        <UserRound className="size-4 shrink-0 text-(--seva-text-muted)" />
+                        <span className="font-medium text-(--seva-text)">{detailsBooking.customer?.full_name || "—"}</span>
                       </div>
                       {detailsBooking.customer?.email && (
                         <div className="flex items-center gap-2.5 text-sm">
-                          <Mail className="size-4 shrink-0 text-[#8a837c]" />
-                          <span className="text-[#c7c2bb]">{detailsBooking.customer.email}</span>
+                          <Mail className="size-4 shrink-0 text-(--seva-text-muted)" />
+                          <span className="text-(--seva-text-soft)">{detailsBooking.customer.email}</span>
                         </div>
                       )}
                       {detailsBooking.customer?.phone && (
                         <div className="flex items-center gap-2.5 text-sm">
-                          <Phone className="size-4 shrink-0 text-[#8a837c]" />
-                          <span className="text-[#c7c2bb]">{detailsBooking.customer.phone}</span>
+                          <Phone className="size-4 shrink-0 text-(--seva-text-muted)" />
+                          <span className="text-(--seva-text-soft)">{detailsBooking.customer.phone}</span>
                         </div>
                       )}
                     </div>
@@ -959,56 +956,56 @@ export default function AdminBookingsClient({
                   {/* Staff + Price cards */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className={detailSectionClass}>
-                      <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]">Staff</p>
+                      <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">Staff</p>
                       <div className="flex items-center gap-2 text-sm">
-                        <UserRound className="size-4 shrink-0 text-[#8a837c]" />
-                        <span className="font-medium text-[#f0eeeb]">{detailsBooking.staff?.full_name || "Unassigned"}</span>
+                        <UserRound className="size-4 shrink-0 text-(--seva-text-muted)" />
+                        <span className="font-medium text-(--seva-text)">{detailsBooking.staff?.full_name || "Unassigned"}</span>
                       </div>
                     </div>
                     <div className={detailSectionClass}>
-                      <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]">Price</p>
+                      <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">Price</p>
                       <div className="flex items-center gap-2 text-sm">
-                        <Wallet className="size-4 shrink-0 text-[#8a837c]" />
-                        <span className="font-semibold text-[#7ad5dd]">{formatMoney(detailsBooking.service?.price)}</span>
+                        <Wallet className="size-4 shrink-0 text-(--seva-text-muted)" />
+                        <span className="font-semibold text-(--seva-accent)">{formatMoney(detailsBooking.service?.price)}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Actions card */}
                   <div className={detailSectionClass}>
-                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]">Actions</p>
+                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">Actions</p>
                     {renderActionButtons(detailsBooking, { includeDetails: false })}
                   </div>
 
                   {/* Change History */}
                   <div className={detailSectionClass}>
-                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]">Change History</p>
+                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">Change History</p>
                     {detailsLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-[#c7c2bb]">
+                      <div className="flex items-center gap-2 text-sm text-(--seva-text-soft)">
                         <LoaderCircle className="size-4 animate-spin" />Loading…
                       </div>
                     ) : detailsError ? (
                       <p className="text-sm text-[#ffcfaf]">{detailsError}</p>
                     ) : detailsChanges.length === 0 ? (
-                      <p className="text-sm text-[#8a837c]">No changes recorded.</p>
+                      <p className="text-sm text-(--seva-text-muted)">No changes recorded.</p>
                     ) : (
                       <div className="space-y-4">
                         {detailsChanges.map((change) => (
-                          <div key={change.id} className="relative border-l-2 border-[#7ad5dd]/30 pl-4">
-                            <div className="absolute -left-1.25 top-1 h-2.5 w-2.5 rounded-full border-2 border-[#7ad5dd] bg-[#1c1b1b]" />
+                          <div key={change.id} className="relative border-l-2 border-(--seva-accent)/30 pl-4">
+                            <div className="absolute -left-1.25 top-1 h-2.5 w-2.5 rounded-full border-2 border-(--seva-accent) bg-(--seva-surface)" />
                             <div className="flex flex-wrap items-baseline justify-between gap-1">
-                              <p className="text-sm font-semibold text-[#f0eeeb]">{formatStatusLabel(change.change_type)}</p>
-                              <p className="text-xs text-[#8a837c]">{formatDateTime(change.created_at)}</p>
+                              <p className="text-sm font-semibold text-(--seva-text)">{formatStatusLabel(change.change_type)}</p>
+                              <p className="text-xs text-(--seva-text-muted)">{formatDateTime(change.created_at)}</p>
                             </div>
                             {change.old_start_time && change.new_start_time && (
-                              <p className="mt-1 text-xs text-[#c7c2bb]">
+                              <p className="mt-1 text-xs text-(--seva-text-soft)">
                                 {formatDateOnly(change.old_start_time)} {formatTime(change.old_start_time)}
                                 {" → "}
                                 {formatDateOnly(change.new_start_time)} {formatTime(change.new_start_time)}
                               </p>
                             )}
                             {change.reason && (
-                              <p className="mt-1 text-xs text-[#c7c2bb]">Reason: {change.reason}</p>
+                              <p className="mt-1 text-xs text-(--seva-text-soft)">Reason: {change.reason}</p>
                             )}
                           </div>
                         ))}
@@ -1018,31 +1015,31 @@ export default function AdminBookingsClient({
 
                   {/* Activity Log */}
                   <div className={detailSectionClass}>
-                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[#8a837c]">Activity Log</p>
+                    <p className="mb-3 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">Activity Log</p>
                     {detailsLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-[#c7c2bb]">
+                      <div className="flex items-center gap-2 text-sm text-(--seva-text-soft)">
                         <LoaderCircle className="size-4 animate-spin" />Loading…
                       </div>
                     ) : detailsLogs.length === 0 ? (
-                      <p className="text-sm text-[#8a837c]">No activity recorded.</p>
+                      <p className="text-sm text-(--seva-text-muted)">No activity recorded.</p>
                     ) : (
                       <div className="space-y-4">
                         {detailsLogs.map((log) => (
-                          <div key={log.id} className="relative border-l-2 border-[rgba(240,238,235,0.08)] pl-4">
-                            <div className="absolute -left-1.25 top-1 h-2.5 w-2.5 rounded-full border-2 border-[rgba(240,238,235,0.08)] bg-[#1c1b1b]" />
+                          <div key={log.id} className="relative border-l-2 border-(--seva-border-subtle) pl-4">
+                            <div className="absolute -left-1.25 top-1 h-2.5 w-2.5 rounded-full border-2 border-(--seva-border-subtle) bg-(--seva-surface)" />
                             <div className="flex flex-wrap items-baseline justify-between gap-1">
-                              <p className="text-sm font-semibold text-[#f0eeeb]">{formatStatusLabel(log.action)}</p>
-                              <p className="text-xs text-[#8a837c]">{formatDateTime(log.created_at)}</p>
+                              <p className="text-sm font-semibold text-(--seva-text)">{formatStatusLabel(log.action)}</p>
+                              <p className="text-xs text-(--seva-text-muted)">{formatDateTime(log.created_at)}</p>
                             </div>
                             {log.performed_by && (
-                              <p className="mt-0.5 text-xs text-[#c7c2bb]">by {log.performed_by}</p>
+                              <p className="mt-0.5 text-xs text-(--seva-text-soft)">by {log.performed_by}</p>
                             )}
                             {log.details && Object.keys(log.details).length > 0 && (
                               <div className="mt-2 flex flex-wrap gap-1.5">
                                 {Object.entries(log.details).map(([key, value]) => (
-                                  <span key={key} className="inline-flex items-baseline gap-1 rounded-[0.4rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] px-2 py-1 text-xs">
-                                    <span className="text-[#8a837c]">{formatDetailKey(key)}:</span>
-                                    <span className="text-[#c7c2bb]">{formatDetailValue(value)}</span>
+                                  <span key={key} className="inline-flex items-baseline gap-1 rounded-[0.4rem] border border-(--seva-border-subtle) bg-(--seva-inset) px-2 py-1 text-xs">
+                                    <span className="text-(--seva-text-muted)">{formatDetailKey(key)}:</span>
+                                    <span className="text-(--seva-text-soft)">{formatDetailValue(value)}</span>
                                   </span>
                                 ))}
                               </div>
@@ -1074,13 +1071,13 @@ export default function AdminBookingsClient({
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto border-l border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] text-[#f0eeeb] sm:max-w-lg"
+          className="w-full overflow-y-auto border-l border-(--seva-border-subtle) bg-(--seva-surface) text-(--seva-text) sm:max-w-lg"
         >
-          <SheetHeader className="border-b border-[rgba(240,238,235,0.08)] pb-4">
-            <SheetTitle className="text-[1.2rem] tracking-[-0.03em] text-[#f0eeeb]">
+          <SheetHeader className="border-b border-(--seva-border-subtle) pb-4">
+            <SheetTitle className="text-[1.2rem] tracking-[-0.03em] text-(--seva-text)">
               Reschedule Booking
             </SheetTitle>
-            <SheetDescription className="text-[#c7c2bb]">
+            <SheetDescription className="text-(--seva-text-soft)">
               Choose a new date and one of the available appointment slots.
             </SheetDescription>
           </SheetHeader>
@@ -1088,17 +1085,17 @@ export default function AdminBookingsClient({
           {rescheduleBooking ? (
             <div className="space-y-5 px-4 pb-8">
               <div className={`${panelClass} p-4`}>
-                <p className="text-sm font-semibold text-[#f0eeeb]">
+                <p className="text-sm font-semibold text-(--seva-text)">
                   {rescheduleBooking.service?.name || "Service"}
                 </p>
-                <p className="mt-1 text-sm text-[#c7c2bb]">
+                <p className="mt-1 text-sm text-(--seva-text-soft)">
                   Current time:{" "}
                   {formatDateTime(rescheduleBooking.start_time_utc)}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-[#8a837c]">
+                <label className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text-muted)">
                   New date
                 </label>
                 <Input
@@ -1110,16 +1107,16 @@ export default function AdminBookingsClient({
               </div>
 
               <div className="space-y-3">
-                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-[#8a837c]">
+                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text-muted)">
                   Available times
                 </p>
                 {rescheduleLoading ? (
-                  <p className="flex items-center gap-2 text-sm text-[#c7c2bb]">
+                  <p className="flex items-center gap-2 text-sm text-(--seva-text-soft)">
                     <LoaderCircle className="size-4 animate-spin" />
                     Loading slots...
                   </p>
                 ) : rescheduleSlots.length === 0 ? (
-                  <p className="text-sm text-[#c7c2bb]">
+                  <p className="text-sm text-(--seva-text-soft)">
                     No slots found for that date. Try another day.
                   </p>
                 ) : (
@@ -1132,8 +1129,8 @@ export default function AdminBookingsClient({
                         className={cn(
                           "rounded-[0.55rem] border px-3 py-2 text-sm font-semibold transition-colors",
                           selectedSlot === slot.start_time
-                            ? "border-[#7ad5dd]/30 bg-[#7ad5dd] text-[#06292d]"
-                            : "border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#f0eeeb] hover:border-[#7ad5dd]/30",
+                            ? "border-(--seva-accent)/30 bg-(--seva-accent) text-(--seva-accent-ink)"
+                            : "border-(--seva-border-subtle) bg-(--seva-inset) text-(--seva-text) hover:border-(--seva-border-interactive)",
                         )}
                       >
                         {formatTime(slot.start_time)}
@@ -1174,8 +1171,8 @@ export default function AdminBookingsClient({
         }}
       >
         <AlertDialogContent
-          className="w-[min(92vw,30rem)] rounded-[1.1rem] border border-[rgba(240,238,235,0.08)] bg-[#1c1b1b] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.48)]"
-          overlayClassName="bg-black/78 backdrop-blur-sm"
+          className="w-[min(92vw,30rem)] rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.48)]"
+          overlayClassName="bg-black/70 backdrop-blur-sm"
         >
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
@@ -1188,10 +1185,10 @@ export default function AdminBookingsClient({
           <div className="space-y-4">
             {cancelBooking ? (
               <div className={`${insetPanelClass} p-4 text-sm`}>
-                <p className="font-medium text-[#f0eeeb]">
+                <p className="font-medium text-(--seva-text)">
                   {cancelBooking.service?.name || "Service"}
                 </p>
-                <p className="mt-1 text-[#c7c2bb]">
+                <p className="mt-1 text-(--seva-text-soft)">
                   {cancelBooking.customer?.full_name || "Customer"} on{" "}
                   {formatDateTime(cancelBooking.start_time_utc)}
                 </p>
@@ -1202,14 +1199,14 @@ export default function AdminBookingsClient({
               value={cancelReason}
               onChange={(event) => setCancelReason(event.target.value)}
               placeholder="Optional cancellation reason"
-              className="min-h-28 rounded-[0.7rem] border border-[rgba(240,238,235,0.08)] bg-[#171717] text-[#f0eeeb] placeholder:text-[#8a837c] focus-visible:border-[#7ad5dd]/40 focus-visible:ring-1 focus-visible:ring-(--accent-primary)"
+              className="min-h-28 rounded-[0.7rem] border border-(--seva-border-subtle) bg-(--seva-inset) text-(--seva-text) placeholder:text-(--seva-text-muted) focus-visible:border-(--seva-border-focus) focus-visible:ring-1 focus-visible:ring-(--seva-accent)"
             />
           </div>
 
           <AlertDialogFooter className="mt-5 gap-2">
             <AlertDialogCancel
               disabled={cancelLoading}
-              className="!mt-0 !h-10 !rounded-[0.55rem] !border-[var(--border-subtle)] !bg-[var(--bg-inset)] !px-4 !text-[0.62rem] !font-semibold !uppercase !tracking-[0.16em] !text-[var(--text-primary)] hover:!border-[rgba(122,213,221,0.3)] hover:!text-[var(--accent-primary)]"
+              className="mt-0 h-10 rounded-[0.55rem] border border-(--seva-border-subtle) bg-(--seva-inset) px-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text)! transition-colors hover:border-(--seva-border-interactive) hover:text-(--seva-accent)!"
             >
               Keep booking
             </AlertDialogCancel>

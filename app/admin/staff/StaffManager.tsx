@@ -471,7 +471,7 @@ export default function StaffManager({
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_22rem]">
         <div className="sevacam-rail overflow-hidden">
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/5 px-5 py-4">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-(--seva-border-subtle) px-5 py-4">
             <div>
               <p className="sevacam-eyebrow">Directory</p>
               <h2 className="sevacam-display mt-2 text-[1.35rem] leading-none text-(--text-primary)">
@@ -535,7 +535,7 @@ export default function StaffManager({
             {sortedUsers.length > 0 ? (
               <div className="overflow-hidden rounded-[0.95rem] border border-(--border-subtle) bg-(--bg-inset)">
                 {/* Column headers */}
-                <div className="hidden grid-cols-[2fr_1fr_1fr_1fr_1fr_2fr] gap-4 border-b border-white/5 px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled) md:grid">
+                <div className="hidden grid-cols-[2fr_1fr_1fr_1fr_1fr_2fr] gap-4 border-b border-(--seva-border-subtle) px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled) md:grid">
                   <span>User</span>
                   <span>Role</span>
                   <span>Status</span>
@@ -708,7 +708,7 @@ export default function StaffManager({
 
         <div className="space-y-4">
           <div className="sevacam-rail overflow-hidden">
-            <div className="border-b border-white/5 px-5 py-4">
+            <div className="border-b border-(--seva-border-subtle) px-5 py-4">
               <p className="sevacam-eyebrow">New account</p>
               <h2 className="sevacam-display mt-2 text-[1.18rem] leading-none text-(--text-primary)">
                 Create staff account
@@ -848,7 +848,7 @@ export default function StaffManager({
 
           {selectedUser ? (
             <div className="sevacam-rail overflow-hidden">
-              <div className="flex items-start gap-3 border-b border-white/5 px-5 py-4">
+              <div className="flex items-start gap-3 border-b border-(--seva-border-subtle) px-5 py-4">
                 <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-inset) text-sm font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
                   {getInitials(selectedUser.full_name, selectedUser.email)}
                 </span>
@@ -985,7 +985,7 @@ export default function StaffManager({
             </div>
           ) : (
             <div className="sevacam-rail overflow-hidden">
-              <div className="border-b border-white/5 px-5 py-4">
+              <div className="border-b border-(--seva-border-subtle) px-5 py-4">
                 <p className="sevacam-eyebrow">Inspector</p>
                 <h2 className="sevacam-display mt-2 text-[1.16rem] leading-none text-(--text-primary)">
                   Review an account

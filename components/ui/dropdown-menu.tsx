@@ -42,7 +42,7 @@ function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          'motion-surface z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none shadow-[var(--shadow-overlay)]',
+          'motion-surface z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none shadow-(--shadow-overlay)',
           className,
         )}
         {...props}
@@ -230,7 +230,7 @@ function DropdownMenuSubContent({
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        'motion-surface z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none shadow-[var(--shadow-overlay)]',
+        'motion-surface z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground data-[state=open]:opacity-100 data-[state=closed]:opacity-0 motion-reduce:transition-none shadow-(--shadow-overlay)',
         className,
       )}
       {...props}

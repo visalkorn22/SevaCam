@@ -345,7 +345,7 @@ export default function LocationsClient({
 
   return (
     <div className="mx-auto max-w-280 space-y-6 text-(--seva-text)">
-      <section className="relative overflow-hidden rounded-[1.1rem] border border-white/6 bg-(--seva-surface) px-6 py-7 lg:px-9 lg:py-8">
+      <section className="relative overflow-hidden rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-6 py-7 lg:px-9 lg:py-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.09),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(255,183,133,0.08),transparent_34%)]" />
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -408,7 +408,7 @@ export default function LocationsClient({
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_17.5rem]">
         <div className="sevacam-rail overflow-hidden">
-          <div className="flex items-center justify-between gap-4 border-b border-white/6 px-5 py-4">
+          <div className="flex items-center justify-between gap-4 border-b border-(--seva-border-subtle) px-5 py-4">
             <div>
               <p className="sevacam-eyebrow">Branch Directory</p>
               <p className="mt-1 text-[0.76rem] text-(--seva-text-soft)">
@@ -436,7 +436,7 @@ export default function LocationsClient({
             <div className="overflow-x-auto">
               <table className="w-full min-w-176 text-sm">
                 <thead>
-                  <tr className="border-b border-white/6 bg-[rgba(255,255,255,0.01)]">
+                  <tr className="border-b border-(--seva-border-subtle) bg-[rgba(255,255,255,0.01)]">
                     <th className="px-4 py-3 text-left text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">
                       Location
                     </th>
@@ -458,7 +458,7 @@ export default function LocationsClient({
                   {locations.map((location) => (
                     <tr
                       key={location.id}
-                      className="border-b border-white/6 last:border-b-0 hover:bg-[rgba(255,255,255,0.015)]"
+                      className="border-b border-(--seva-border-subtle) last:border-b-0 hover:bg-[rgba(255,255,255,0.015)]"
                     >
                       <td className="px-4 py-3.5 align-top">
                         <p className="font-medium text-(--seva-text)">{location.name}</p>
@@ -482,14 +482,14 @@ export default function LocationsClient({
                           <button
                             type="button"
                             onClick={() => openEdit(location)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-[0.45rem] border border-white/10 bg-[rgba(255,255,255,0.02)] text-(--seva-text-soft) transition-colors hover:border-[rgba(122,213,221,0.24)] hover:text-(--seva-accent)"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-[0.45rem] border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.02)] text-(--seva-text-soft) transition-colors hover:border-[rgba(122,213,221,0.24)] hover:text-(--seva-accent)"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(location.id)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-[0.45rem] border border-white/10 bg-[rgba(255,255,255,0.02)] text-[rgba(229,115,115,0.94)] transition-colors hover:border-[rgba(229,115,115,0.34)]"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-[0.45rem] border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.02)] text-[rgba(229,115,115,0.94)] transition-colors hover:border-[rgba(229,115,115,0.34)]"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -531,13 +531,13 @@ export default function LocationsClient({
               <p className="sevacam-eyebrow text-(--seva-warm)">Map Ops Notes</p>
             </div>
             <ul className="mt-3 space-y-2 text-[0.76rem] text-(--seva-text-soft)">
-              <li className="rounded-xl border border-white/8 bg-[rgba(255,255,255,0.015)] px-3 py-2">
+              <li className="rounded-xl border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.015)] px-3 py-2">
                 Search first, then refine with map pin placement.
               </li>
-              <li className="rounded-xl border border-white/8 bg-[rgba(255,255,255,0.015)] px-3 py-2">
+              <li className="rounded-xl border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.015)] px-3 py-2">
                 Double-click map to place a fresh marker instantly.
               </li>
-              <li className="rounded-xl border border-white/8 bg-[rgba(255,255,255,0.015)] px-3 py-2">
+              <li className="rounded-xl border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.015)] px-3 py-2">
                 Keep timezone accurate for booking and reminders.
               </li>
             </ul>
@@ -558,8 +558,8 @@ export default function LocationsClient({
             if (event.target === event.currentTarget) closeModal();
           }}
         >
-          <div className="relative w-[min(95vw,72rem)] overflow-hidden rounded-2xl border border-white/10 bg-(--seva-surface) shadow-[0_34px_70px_rgba(0,0,0,0.45)]">
-            <div className="flex items-center justify-between border-b border-white/8 px-5 py-4 sm:px-6">
+          <div className="relative w-[min(95vw,72rem)] overflow-hidden rounded-2xl border border-(--seva-border-subtle) bg-(--seva-surface) shadow-[0_34px_70px_rgba(0,0,0,0.45)]">
+            <div className="flex items-center justify-between border-b border-(--seva-border-subtle) px-5 py-4 sm:px-6">
               <div>
                 <p className="sevacam-eyebrow">Location Editor</p>
                 <h2 className="mt-2 sevacam-display text-[1.35rem] leading-none text-(--seva-text)">
@@ -569,14 +569,14 @@ export default function LocationsClient({
               <button
                 type="button"
                 onClick={closeModal}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[rgba(255,255,255,0.02)] text-(--seva-text-soft) transition-colors hover:text-(--seva-text)"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.02)] text-(--seva-text-soft) transition-colors hover:text-(--seva-text)"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <div className="grid max-h-[calc(100vh-8rem)] lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-              <div className="sevacam-scroll-panel overflow-y-auto border-b border-white/8 p-5 sm:p-6 lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:border-r">
+              <div className="sevacam-scroll-panel overflow-y-auto border-b border-(--seva-border-subtle) p-5 sm:p-6 lg:max-h-[calc(100vh-8rem)] lg:border-b-0 lg:border-r">
                 <div className="space-y-4">
                   <div>
                     <label className="mb-1.5 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text-muted)">
@@ -618,7 +618,7 @@ export default function LocationsClient({
                     </div>
 
                     {showSearchDropdown ? (
-                      <div className="rounded-[0.7rem] border border-white/10 bg-(--seva-elevated) shadow-xl">
+                      <div className="rounded-[0.7rem] border border-(--seva-border-subtle) bg-(--seva-elevated) shadow-xl">
                         {isSearching ? (
                           <div className="px-3 py-2 text-xs text-(--seva-text-muted)">
                             Searching locations...
@@ -633,7 +633,7 @@ export default function LocationsClient({
                               key={`${result.lat}:${result.lon}:${result.display_name}`}
                               type="button"
                               onClick={() => selectResult(result)}
-                              className="block w-full border-b border-white/8 px-3 py-2 text-left text-xs text-(--seva-text-soft) last:border-b-0 hover:bg-[rgba(255,255,255,0.03)]"
+                              className="block w-full border-b border-(--seva-border-subtle) px-3 py-2 text-left text-xs text-(--seva-text-soft) last:border-b-0 hover:bg-[rgba(255,255,255,0.03)]"
                             >
                               {result.display_name}
                             </button>
@@ -714,7 +714,7 @@ export default function LocationsClient({
                   Drag an existing marker to fine tune branch coordinates.
                 </p>
 
-                <div className="mt-4 overflow-hidden rounded-[0.75rem] border border-white/10">
+                <div className="mt-4 overflow-hidden rounded-[0.75rem] border border-(--seva-border-subtle)">
                   <LocationPickerMap
                     latitude={draft.latitude}
                     longitude={draft.longitude}
@@ -730,11 +730,11 @@ export default function LocationsClient({
                     </p>
                   ) : null}
                   {draft.latitude !== null && draft.longitude !== null ? (
-                    <p className="rounded-xl border border-white/10 bg-[rgba(255,255,255,0.02)] px-3 py-2 text-[0.72rem] text-(--seva-text-soft)">
+                    <p className="rounded-xl border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.02)] px-3 py-2 text-[0.72rem] text-(--seva-text-soft)">
                       Pin: {draft.latitude.toFixed(6)}, {draft.longitude.toFixed(6)}
                     </p>
                   ) : (
-                    <p className="rounded-xl border border-white/10 bg-[rgba(255,255,255,0.02)] px-3 py-2 text-[0.72rem] text-(--seva-text-muted)">
+                    <p className="rounded-xl border border-(--seva-border-subtle) bg-[rgba(255,255,255,0.02)] px-3 py-2 text-[0.72rem] text-(--seva-text-muted)">
                       No pin yet. Double-click the map to place one.
                     </p>
                   )}

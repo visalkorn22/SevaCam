@@ -37,14 +37,14 @@ export function ServicePreviewCard({ service }: ServicePreviewCardProps) {
   const imageError = failedImages.has(displayImage);
 
   return (
-    <div className="overflow-hidden rounded-[1.1rem] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] shadow-[0_8px_32px_rgba(0,0,0,0.22)]">
-      <div className="border-b border-[var(--border-subtle)] px-5 py-3">
-        <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-[var(--text-disabled)]">
+    <div className="overflow-hidden rounded-[1.1rem] border border-(--border-subtle) bg-(--bg-elevated) shadow-[0_8px_32px_rgba(0,0,0,0.22)]">
+      <div className="border-b border-(--border-subtle) px-5 py-3">
+        <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-(--text-disabled)">
           Customer preview
         </p>
       </div>
 
-      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--bg-base)]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-(--bg-base)">
         <img
           src={imageError ? defaultImage : displayImage}
           alt={displayName}
@@ -71,8 +71,8 @@ export function ServicePreviewCard({ service }: ServicePreviewCardProps) {
           <span
             className={`inline-flex items-center rounded-full px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.15em] ${
               service.is_active
-                ? "bg-[rgba(122,213,221,0.18)] text-[var(--accent-primary)]"
-                : "bg-[rgba(255,183,133,0.15)] text-[var(--state-warning)]"
+                ? "bg-[rgba(122,213,221,0.18)] text-(--accent-primary)"
+                : "bg-[rgba(255,183,133,0.15)] text-(--state-warning)"
             }`}
           >
             {service.is_active ? "Active" : "Draft"}
@@ -82,27 +82,27 @@ export function ServicePreviewCard({ service }: ServicePreviewCardProps) {
 
       <div className="space-y-4 p-5">
         <div className="space-y-1.5">
-          <h3 className="text-base font-semibold leading-snug text-[var(--text-primary)]">
+          <h3 className="text-base font-semibold leading-snug text-(--text-primary)">
             {displayName}
           </h3>
-          <p className="line-clamp-2 text-sm leading-6 text-[var(--text-secondary)]">
+          <p className="line-clamp-2 text-sm leading-6 text-(--text-secondary)">
             {displayDescription}
           </p>
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+          <p className="text-2xl font-bold tracking-tight text-(--text-primary)">
             ${displayPrice.toFixed(2)}
           </p>
-          <div className="flex items-center gap-1 text-[var(--accent-primary)]">
+          <div className="flex items-center gap-1 text-(--accent-primary)">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className="h-3 w-3 fill-current" />
             ))}
-            <span className="ml-1 text-xs text-[var(--text-disabled)]">5.0</span>
+            <span className="ml-1 text-xs text-(--text-disabled)">5.0</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-[var(--text-secondary)]">
+        <div className="flex items-center gap-4 text-sm text-(--text-secondary)">
           <span className="flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5" />
             {displayDuration} min
@@ -115,12 +115,12 @@ export function ServicePreviewCard({ service }: ServicePreviewCardProps) {
 
         <button
           type="button"
-          className="w-full rounded-[0.55rem] bg-[var(--accent-primary)] py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-on-accent)] transition-colors hover:bg-[var(--accent-primary-hover)]"
+          className="w-full rounded-[0.55rem] bg-(--accent-primary) py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-(--text-on-accent) transition-colors hover:bg-(--accent-primary-hover)"
         >
           Book Now
         </button>
 
-        <p className="text-center text-[0.65rem] text-[var(--text-disabled)]">
+        <p className="text-center text-[0.65rem] text-(--text-disabled)">
           This is how your service appears to customers
         </p>
       </div>

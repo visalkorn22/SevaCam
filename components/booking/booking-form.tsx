@@ -394,7 +394,7 @@ function SlotPeriodSection({
                 "group sevacam-interactive-card flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                 isSelected
                   ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_16px_28px_rgba(122,213,221,0.16)]"
-                  : "border-white/5 bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
+                  : "border-(--border-subtle) bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
               )}
               aria-pressed={isSelected}
             >
@@ -1027,7 +1027,7 @@ export function BookingForm({
                   "group sevacam-interactive-card relative flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                   isSelected
                     ? "border-transparent bg-(--accent-primary) text-[#07292d] shadow-[0_18px_30px_rgba(122,213,221,0.16)]"
-                    : "border-white/5 bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
+                    : "border-(--border-subtle) bg-(--bg-elevated) hover:border-transparent hover:bg-(--accent-primary) hover:text-[#07292d]",
                 )}
                 aria-pressed={isSelected}
               >
@@ -1041,7 +1041,7 @@ export function BookingForm({
                     "flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 transition-all",
                     isSelected
                       ? "border-[#07292d]/18"
-                      : "border-white/8 group-hover:border-[#07292d]/18",
+                      : "border-(--border-subtle) group-hover:border-[#07292d]/18",
                   )}
                 >
                   {member.avatar_url ? (

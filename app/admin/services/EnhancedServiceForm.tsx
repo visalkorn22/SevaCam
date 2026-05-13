@@ -810,7 +810,7 @@ export default function EnhancedServiceForm({
   return (
     <div className="sevacam-rail overflow-hidden">
       {/* Step navigator */}
-      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-base)] px-6 py-5 sm:px-8">
+      <div className="border-b border-(--border-subtle) bg-(--bg-base) px-6 py-5 sm:px-8">
         <nav aria-label="Progress">
           <ol className="flex flex-wrap items-center gap-1">
             {steps.map((step, index) => {
@@ -824,8 +824,8 @@ export default function EnhancedServiceForm({
                     <div
                       className={`mx-1 h-px w-6 transition-colors ${
                         isCompleted
-                          ? "bg-[var(--accent-primary)]"
-                          : "bg-[var(--border-subtle)]"
+                          ? "bg-(--accent-primary)"
+                          : "bg-(--border-subtle)"
                       }`}
                     />
                   )}
@@ -834,10 +834,10 @@ export default function EnhancedServiceForm({
                     onClick={() => setCurrentStep(index)}
                     className={`group relative flex items-center gap-2.5 rounded-full px-3.5 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] transition-all duration-200 ${
                       isActive
-                        ? "bg-[var(--accent-primary)] text-[var(--text-on-accent)] shadow-[0_4px_16px_rgba(122,213,221,0.25)]"
+                        ? "bg-(--accent-primary) text-(--text-on-accent) shadow-[0_4px_16px_rgba(122,213,221,0.25)]"
                         : isCompleted
-                          ? "bg-[rgba(122,213,221,0.15)] text-[var(--accent-primary)]"
-                          : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                          ? "bg-[rgba(122,213,221,0.15)] text-(--accent-primary)"
+                          : "bg-(--bg-elevated) text-(--text-secondary) hover:text-(--text-primary)"
                     }`}
                     aria-label={step.title}
                   >
@@ -852,10 +852,10 @@ export default function EnhancedServiceForm({
 
         {/* Current step info */}
         <div className="mt-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-primary)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--accent-primary)">
             Step {currentStep + 1} of {steps.length}
           </p>
-          <p className="mt-1 text-[0.82rem] text-[var(--text-secondary)]">
+          <p className="mt-1 text-[0.82rem] text-(--text-secondary)">
             {steps[currentStep]?.description}
           </p>
         </div>
@@ -932,13 +932,13 @@ export default function EnhancedServiceForm({
 
       {/* Error Message */}
       {error && (
-        <div className="mx-6 mb-2 rounded-[0.75rem] border border-[rgba(255,183,133,0.2)] bg-[var(--state-warning-subtle)] px-4 py-4 sm:mx-8">
-          <p className="text-sm text-[var(--state-warning)]">{error}</p>
+        <div className="mx-6 mb-2 rounded-[0.75rem] border border-[rgba(255,183,133,0.2)] bg-(--state-warning-subtle) px-4 py-4 sm:mx-8">
+          <p className="text-sm text-(--state-warning)">{error}</p>
         </div>
       )}
 
       {/* Navigation */}
-      <div className="flex items-center justify-between border-t border-[var(--border-subtle)] px-6 py-5 sm:px-8">
+      <div className="flex items-center justify-between border-t border-(--border-subtle) px-6 py-5 sm:px-8">
         <Button
           type="button"
           variant="ghost"

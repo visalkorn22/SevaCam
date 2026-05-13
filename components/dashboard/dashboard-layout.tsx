@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bell, LogOut, Search, Settings, UserCircle2 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   roleLabelMap,
   sidebarConfig,
@@ -123,8 +124,8 @@ export function DashboardLayout({
         href={item.href}
         className={`group relative flex items-center transition-all duration-200 ${
           isActive
-            ? "bg-[var(--seva-surface)] text-[var(--seva-accent)]"
-            : "text-[var(--seva-text-soft)] hover:bg-[var(--seva-surface)] hover:text-[var(--seva-text)]"
+            ? "bg-(--seva-surface) text-(--seva-accent)"
+            : "text-(--seva-text-soft) hover:bg-(--seva-surface) hover:text-(--seva-text)"
         } ${
           compact
             ? "gap-2 rounded-full px-2.5 py-2"
@@ -133,14 +134,14 @@ export function DashboardLayout({
       >
         <span
           className={`absolute left-0 rounded-full transition-colors ${
-            isActive ? "bg-[var(--seva-accent)]" : "bg-transparent"
+            isActive ? "bg-(--seva-accent)" : "bg-transparent"
           } ${compact ? "bottom-1 top-1 w-[1px]" : "inset-y-2 w-[2px]"}`}
         />
         <span
           className={`inline-flex shrink-0 items-center justify-center ${
             isActive
-              ? "bg-[rgba(122,213,221,0.12)] text-[var(--seva-accent)]"
-              : "bg-[var(--seva-surface)] text-[var(--seva-text-soft)]"
+              ? "bg-(--accent-subtle) text-(--seva-accent)"
+              : "bg-(--seva-surface) text-(--seva-text-soft)"
           } ${compact ? "h-7 w-7 rounded-full" : "h-9 w-9 rounded-[0.85rem]"}`}
         >
           <Icon className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
@@ -164,17 +165,17 @@ export function DashboardLayout({
       flatNavItems[0];
 
     return (
-      <div className="sevacam-home min-h-screen bg-[var(--seva-base)] text-[var(--seva-text)]">
+      <div className="sevacam-home min-h-screen bg-(--seva-base) text-(--seva-text)">
         <div className="flex min-h-screen">
-          <aside className="hidden fixed inset-y-0 left-0 z-30 w-[16.5rem] border-r border-white/6 bg-[var(--seva-base)] lg:flex lg:flex-col">
-            <div className="border-b border-white/6 px-5 py-6">
+          <aside className="hidden fixed inset-y-0 left-0 z-30 w-[16.5rem] border-r border-(--border-subtle) bg-(--seva-base) lg:flex lg:flex-col">
+            <div className="border-b border-(--border-subtle) px-5 py-6">
               <Link
                 href="/admin/dashboard"
-                className="sevacam-display text-[1.7rem] tracking-[-0.05em] text-[var(--seva-text)]"
+                className="sevacam-display text-[1.7rem] tracking-[-0.05em] text-(--seva-text)"
               >
                 SevaCam
               </Link>
-              <p className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-[var(--seva-accent)]">
+              <p className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-accent)">
                 {displayRole}
               </p>
             </div>
@@ -185,16 +186,16 @@ export function DashboardLayout({
               </div>
             </div>
 
-            <div className="border-t border-white/6 px-4 py-4">
-              <div className="flex items-center gap-3 rounded-[1rem] bg-[var(--seva-surface)] px-3 py-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--seva-elevated)] text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[var(--seva-text)]">
+            <div className="border-t border-(--border-subtle) px-4 py-4">
+              <div className="flex items-center gap-3 rounded-[1rem] bg-(--seva-surface) px-3 py-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-(--seva-elevated) text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-(--seva-text)">
                   {displayName.slice(0, 2)}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[var(--seva-text)]">
+                  <p className="truncate text-sm font-medium text-(--seva-text)">
                     {displayName}
                   </p>
-                  <p className="text-xs text-[var(--seva-text-soft)]">
+                  <p className="text-xs text-(--seva-text-soft)">
                     {displayRole}
                   </p>
                 </div>
@@ -202,7 +203,7 @@ export function DashboardLayout({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="mt-3 inline-flex w-full items-center justify-center rounded-[0.95rem] border border-white/8 bg-[var(--seva-surface)] px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-text)] transition-colors hover:border-[rgba(122,213,221,0.22)] hover:bg-[var(--seva-elevated)]"
+                className="mt-3 inline-flex w-full items-center justify-center rounded-[0.95rem] border border-(--border-muted) bg-(--seva-surface) px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text) transition-colors hover:border-(--border-interactive) hover:bg-(--seva-elevated)"
               >
                 Logout
               </button>
@@ -210,7 +211,7 @@ export function DashboardLayout({
           </aside>
 
           <div className="flex min-w-0 flex-1 flex-col lg:pl-[16.5rem]">
-            <header className="sticky top-0 z-20 border-b border-white/6 bg-[rgba(19,19,19,0.9)] backdrop-blur-xl">
+            <header className="sticky top-0 z-20 border-b border-(--border-subtle) bg-(--seva-header-bg) backdrop-blur-xl">
               <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3 lg:hidden">
@@ -218,18 +219,18 @@ export function DashboardLayout({
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="rounded-full border border-white/10 bg-white/[0.04] px-4 text-[var(--seva-text)] hover:bg-white/[0.08]"
+                          className="rounded-full border border-(--border-muted) bg-(--seva-elevated) px-4 text-(--seva-text) hover:bg-(--seva-overlay)"
                         >
                           Sections
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="start"
-                        className="w-72 border-white/10 bg-[#151515] text-[var(--seva-text)]"
+                        className="w-72 border-(--border-muted) bg-(--seva-dropdown-bg) text-(--seva-text)"
                       >
                         {navigationSections.map((section) => (
                           <div key={section.title}>
-                            <DropdownMenuLabel className="text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
+                            <DropdownMenuLabel className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
                               {section.title}
                             </DropdownMenuLabel>
                             {section.items.map((item) => (
@@ -237,23 +238,23 @@ export function DashboardLayout({
                                 <Link href={item.href}>{item.title}</Link>
                               </DropdownMenuItem>
                             ))}
-                            <DropdownMenuSeparator className="bg-white/8" />
+                            <DropdownMenuSeparator className="bg-(--border-subtle)" />
                           </div>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
                     <div className="min-w-0">
-                      <p className="truncate text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--seva-accent)]">
+                      <p className="truncate text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-(--seva-accent)">
                         {displayRole}
                       </p>
-                      <p className="truncate text-sm text-white/58">
+                      <p className="truncate text-sm text-(--seva-text-soft)">
                         {currentItem?.title}
                       </p>
                     </div>
                   </div>
 
                   <div className="hidden lg:block">
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-[var(--seva-accent)]">
+                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-accent)">
                       {displayRole} workspace
                     </p>
                   </div>
@@ -262,19 +263,20 @@ export function DashboardLayout({
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
                   <div className="hidden max-w-[42rem] flex-1 lg:block">
                     <div className="relative">
-                      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--seva-text-muted)]" />
+                      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-(--seva-text-muted)" />
                       <Input
                         type="text"
                         inputMode="search"
                         autoComplete="off"
                         placeholder="Search experiences, bookings, or guests..."
-                        className="h-10 appearance-none rounded-[0.55rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)] pl-12 pr-4 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus-visible:border-[rgba(122,213,221,0.4)] focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] focus-visible:pl-12 focus-visible:pr-4"
+                        className="h-10 appearance-none rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) pl-12 pr-4 text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--border-focus) focus-visible:ring-1 focus-visible:ring-(--border-interactive) focus-visible:pl-12 focus-visible:pr-4"
                       />
                     </div>
                   </div>
+                  <ThemeToggle compact />
                   <Link
                     href="/notifications"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/8 bg-[var(--seva-surface)] text-white/72 transition-colors hover:bg-[var(--seva-elevated)] hover:text-[var(--seva-text)]"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-(--border-muted) bg-(--seva-surface) text-(--seva-text-muted) transition-colors hover:bg-(--seva-elevated) hover:text-(--seva-text)"
                   >
                     <Bell className="h-4 w-4" />
                   </Link>
@@ -283,12 +285,12 @@ export function DashboardLayout({
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="rounded-full border border-white/8 bg-[var(--seva-surface)] px-3 text-sm font-medium text-[var(--seva-text)] hover:bg-[var(--seva-elevated)]"
+                          className="rounded-full border border-(--border-muted) bg-(--seva-surface) px-3 text-sm font-medium text-(--seva-text) hover:bg-(--seva-elevated)"
                         >
-                          <span className="mr-3 hidden text-white/50 lg:inline">
+                          <span className="mr-3 hidden text-(--seva-text-muted) lg:inline">
                             {displayRole}
                           </span>
-                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-[var(--seva-text)]">
+                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-(--seva-elevated) text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-(--seva-text)">
                             {displayName.slice(0, 2)}
                           </span>
                         </Button>
@@ -296,65 +298,65 @@ export function DashboardLayout({
                       <DropdownMenuContent
                         align="end"
                         sideOffset={10}
-                        className="w-60 rounded-[1.15rem] border border-[rgba(240,238,235,0.1)] bg-[linear-gradient(180deg,rgba(32,31,31,0.98),rgba(28,27,27,0.98))] p-2 text-[#f0eeeb] shadow-[0_28px_70px_rgba(0,0,0,0.46)] backdrop-blur-xl"
+                        className="w-60 rounded-[1.15rem] border border-(--border-subtle) bg-(--seva-dropdown-bg) p-2 text-(--seva-text) shadow-[0_28px_70px_rgba(0,0,0,0.2)] backdrop-blur-xl"
                       >
-                        <div className="rounded-[0.95rem] border border-[rgba(240,238,235,0.08)] bg-[rgba(53,53,52,0.52)] px-3 py-3">
+                        <div className="rounded-[0.95rem] border border-(--border-subtle) bg-(--seva-elevated) px-3 py-3">
                           <div className="flex items-center gap-3">
-                            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(240,238,235,0.12)] text-[0.74rem] font-semibold uppercase tracking-[0.14em] text-[#f0eeeb]">
+                            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-(--seva-overlay) text-[0.74rem] font-semibold uppercase tracking-[0.14em] text-(--seva-text)">
                               {displayName.slice(0, 2)}
                             </span>
                             <div className="min-w-0">
-                              <DropdownMenuLabel className="truncate p-0 text-sm font-medium text-[#f0eeeb]">
+                              <DropdownMenuLabel className="truncate p-0 text-sm font-medium text-(--seva-text)">
                                 {displayName}
                               </DropdownMenuLabel>
-                              <p className="mt-1 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[#c9c3bc]">
+                              <p className="mt-1 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-(--seva-text-soft)">
                                 {displayRole}
                               </p>
                             </div>
                           </div>
                         </div>
-                        <DropdownMenuSeparator className="my-2 bg-[rgba(240,238,235,0.1)]" />
+                        <DropdownMenuSeparator className="my-2 bg-(--border-subtle)" />
                         <DropdownMenuItem
                           asChild
-                          className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-1.5 py-1 text-[#f0eeeb] focus:bg-[rgba(122,213,221,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(122,213,221,0.14)] data-[highlighted]:text-[#f0eeeb]"
+                          className="rounded-[0.9rem] px-1.5 py-1 text-(--seva-text) focus:bg-(--accent-subtle) focus:text-(--seva-text) data-[highlighted]:bg-(--accent-subtle) data-[highlighted]:text-(--seva-text)"
                         >
                           <Link
                             href="/profile"
                             className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2"
                           >
-                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
-                              <UserCircle2 className="h-4 w-4 text-[#f7f4ef]" />
+                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-(--seva-elevated) text-(--seva-text)">
+                              <UserCircle2 className="h-4 w-4" />
                             </span>
-                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#f0eeeb]">
+                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text)">
                               Profile
                             </span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           asChild
-                          className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-1.5 py-1 text-[#f0eeeb] focus:bg-[rgba(122,213,221,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(122,213,221,0.14)] data-[highlighted]:text-[#f0eeeb]"
+                          className="rounded-[0.9rem] px-1.5 py-1 text-(--seva-text) focus:bg-(--accent-subtle) focus:text-(--seva-text) data-[highlighted]:bg-(--accent-subtle) data-[highlighted]:text-(--seva-text)"
                         >
                           <Link
                             href={settingsHref}
                             className="flex w-full items-center gap-3 rounded-[0.8rem] px-1.5 py-2"
                           >
-                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
-                              <Settings className="h-4 w-4 text-[#f7f4ef]" />
+                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-(--seva-elevated) text-(--seva-text)">
+                              <Settings className="h-4 w-4" />
                             </span>
-                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#f0eeeb]">
+                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text)">
                               Settings
                             </span>
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="my-2 bg-[rgba(240,238,235,0.1)]" />
+                        <DropdownMenuSeparator className="my-2 bg-(--border-subtle)" />
                         <DropdownMenuItem
                           onClick={handleLogout}
-                          className="rounded-[0.9rem] bg-[rgba(255,255,255,0.02)] px-3 py-1 text-[#f0eeeb] focus:bg-[rgba(255,183,133,0.14)] focus:text-[#f0eeeb] data-[highlighted]:bg-[rgba(255,183,133,0.14)] data-[highlighted]:text-[#f0eeeb]"
+                          className="rounded-[0.9rem] px-3 py-1 text-(--seva-text) focus:bg-(--state-warning-subtle) focus:text-(--seva-text) data-[highlighted]:bg-(--state-warning-subtle) data-[highlighted]:text-(--seva-text)"
                         >
-                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(240,238,235,0.1)] text-[#f7f4ef]">
-                            <LogOut className="h-4 w-4 text-[#f7f4ef]" />
+                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-(--seva-elevated) text-(--seva-text)">
+                            <LogOut className="h-4 w-4" />
                           </span>
-                          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#f0eeeb]">
+                          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text)">
                             Logout
                           </span>
                         </DropdownMenuItem>
@@ -367,17 +369,17 @@ export function DashboardLayout({
 
             <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
               {(title || subtitle) && (
-                <div className="mb-5 border-b border-white/6 pb-4">
-                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-[var(--seva-accent)]">
+                <div className="mb-5 border-b border-(--border-subtle) pb-4">
+                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-accent)">
                     {displayRole} dashboard
                   </p>
                   <div className="mt-3">
                     <div>
-                      <h1 className="sevacam-display text-[clamp(1.8rem,2.8vw,2.8rem)] leading-[0.98] tracking-[-0.05em] text-[var(--seva-text)]">
+                      <h1 className="sevacam-display text-[clamp(1.8rem,2.8vw,2.8rem)] leading-[0.98] tracking-[-0.05em] text-(--seva-text)">
                         {pageTitle}
                       </h1>
                       {subtitle ? (
-                        <p className="mt-2 max-w-2xl text-[0.84rem] leading-6 text-[var(--seva-text-soft)]">
+                        <p className="mt-2 max-w-2xl text-[0.84rem] leading-6 text-(--seva-text-soft)">
                           {subtitle}
                         </p>
                       ) : null}
@@ -423,6 +425,7 @@ export function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="hidden w-64 md:block">
               <Input
                 type="search"

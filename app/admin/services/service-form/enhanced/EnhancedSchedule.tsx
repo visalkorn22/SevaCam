@@ -35,19 +35,19 @@ type EnhancedScheduleProps = {
 };
 
 const fieldLabel =
-  "mb-2 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-disabled)]";
+  "mb-2 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
 const fieldInput =
-  "h-11 rounded-[0.8rem] border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.03)] text-white placeholder:text-[var(--text-disabled)] focus-visible:border-[var(--accent-primary)] focus-visible:bg-[var(--bg-elevated)] focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] transition-colors";
+  "h-11 rounded-[0.8rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:bg-(--bg-elevated) focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] transition-colors";
 const selectTrigger =
-  "h-11 rounded-[0.8rem] border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.03)] text-white focus-visible:border-[var(--accent-primary)] focus-visible:bg-[var(--bg-elevated)] focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)]";
+  "h-11 rounded-[0.8rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) focus-visible:border-(--accent-primary) focus-visible:bg-(--bg-elevated) focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)]";
 const selectContent =
-  "rounded-[0.9rem] border border-[rgba(240,238,235,0.12)] bg-[rgba(28,27,27,0.98)] text-white backdrop-blur-xl shadow-[0_24px_48px_rgba(0,0,0,0.45)]";
+  "rounded-[0.9rem] border border-(--border-subtle) bg-(--seva-dropdown-bg) text-(--text-primary) backdrop-blur-xl shadow-[0_24px_48px_rgba(0,0,0,0.45)]";
 const selectItem =
-  "seva-select-item min-h-10 rounded-[0.6rem] text-white data-[highlighted]:!bg-[rgba(255,255,255,0.06)] data-[highlighted]:!text-white data-[state=checked]:!bg-[rgba(122,213,221,0.18)] data-[state=checked]:!text-white [&_svg]:text-white";
+  "seva-select-item min-h-10 rounded-[0.6rem] text-(--text-primary) data-[highlighted]:!bg-(--bg-hover) data-[highlighted]:!text-(--text-primary) data-[state=checked]:!bg-[rgba(122,213,221,0.18)] data-[state=checked]:!text-(--accent-primary) [&_svg]:text-(--text-secondary)";
 const panelShell =
-  "rounded-[1rem] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] shadow-[0_18px_40px_rgba(0,0,0,0.24)]";
+  "rounded-[1rem] border border-(--border-subtle) bg-(--bg-elevated) shadow-[0_18px_40px_rgba(0,0,0,0.24)]";
 const insetShell =
-  "rounded-[0.9rem] border border-white/6 bg-[var(--bg-inset)]";
+  "rounded-[0.9rem] border border-(--border-subtle) bg-(--bg-inset)";
 const ghostAction =
   "inline-flex items-center rounded-[0.65rem] border border-[rgba(255,183,133,0.22)] bg-[rgba(255,183,133,0.08)] px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#ffb785] transition hover:border-[rgba(255,183,133,0.34)] hover:bg-[rgba(255,183,133,0.12)]";
 
@@ -64,16 +64,16 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[rgba(122,213,221,0.12)] text-[var(--accent-primary)]">
+      <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[rgba(122,213,221,0.12)] text-(--accent-primary)">
         {icon}
       </span>
       <div className="space-y-1">
-        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary)]">
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--accent-primary)">
           {eyebrow}
         </p>
         <div>
-          <h3 className="text-base font-semibold text-[var(--text-primary)]">{title}</h3>
-          <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
+          <h3 className="text-base font-semibold text-(--text-primary)">{title}</h3>
+          <p className="mt-1 text-sm leading-6 text-(--text-secondary)">
             {description}
           </p>
         </div>
@@ -92,10 +92,10 @@ function ScheduleRow({
   onRemove: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-[0.8rem] border border-white/6 bg-[rgba(255,255,255,0.03)] px-4 py-3">
+    <div className="flex items-center justify-between rounded-[0.8rem] border border-(--border-subtle) bg-(--bg-inset) px-4 py-3">
       <div className="min-w-0">
-        <p className="text-sm font-medium text-[var(--text-primary)]">{title}</p>
-        <p className="mt-1 text-xs leading-5 text-[var(--text-disabled)]">{subtitle}</p>
+        <p className="text-sm font-medium text-(--text-primary)">{title}</p>
+        <p className="mt-1 text-xs leading-5 text-(--text-disabled)">{subtitle}</p>
       </div>
       <button type="button" onClick={onRemove} className={ghostAction}>
         Remove
@@ -144,23 +144,23 @@ export default function EnhancedSchedule({
       <div className={`${panelShell} p-5`}>
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary)]">
+            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--accent-primary)">
               Operating Schedule
             </p>
-            <h3 className="text-base font-semibold text-[var(--text-primary)]">
+            <h3 className="text-base font-semibold text-(--text-primary)">
               Define when this service can be booked
             </h3>
-            <p className="text-sm leading-6 text-[var(--text-secondary)]">
+            <p className="text-sm leading-6 text-(--text-secondary)">
               Set the default window first, then add recurring rules and one-off
               exceptions only if you need more control.
             </p>
           </div>
           <div className={`${insetShell} flex items-center gap-3 px-4 py-3`}>
             <div className="text-right">
-              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-disabled)]">
+              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                 Schedule
               </p>
-              <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">
+              <p className="mt-1 text-sm font-medium text-(--text-primary)">
                 {scheduleEnabled ? "Enabled" : "Optional"}
               </p>
             </div>
@@ -171,7 +171,7 @@ export default function EnhancedSchedule({
 
       {!scheduleEnabled ? (
         <div className={`${insetShell} px-5 py-4`}>
-          <p className="text-sm leading-6 text-[var(--text-secondary)]">
+          <p className="text-sm leading-6 text-(--text-secondary)">
             Leave this off if the team will configure availability later. The
             service can still be created now and refined from the edit screen.
           </p>
@@ -279,13 +279,13 @@ export default function EnhancedSchedule({
 
             <div className={`mt-5 ${insetShell} flex items-center justify-between gap-4 px-4 py-4`}>
               <div>
-                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-disabled)]">
+                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
                   Schedule Status
                 </p>
-                <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">
+                <p className="mt-1 text-sm font-medium text-(--text-primary)">
                   {scheduleForm.is_active ? "Live for booking" : "Temporarily closed"}
                 </p>
-                <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                <p className="mt-1 text-xs text-(--text-secondary)">
                   Turn this off if the service should remain hidden from booking even
                   when rules exist.
                 </p>
@@ -309,7 +309,7 @@ export default function EnhancedSchedule({
 
             {scheduleForm.rule_type === "daily" ? (
               <div className={`mt-5 ${insetShell} px-4 py-4`}>
-                <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                <p className="text-sm leading-6 text-(--text-secondary)">
                   Daily mode is active, so no recurring rules are needed. Customers
                   will book within the default opening hours above.
                 </p>
@@ -503,7 +503,7 @@ export default function EnhancedSchedule({
                   </div>
                 ) : (
                   <div className={`${insetShell} px-4 py-4`}>
-                    <p className="text-sm text-[var(--text-secondary)]">
+                    <p className="text-sm text-(--text-secondary)">
                       No recurring rules added yet.
                     </p>
                   </div>
@@ -568,10 +568,10 @@ export default function EnhancedSchedule({
                     <Sparkles className="h-4 w-4" />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                    <p className="text-sm font-semibold text-(--text-primary)">
                       Open on this date
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+                    <p className="mt-1 text-xs leading-5 text-(--text-secondary)">
                       Turn this on for a special opening. Leave it off to mark the
                       date as closed.
                     </p>
@@ -626,7 +626,7 @@ export default function EnhancedSchedule({
                 </div>
               ) : (
                 <div className={`${insetShell} px-4 py-4`}>
-                  <p className="text-sm text-[var(--text-secondary)]">
+                  <p className="text-sm text-(--text-secondary)">
                     No one-off exceptions added yet.
                   </p>
                 </div>
@@ -635,14 +635,14 @@ export default function EnhancedSchedule({
           </section>
 
           <div className={`${insetShell} flex items-start gap-3 px-4 py-4`}>
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(122,213,221,0.12)] text-[var(--accent-primary)]">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(122,213,221,0.12)] text-(--accent-primary)">
               <Clock3 className="h-4 w-4" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-[var(--text-primary)]">
+              <p className="text-sm font-semibold text-(--text-primary)">
                 Scheduling tip
               </p>
-              <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
+              <p className="mt-1 text-sm leading-6 text-(--text-secondary)">
                 Keep the default window broad, then add only the recurring rules and
                 exceptions the team actually needs. That keeps future edits faster
                 and easier to audit.

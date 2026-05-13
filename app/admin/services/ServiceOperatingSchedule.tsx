@@ -374,7 +374,7 @@ export default function ServiceOperatingSchedule({ serviceId }: Props) {
 
   return (
     <section className="sevacam-rail overflow-hidden motion-page">
-      <div className="border-b border-white/5 px-6 py-5 sm:px-7">
+      <div className="border-b border-(--seva-border-subtle) px-6 py-5 sm:px-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <p className="sevacam-eyebrow">Availability Control</p>

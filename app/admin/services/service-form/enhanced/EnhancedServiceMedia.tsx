@@ -53,39 +53,39 @@ export default function EnhancedServiceMedia({
         onDrop={handleDrop}
         className={`relative flex flex-col items-center justify-center gap-4 rounded-[0.85rem] border-2 border-dashed px-6 py-10 text-center transition-colors duration-200 ${
           isDragOver
-            ? "border-[var(--accent-primary)] bg-[rgba(122,213,221,0.06)]"
-            : "border-[var(--border-subtle)] bg-[var(--bg-inset)] hover:border-[rgba(122,213,221,0.3)]"
+            ? "border-(--accent-primary) bg-[rgba(122,213,221,0.06)]"
+            : "border-(--border-subtle) bg-(--bg-inset) hover:border-[rgba(122,213,221,0.3)]"
         }`}
       >
         <div
           className={`flex h-14 w-14 items-center justify-center rounded-full transition-colors ${
             isDragOver
               ? "bg-[rgba(122,213,221,0.15)]"
-              : "bg-[var(--bg-elevated)]"
+              : "bg-(--bg-elevated)"
           }`}
         >
           {isUploading ? (
-            <Loader2 className="h-6 w-6 animate-spin text-[var(--accent-primary)]" />
+            <Loader2 className="h-6 w-6 animate-spin text-(--accent-primary)" />
           ) : (
             <Upload
               className={`h-6 w-6 ${
                 isDragOver
-                  ? "text-[var(--accent-primary)]"
-                  : "text-[var(--text-disabled)]"
+                  ? "text-(--accent-primary)"
+                  : "text-(--text-disabled)"
               }`}
             />
           )}
         </div>
 
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-[var(--text-primary)]">
+          <p className="text-sm font-semibold text-(--text-primary)">
             {isDragOver
               ? "Drop to upload"
               : isUploading
                 ? "Uploading..."
                 : "Drag & drop or browse"}
           </p>
-          <p className="text-[0.72rem] text-[var(--text-disabled)]">
+          <p className="text-[0.72rem] text-(--text-disabled)">
             JPG, PNG, GIF - max 10 MB
           </p>
         </div>
@@ -125,8 +125,8 @@ export default function EnhancedServiceMedia({
       </div>
 
       {showUrlInput && (
-        <div className="rounded-[0.75rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)] p-4">
-          <p className="mb-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-disabled)]">
+        <div className="rounded-[0.75rem] border border-(--border-subtle) bg-(--bg-inset) p-4">
+          <p className="mb-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
             Add Image URL
           </p>
           <div className="flex gap-2">
@@ -134,7 +134,7 @@ export default function EnhancedServiceMedia({
               placeholder="https://example.com/image.jpg"
               value={urlDraft}
               onChange={(e) => setUrlDraft(e.target.value)}
-              className="h-10 flex-1 rounded-[0.55rem] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus-visible:ring-1 focus-visible:ring-[var(--accent-primary)]"
+              className="h-10 flex-1 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-elevated) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:ring-1 focus-visible:ring-(--accent-primary)"
             />
             <Button
               type="button"
@@ -155,14 +155,14 @@ export default function EnhancedServiceMedia({
       )}
 
       {uploadError && (
-        <div className="rounded-[0.7rem] border border-[rgba(255,183,133,0.2)] bg-[var(--state-warning-subtle)] px-4 py-3">
-          <p className="text-sm text-[var(--state-warning)]">{uploadError}</p>
+        <div className="rounded-[0.7rem] border border-[rgba(255,183,133,0.2)] bg-(--state-warning-subtle) px-4 py-3">
+          <p className="text-sm text-(--state-warning)">{uploadError}</p>
         </div>
       )}
 
       {formData.image_urls.length > 0 ? (
         <div className="space-y-3">
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[var(--text-disabled)]">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)">
             {formData.image_urls.length} image
             {formData.image_urls.length !== 1 ? "s" : ""} · first is primary
           </p>
@@ -170,7 +170,7 @@ export default function EnhancedServiceMedia({
             {formData.image_urls.map((url, index) => (
               <div
                 key={url}
-                className="group relative aspect-square overflow-hidden rounded-[0.65rem] border border-[var(--border-subtle)] bg-[var(--bg-inset)]"
+                className="group relative aspect-square overflow-hidden rounded-[0.65rem] border border-(--border-subtle) bg-(--bg-inset)"
               >
                 <img
                   src={url}
@@ -180,7 +180,7 @@ export default function EnhancedServiceMedia({
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
                 {index === 0 && (
-                  <span className="absolute left-2 top-2 rounded-full bg-[rgba(122,213,221,0.18)] px-2 py-0.5 text-[0.55rem] font-semibold uppercase tracking-[0.12em] text-[var(--accent-primary)] backdrop-blur-sm">
+                  <span className="absolute left-2 top-2 rounded-full bg-[rgba(122,213,221,0.18)] px-2 py-0.5 text-[0.55rem] font-semibold uppercase tracking-[0.12em] text-(--accent-primary) backdrop-blur-sm">
                     Primary
                   </span>
                 )}
@@ -200,9 +200,9 @@ export default function EnhancedServiceMedia({
       ) : (
         !isUploading && (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
-            <ImageIcon className="h-9 w-9 text-[var(--text-disabled)]" />
-            <p className="text-sm text-[var(--text-secondary)]">No images yet</p>
-            <p className="text-[0.72rem] text-[var(--text-disabled)]">
+            <ImageIcon className="h-9 w-9 text-(--text-disabled)" />
+            <p className="text-sm text-(--text-secondary)">No images yet</p>
+            <p className="text-[0.72rem] text-(--text-disabled)">
               Upload at least one image to make the service more appealing
             </p>
           </div>

@@ -543,7 +543,7 @@ export default function CustomerBookingsClient({
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
                 {waitlist.map((entry) => (
-                  <Card key={entry.id} className="shadow-[var(--shadow-card)]">
+                  <Card key={entry.id} className="shadow-(--shadow-card)">
                     <CardHeader>
                       <CardTitle className="text-lg">
                         {serviceLookup[entry.service_id] || "Service"}

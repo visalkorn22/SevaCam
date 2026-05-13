@@ -163,11 +163,11 @@ export default async function AdminDashboard() {
       value: stats.totalBookings.toLocaleString(),
       note: "+12.5% vs last month",
       icon: Calendar,
-      tone: "text-[var(--seva-accent)]",
+      tone: "text-(--seva-accent)",
       badge: "bg-[rgba(122,213,221,0.18)]",
       bg: "bg-[rgba(122,213,221,0.07)]",
       border: "border-[rgba(122,213,221,0.2)]",
-      strip: "bg-[var(--seva-accent)]",
+      strip: "bg-(--seva-accent)",
       glow: "rgba(122,213,221,0.06)",
     },
     {
@@ -175,11 +175,11 @@ export default async function AdminDashboard() {
       value: currencyFormatter.format(stats.totalRevenue),
       note: "+8.2% daily growth",
       icon: DollarSign,
-      tone: "text-[var(--seva-warm)]",
+      tone: "text-(--seva-warm)",
       badge: "bg-[rgba(255,183,133,0.18)]",
       bg: "bg-[rgba(255,183,133,0.07)]",
       border: "border-[rgba(255,183,133,0.2)]",
-      strip: "bg-[var(--seva-warm)]",
+      strip: "bg-(--seva-warm)",
       glow: "rgba(255,183,133,0.06)",
     },
     {
@@ -190,11 +190,11 @@ export default async function AdminDashboard() {
           ? "Reservations in the active pipeline"
           : "No active reservations in queue",
       icon: TrendingUp,
-      tone: "text-[var(--seva-violet)]",
+      tone: "text-(--seva-violet)",
       badge: "bg-[rgba(196,176,253,0.18)]",
       bg: "bg-[rgba(196,176,253,0.07)]",
       border: "border-[rgba(196,176,253,0.2)]",
-      strip: "bg-[var(--seva-violet)]",
+      strip: "bg-(--seva-violet)",
       glow: "rgba(196,176,253,0.06)",
     },
     {
@@ -202,11 +202,11 @@ export default async function AdminDashboard() {
       value: stats.avgRating.toFixed(1),
       note: `${stats.totalReviews} guest reviews tracked`,
       icon: Star,
-      tone: "text-[var(--seva-rose)]",
+      tone: "text-(--seva-rose)",
       badge: "bg-[rgba(249,168,196,0.18)]",
       bg: "bg-[rgba(249,168,196,0.07)]",
       border: "border-[rgba(249,168,196,0.2)]",
-      strip: "bg-[var(--seva-rose)]",
+      strip: "bg-(--seva-rose)",
       glow: "rgba(249,168,196,0.06)",
     },
   ];
@@ -216,20 +216,20 @@ export default async function AdminDashboard() {
       title="Overview"
       subtitle={`Welcome back, ${greetingName}.`}
     >
-      <div className="mx-auto max-w-[70rem] space-y-6 text-[var(--seva-text)]">
+      <div className="mx-auto max-w-[70rem] space-y-6 text-(--seva-text)">
 
         {/* ── Hero greeting strip ── */}
-        <section className="relative overflow-hidden rounded-[1.1rem] border border-white/6 bg-[var(--seva-surface)] px-8 py-8 lg:px-10 lg:py-10">
+        <section className="relative overflow-hidden rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-8 py-8 lg:px-10 lg:py-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.08),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(255,183,133,0.05),transparent_30%)]" />
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-warm)]">
+              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--seva-warm)">
                 Admin Control Surface
               </p>
-              <h1 className="sevacam-display mt-3 text-[clamp(2rem,4.5vw,3.4rem)] leading-[0.92] text-[var(--seva-text)]">
+              <h1 className="sevacam-display mt-3 text-[clamp(2rem,4.5vw,3.4rem)] leading-[0.92] text-(--seva-text)">
                 Good to see you,<br />{greetingName}.
               </h1>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--seva-text-soft)]">
+              <p className="mt-4 max-w-xl text-sm leading-7 text-(--seva-text-soft)">
                 Monitor booking flow, revenue, and guest activity from one quieter admin surface.
               </p>
             </div>
@@ -275,7 +275,7 @@ export default async function AdminDashboard() {
                     <Icon className="h-3.5 w-3.5" />
                   </span>
                 </div>
-                <p className="mt-4 text-[1.9rem] font-medium leading-none tracking-[-0.05em] text-[var(--seva-text)]">
+                <p className="mt-4 text-[1.9rem] font-medium leading-none tracking-[-0.05em] text-(--seva-text)">
                   {tile.value}
                 </p>
                 <p className={`mt-2 text-[0.74rem] leading-5 ${tile.tone}`}>
@@ -296,10 +296,10 @@ export default async function AdminDashboard() {
             <div>
               <p className="sevacam-eyebrow">Live analytics</p>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="sevacam-display text-[clamp(1.4rem,2.2vw,1.85rem)] leading-[1] text-[var(--seva-text)]">
+                <h2 className="sevacam-display text-[clamp(1.4rem,2.2vw,1.85rem)] leading-[1] text-(--seva-text)">
                   Revenue and booking movement
                 </h2>
-                <span className="inline-flex items-center rounded-full bg-[rgba(122,213,221,0.1)] px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-[var(--seva-accent)]">
+                <span className="inline-flex items-center rounded-full bg-[rgba(122,213,221,0.1)] px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent)">
                   Live view
                 </span>
               </div>
@@ -309,51 +309,51 @@ export default async function AdminDashboard() {
 
             {/* Quick actions */}
             <div className="sevacam-rail overflow-hidden">
-              <div className="flex items-center justify-between gap-4 border-b border-white/5 px-5 py-4">
+              <div className="flex items-center justify-between gap-4 border-b border-(--seva-border-subtle) px-5 py-4">
                 <div>
                   <p className="sevacam-eyebrow">Quick Tasks</p>
-                  <p className="mt-1 text-[0.76rem] text-[var(--seva-text-muted)]">
+                  <p className="mt-1 text-[0.76rem] text-(--seva-text-muted)">
                     Common administrative actions, kept within fast reach.
                   </p>
                 </div>
                 <Link
                   href="/admin/bookings"
-                  className="shrink-0 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-[var(--seva-accent)] transition-colors hover:text-[var(--seva-text)]"
+                  className="shrink-0 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent) transition-colors hover:text-(--seva-text)"
                 >
                   View bookings
                 </Link>
               </div>
-              <div className="hidden grid-cols-[1.05fr_1.5fr_auto] gap-4 border-b border-white/5 px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.14em] text-[var(--seva-text-muted)] md:grid">
+              <div className="hidden grid-cols-[1.05fr_1.5fr_auto] gap-4 border-b border-(--seva-border-subtle) px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.14em] text-(--seva-text-muted) md:grid">
                 <span>Action</span>
                 <span>Focus</span>
                 <span>Open</span>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-(--seva-border-subtle)">
                 {quickActions.map((action) => {
                   const Icon = action.icon;
                   return (
                     <Link
                       key={action.href}
                       href={action.href}
-                      className="grid gap-3 px-5 py-3.5 transition-colors hover:bg-[var(--seva-elevated)] md:grid-cols-[1.05fr_1.5fr_auto] md:items-center"
+                      className="grid gap-3 px-5 py-3.5 transition-colors hover:bg-(--seva-elevated) md:grid-cols-[1.05fr_1.5fr_auto] md:items-center"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.65rem] bg-[rgba(122,213,221,0.1)] text-[var(--seva-accent)]">
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.65rem] bg-[rgba(122,213,221,0.1)] text-(--seva-accent)">
                           <Icon className="h-3.5 w-3.5" />
                         </span>
                         <div>
-                          <p className="text-[0.84rem] font-semibold text-[var(--seva-text)]">
+                          <p className="text-[0.84rem] font-semibold text-(--seva-text)">
                             {action.title}
                           </p>
-                          <p className="text-[0.74rem] text-[var(--seva-text-muted)] md:hidden">
+                          <p className="text-[0.74rem] text-(--seva-text-muted) md:hidden">
                             {action.description}
                           </p>
                         </div>
                       </div>
-                      <p className="hidden text-[0.78rem] leading-5 text-[var(--seva-text-soft)] md:block">
+                      <p className="hidden text-[0.78rem] leading-5 text-(--seva-text-soft) md:block">
                         {action.description}
                       </p>
-                      <div className="inline-flex items-center gap-1.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-[var(--seva-accent)]">
+                      <div className="inline-flex items-center gap-1.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent)">
                         Open
                         <ArrowRight className="h-3.5 w-3.5" />
                       </div>
@@ -370,21 +370,21 @@ export default async function AdminDashboard() {
             {/* Quick stats */}
             <div className="sevacam-rail p-5">
               <p className="sevacam-eyebrow">Quick Stats</p>
-              <p className="mt-1 mb-4 text-[0.76rem] text-[var(--seva-text-muted)]">
+              <p className="mt-1 mb-4 text-[0.76rem] text-(--seva-text-muted)">
                 Metrics that matter most while operations are live.
               </p>
               <div className="space-y-2">
                 {pulseItems.map((item) => (
                   <div key={item.label} className="sevacam-side-stat flex-col !items-start gap-1">
                     <div className="flex w-full items-center justify-between gap-3">
-                      <p className="text-[0.8rem] font-medium text-[var(--seva-text-soft)]">
+                      <p className="text-[0.8rem] font-medium text-(--seva-text-soft)">
                         {item.label}
                       </p>
-                      <span className="text-[0.86rem] font-semibold text-[var(--seva-accent)]">
+                      <span className="text-[0.86rem] font-semibold text-(--seva-accent)">
                         {item.value}
                       </span>
                     </div>
-                    <p className="text-[0.7rem] leading-5 text-[var(--seva-text-muted)]">
+                    <p className="text-[0.7rem] leading-5 text-(--seva-text-muted)">
                       {item.note}
                     </p>
                   </div>
@@ -395,14 +395,14 @@ export default async function AdminDashboard() {
             {/* System integrity */}
             <div className="sevacam-rail p-5">
               <p className="sevacam-eyebrow">System Integrity</p>
-              <p className="mt-1 mb-4 text-[0.76rem] text-[var(--seva-text-muted)]">
+              <p className="mt-1 mb-4 text-[0.76rem] text-(--seva-text-muted)">
                 Booking flow and response health at a glance.
               </p>
-              <div className="rounded-[0.7rem] border border-white/5 bg-[var(--seva-elevated)] px-4 py-3.5">
-                <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-[var(--seva-accent)]">
+              <div className="rounded-[0.7rem] border border-(--seva-border-subtle) bg-(--seva-elevated) px-4 py-3.5">
+                <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-accent)">
                   Stable
                 </p>
-                <p className="mt-2 text-[0.76rem] leading-5 text-[var(--seva-text-soft)]">
+                <p className="mt-2 text-[0.76rem] leading-5 text-(--seva-text-soft)">
                   All booking nodes remain synchronized. Revenue, reviews, and
                   upcoming reservations are updating without issue.
                 </p>
@@ -418,7 +418,7 @@ export default async function AdminDashboard() {
             {/* Overview summary */}
             <div className="sevacam-rail p-5">
               <p className="sevacam-eyebrow">Overview Summary</p>
-              <p className="mt-1 mb-4 text-[0.76rem] text-[var(--seva-text-muted)]">
+              <p className="mt-1 mb-4 text-[0.76rem] text-(--seva-text-muted)">
                 A compact read on operational output.
               </p>
               <div className="space-y-2">

@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/auth/google/callback"
     FRONTEND_URL: str = "http://localhost:3000"
 
-    # =========================
+    # =========================|
     # Session lifetime
     # =========================
     SESSION_DAYS: int = 30
