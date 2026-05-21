@@ -26,8 +26,19 @@ export default function GoogleCallbackClient() {
       return;
     }
 
-    // Cookie is already set by the backend redirect. Resolve role and navigate.
-    fetch("/api/auth/me", { cache: "no-store" })
+    const token = searchParams.get("token");
+    if (!token) {
+      router.replace("/auth?mode=login&error=Login+failed.+Please+try+again.");
+      return;
+    }
+
+    // Set the cookie via Next.js API route, then resolve role and navigate
+    fetch("/api/auth/set-cookie", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    })
+      .then(() => fetch("/api/auth/me", { cache: "no-store" }))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         const role = data?.user?.role;
