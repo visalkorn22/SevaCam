@@ -13,14 +13,16 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+// Backend weekday: 0=Sunday, 1=Monday, ..., 6=Saturday
+// Formula used by backend: (python_weekday + 1) % 7
 const DAYS = [
-  { key: 0, label: "Mon", full: "Monday" },
-  { key: 1, label: "Tue", full: "Tuesday" },
-  { key: 2, label: "Wed", full: "Wednesday" },
-  { key: 3, label: "Thu", full: "Thursday" },
-  { key: 4, label: "Fri", full: "Friday" },
-  { key: 5, label: "Sat", full: "Saturday" },
-  { key: 6, label: "Sun", full: "Sunday" },
+  { key: 1, label: "Mon", full: "Monday" },
+  { key: 2, label: "Tue", full: "Tuesday" },
+  { key: 3, label: "Wed", full: "Wednesday" },
+  { key: 4, label: "Thu", full: "Thursday" },
+  { key: 5, label: "Fri", full: "Friday" },
+  { key: 6, label: "Sat", full: "Saturday" },
+  { key: 0, label: "Sun", full: "Sunday" },
 ];
 
 type StaffMember = { id: string; full_name: string | null };
