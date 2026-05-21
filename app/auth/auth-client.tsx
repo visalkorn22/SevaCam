@@ -124,6 +124,15 @@ export default function AuthClient({ initialMode }: AuthClientProps) {
         throw new Error(message);
       }
 
+      const data = await res.json().catch(() => ({}));
+      if (data?.token) {
+        await fetch("/api/auth/set-cookie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: data.token }),
+        });
+      }
+
       await refreshProfile();
       await redirectAfterAuth();
     } catch (err: unknown) {
