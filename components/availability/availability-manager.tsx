@@ -2,18 +2,15 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  ChevronDown,
   Plus,
   Trash2,
-  Save,
   Clock,
   Users,
   Calendar,
-  AlertTriangle,
+  AlertCircle,
   CheckCircle2,
   Loader2,
-  Sun,
-  Moon,
+  ChevronDown,
 } from "lucide-react";
 
 const DAYS = [
@@ -27,18 +24,37 @@ const DAYS = [
 ];
 
 type StaffMember = { id: string; full_name: string | null };
-type WorkBlock = { id: string; schedule_id: string; weekday: number; start_time_local: string; end_time_local: string };
-type Schedule = { id: string; staff_id: string; timezone: string; is_default: boolean; max_slots_per_day: number | null; max_bookings_per_day: number | null };
+type WorkBlock = {
+  id: string;
+  schedule_id: string;
+  weekday: number;
+  start_time_local: string;
+  end_time_local: string;
+};
+type Schedule = {
+  id: string;
+  staff_id: string;
+  timezone: string;
+  is_default: boolean;
+  max_slots_per_day: number | null;
+  max_bookings_per_day: number | null;
+};
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function authedFetch(path: string, opts: RequestInit = {}) {
-  const res = await fetch(path, { ...opts, credentials: "include" });
-  return res;
+  return fetch(path, { ...opts, credentials: "include" });
 }
 
+const labelClass =
+  "text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--seva-text-muted)";
+
+const dayBadgeActive =
+  "text-[0.62rem] font-bold uppercase tracking-[0.12em] text-(--seva-accent)";
+const dayBadgeIdle =
+  "text-[0.62rem] font-bold uppercase tracking-[0.12em] text-(--seva-text-muted)";
+
 export function AvailabilityManager() {
-  const [dark, setDark] = useState(true);
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -46,30 +62,32 @@ export function AvailabilityManager() {
   const [blocks, setBlocks] = useState<WorkBlock[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [staffOpen, setStaffOpen] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
   const showToast = (type: "success" | "error", msg: string) => {
     setToast({ type, msg });
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Load staff list
+  // Load staff list via Next.js proxy (uses httpOnly cookie on vercel.app)
   useEffect(() => {
     fetch("/api/admin/staff-list")
       .then((r) => r.json())
       .then((data: StaffMember[]) => {
-        setStaff(data);
-        if (data.length > 0) setSelectedStaff(data[0]);
+        const list = Array.isArray(data) ? data : [];
+        setStaff(list);
+        if (list.length > 0) setSelectedStaff(list[0]);
       })
       .catch(() => {});
   }, []);
 
-  // Load schedules when staff changes
   const loadSchedules = useCallback(async (staffId: string) => {
     setLoading(true);
     try {
-      const res = await authedFetch(`${apiUrl}/api/availability/weekly-schedules/${staffId}`);
+      const res = await authedFetch(
+        `${apiUrl}/api/availability/weekly-schedules/${staffId}`
+      );
       if (res.ok) {
         const data: Schedule[] = await res.json();
         setSchedules(data);
@@ -85,7 +103,9 @@ export function AvailabilityManager() {
   }, []);
 
   const loadBlocks = useCallback(async (scheduleId: string) => {
-    const res = await authedFetch(`${apiUrl}/api/availability/weekly-schedules/${scheduleId}/blocks`);
+    const res = await authedFetch(
+      `${apiUrl}/api/availability/weekly-schedules/${scheduleId}/blocks`
+    );
     if (res.ok) {
       const data = await res.json();
       setBlocks(data.work_blocks ?? []);
@@ -105,23 +125,26 @@ export function AvailabilityManager() {
     if (!selectedStaff) return;
     setSaving(true);
     try {
-      const res = await authedFetch(`${apiUrl}/api/availability/weekly-schedules`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          staff_id: selectedStaff.id,
-          timezone: "Asia/Phnom_Penh",
-          is_default: true,
-          max_slots_per_day: null,
-          max_bookings_per_day: null,
-          max_bookings_per_customer: null,
-        }),
-      });
+      const res = await authedFetch(
+        `${apiUrl}/api/availability/weekly-schedules`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            staff_id: selectedStaff.id,
+            timezone: "Asia/Phnom_Penh",
+            is_default: true,
+            max_slots_per_day: null,
+            max_bookings_per_day: null,
+            max_bookings_per_customer: null,
+          }),
+        }
+      );
       if (res.ok) {
         showToast("success", "Schedule created");
         await loadSchedules(selectedStaff.id);
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         showToast("error", err.detail ?? "Failed to create schedule");
       }
     } finally {
@@ -133,21 +156,24 @@ export function AvailabilityManager() {
     if (!selectedSchedule) return;
     setSaving(true);
     try {
-      const res = await authedFetch(`${apiUrl}/api/availability/weekly-schedules/work-blocks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          schedule_id: selectedSchedule.id,
-          weekday,
-          start_time_local: "09:00:00",
-          end_time_local: "17:00:00",
-        }),
-      });
+      const res = await authedFetch(
+        `${apiUrl}/api/availability/weekly-schedules/work-blocks`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            schedule_id: selectedSchedule.id,
+            weekday,
+            start_time_local: "09:00:00",
+            end_time_local: "17:00:00",
+          }),
+        }
+      );
       if (res.ok) {
         showToast("success", "Work block added");
         await loadBlocks(selectedSchedule.id);
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         showToast("error", err.detail ?? "Failed to add block");
       }
     } finally {
@@ -158,9 +184,10 @@ export function AvailabilityManager() {
   const deleteBlock = async (blockId: string) => {
     setSaving(true);
     try {
-      const res = await authedFetch(`${apiUrl}/api/availability/weekly-schedules/work-blocks/${blockId}`, {
-        method: "DELETE",
-      });
+      const res = await authedFetch(
+        `${apiUrl}/api/availability/weekly-schedules/work-blocks/${blockId}`,
+        { method: "DELETE" }
+      );
       if (res.ok || res.status === 204) {
         showToast("success", "Block removed");
         if (selectedSchedule) await loadBlocks(selectedSchedule.id);
@@ -172,243 +199,308 @@ export function AvailabilityManager() {
     }
   };
 
-  const updateBlock = async (block: WorkBlock, field: "start_time_local" | "end_time_local", value: string) => {
+  const updateBlock = async (
+    block: WorkBlock,
+    field: "start_time_local" | "end_time_local",
+    value: string
+  ) => {
     const updated = { ...block, [field]: value + ":00" };
     setBlocks((prev) => prev.map((b) => (b.id === block.id ? updated : b)));
     try {
-      await authedFetch(`${apiUrl}/api/availability/weekly-schedules/work-blocks/${block.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [field]: value + ":00" }),
-      });
+      await authedFetch(
+        `${apiUrl}/api/availability/weekly-schedules/work-blocks/${block.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ [field]: value + ":00" }),
+        }
+      );
     } catch {
       showToast("error", "Failed to update time");
     }
   };
 
-  const blocksForDay = (day: number) => blocks.filter((b) => b.weekday === day);
+  const blocksForDay = (day: number) =>
+    blocks.filter((b) => b.weekday === day);
 
-  const t = (val: string) => val.slice(0, 5);
+  const trim = (val: string) => val.slice(0, 5);
+
+  const workingDays = new Set(blocks.map((b) => b.weekday)).size;
 
   return (
-    <div className={dark ? "dark" : ""}>
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-gray-100 transition-colors duration-300">
-
-        {/* Toast */}
-        {toast && (
-          <div className={`fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-2xl text-sm font-medium transition-all
-            ${toast.type === "success"
-              ? "bg-emerald-500 text-white"
-              : "bg-red-500 text-white"}`}>
-            {toast.type === "success" ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-            {toast.msg}
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0f] sticky top-0 z-40">
-          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-cyan-400" />
-              </div>
-              <div>
-                <h1 className="text-base font-semibold tracking-tight">Availability Manager</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Set staff working hours</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setDark(!dark)}
-              className="w-8 h-8 rounded-lg border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-            >
-              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-          </div>
+    <>
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed right-5 top-5 z-50 flex items-center gap-2.5 rounded-[0.7rem] px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] shadow-xl transition-all ${
+            toast.type === "success"
+              ? "bg-(--seva-accent) text-(--seva-base)"
+              : "bg-red-500 text-white"
+          }`}
+        >
+          {toast.type === "success" ? (
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+          ) : (
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          )}
+          {toast.msg}
         </div>
+      )}
 
-        <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-
-          {/* Staff Selector */}
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <Users className="w-4 h-4" />
-              <span>Staff member</span>
+      <div className="space-y-5">
+        {/* Staff selector card */}
+        <div className="rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-6 py-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-[0.7rem] bg-(--seva-elevated) text-(--seva-accent)">
+                <Users className="h-4 w-4" />
+              </span>
+              <div>
+                <p className={labelClass}>Staff member</p>
+                <p className="mt-0.5 text-[0.84rem] font-medium text-(--seva-text)">
+                  {selectedStaff?.full_name ?? "No staff selected"}
+                </p>
+              </div>
             </div>
+
+            {/* Staff dropdown */}
             <div className="relative">
               <button
-                onClick={() => setStaffOpen(!staffOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors text-sm font-medium min-w-[180px] justify-between"
+                onClick={() => setStaffOpen((o) => !o)}
+                className="flex min-w-50 items-center justify-between gap-3 rounded-[0.55rem] border border-(--border-subtle) bg-(--seva-elevated) px-4 py-2.5 text-[0.78rem] font-medium text-(--seva-text) transition-colors hover:border-(--border-interactive)"
               >
-                <span>{selectedStaff?.full_name || "Select staff"}</span>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${staffOpen ? "rotate-180" : ""}`} />
+                <span className="truncate">
+                  {selectedStaff?.full_name || "Select staff…"}
+                </span>
+                <ChevronDown
+                  className={`h-3.5 w-3.5 shrink-0 text-(--seva-text-muted) transition-transform ${staffOpen ? "rotate-180" : ""}`}
+                />
               </button>
+
               {staffOpen && (
-                <div className="absolute top-full mt-1 left-0 w-full bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
-                  {staff.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => { setSelectedStaff(s); setStaffOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors
-                        ${selectedStaff?.id === s.id ? "text-cyan-500 font-medium" : ""}`}
-                    >
-                      {s.full_name || "Unnamed staff"}
-                    </button>
-                  ))}
-                  {staff.length === 0 && (
-                    <div className="px-4 py-3 text-sm text-gray-400">No staff found</div>
+                <div className="absolute right-0 top-full z-50 mt-1.5 min-w-50 overflow-hidden rounded-[0.75rem] border border-(--border-subtle) bg-(--seva-dropdown-bg) shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
+                  {staff.length === 0 ? (
+                    <div className="px-4 py-3 text-[0.75rem] text-(--seva-text-muted)">
+                      No staff found
+                    </div>
+                  ) : (
+                    staff.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          setSelectedStaff(s);
+                          setStaffOpen(false);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left text-[0.78rem] transition-colors hover:bg-(--seva-elevated) ${
+                          selectedStaff?.id === s.id
+                            ? "font-semibold text-(--seva-accent)"
+                            : "text-(--seva-text)"
+                        }`}
+                      >
+                        {s.full_name || "Unnamed staff"}
+                      </button>
+                    ))
                   )}
                 </div>
               )}
             </div>
-
-            {selectedStaff && schedules.length === 0 && !loading && (
-              <button
-                onClick={createDefaultSchedule}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-medium transition-colors disabled:opacity-50"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                Create Schedule
-              </button>
-            )}
           </div>
+        </div>
 
-          {/* Loading */}
-          {loading && (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
-            </div>
-          )}
+        {/* Loading state */}
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-5 w-5 animate-spin text-(--seva-accent)" />
+          </div>
+        )}
 
-          {/* No schedule state */}
-          {!loading && selectedStaff && schedules.length === 0 && (
-            <div className="border border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-12 text-center">
-              <Clock className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">No schedule yet for {selectedStaff.full_name}</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500">Create a schedule to set working hours</p>
-            </div>
-          )}
+        {/* Empty — no schedule yet */}
+        {!loading && selectedStaff && schedules.length === 0 && (
+          <div className="flex flex-col items-center justify-center rounded-[1.1rem] border border-dashed border-(--border-subtle) bg-(--seva-surface) py-16 text-center">
+            <span className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-(--seva-elevated) ring-1 ring-(--border-subtle)">
+              <Clock className="h-6 w-6 text-(--seva-text-muted)" />
+            </span>
+            <p className="text-[0.9rem] font-semibold text-(--seva-text)">
+              No schedule for {selectedStaff.full_name}
+            </p>
+            <p className="mt-1.5 max-w-xs text-[0.78rem] leading-5 text-(--seva-text-muted)">
+              Create a weekly schedule to start adding working hours.
+            </p>
+            <button
+              onClick={createDefaultSchedule}
+              disabled={saving}
+              className="sevacam-primary-button mt-6 inline-flex h-10 items-center gap-2 rounded-[0.45rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] disabled:opacity-50"
+            >
+              {saving ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Plus className="h-3.5 w-3.5" />
+              )}
+              Create Schedule
+            </button>
+          </div>
+        )}
 
-          {/* Weekly Schedule Grid */}
-          {!loading && selectedSchedule && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-cyan-400" />
-                  <h2 className="text-sm font-semibold">Weekly Working Hours</h2>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">
-                    · {selectedSchedule.timezone}
-                    {selectedSchedule.is_default && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-500 text-[10px] font-medium">DEFAULT</span>
-                    )}
+        {/* No staff */}
+        {!loading && !selectedStaff && (
+          <div className="flex flex-col items-center justify-center rounded-[1.1rem] border border-dashed border-(--border-subtle) bg-(--seva-surface) py-16 text-center">
+            <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-(--seva-elevated) ring-1 ring-(--border-subtle)">
+              <Users className="h-6 w-6 text-(--seva-text-muted)" />
+            </span>
+            <p className="text-[0.84rem] text-(--seva-text-soft)">
+              Select a staff member to manage their schedule
+            </p>
+          </div>
+        )}
+
+        {/* Weekly schedule editor */}
+        {!loading && selectedSchedule && (
+          <div className="space-y-4">
+            {/* Schedule meta bar */}
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2.5">
+                <Calendar className="h-3.5 w-3.5 text-(--seva-accent)" />
+                <span className="text-[0.78rem] font-semibold text-(--seva-text)">
+                  Weekly Working Hours
+                </span>
+                <span className="rounded-full border border-(--border-subtle) bg-(--seva-elevated) px-2.5 py-0.5 text-[0.62rem] font-semibold uppercase tracking-widest text-(--seva-text-muted)">
+                  {selectedSchedule.timezone}
+                </span>
+                {selectedSchedule.is_default && (
+                  <span className="rounded-full bg-(--accent-subtle) px-2.5 py-0.5 text-[0.62rem] font-semibold uppercase tracking-widest text-(--seva-accent)">
+                    Default
                   </span>
-                </div>
-                {saving && <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />}
+                )}
               </div>
+              {saving && (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-(--seva-accent)" />
+              )}
+            </div>
 
-              <div className="grid gap-2">
-                {DAYS.map((day) => {
-                  const dayBlocks = blocksForDay(day.key);
-                  const hasBlocks = dayBlocks.length > 0;
+            {/* Day rows */}
+            <div className="overflow-hidden rounded-[1.1rem] border border-(--seva-border-subtle) bg-(--seva-surface)">
+              {DAYS.map((day, idx) => {
+                const dayBlocks = blocksForDay(day.key);
+                const hasBlocks = dayBlocks.length > 0;
+                const isLast = idx === DAYS.length - 1;
 
-                  return (
-                    <div
-                      key={day.key}
-                      className={`rounded-xl border transition-colors ${
-                        hasBlocks
-                          ? "border-cyan-500/20 bg-cyan-500/5 dark:bg-cyan-500/5"
-                          : "border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-white/2"
-                      }`}
-                    >
-                      <div className="flex items-center gap-4 px-4 py-3">
-                        {/* Day label */}
-                        <div className="w-10 shrink-0">
-                          <span className={`text-sm font-bold ${hasBlocks ? "text-cyan-500" : "text-gray-400 dark:text-gray-600"}`}>
-                            {day.label}
-                          </span>
-                        </div>
-
-                        {/* Status indicator */}
-                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${hasBlocks ? "bg-cyan-400" : "bg-gray-300 dark:bg-gray-700"}`} />
-
-                        {/* Blocks */}
-                        <div className="flex-1 flex flex-wrap items-center gap-2">
-                          {hasBlocks ? (
-                            dayBlocks.map((block) => (
-                              <div
-                                key={block.id}
-                                className="flex items-center gap-2 bg-white dark:bg-black/20 rounded-lg px-3 py-1.5 border border-cyan-500/20"
-                              >
-                                <input
-                                  type="time"
-                                  value={t(block.start_time_local)}
-                                  onChange={(e) => updateBlock(block, "start_time_local", e.target.value)}
-                                  className="text-sm bg-transparent border-none outline-none text-gray-700 dark:text-gray-200 w-[90px]"
-                                />
-                                <span className="text-gray-300 dark:text-gray-600 text-xs">→</span>
-                                <input
-                                  type="time"
-                                  value={t(block.end_time_local)}
-                                  onChange={(e) => updateBlock(block, "end_time_local", e.target.value)}
-                                  className="text-sm bg-transparent border-none outline-none text-gray-700 dark:text-gray-200 w-[90px]"
-                                />
-                                <button
-                                  onClick={() => deleteBlock(block.id)}
-                                  className="text-gray-300 dark:text-gray-600 hover:text-red-400 transition-colors ml-1"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            ))
-                          ) : (
-                            <span className="text-xs text-gray-400 dark:text-gray-600">Day off</span>
-                          )}
-                        </div>
-
-                        {/* Add block button */}
-                        <button
-                          onClick={() => addBlock(day.key)}
-                          disabled={saving}
-                          className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-colors disabled:opacity-40"
-                        >
-                          <Plus className="w-3 h-3" />
-                          Add
-                        </button>
-                      </div>
+                return (
+                  <div
+                    key={day.key}
+                    className={`flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:gap-4 ${
+                      !isLast ? "border-b border-(--border-subtle)" : ""
+                    } ${hasBlocks ? "bg-(--seva-surface)" : "bg-(--seva-base)"}`}
+                  >
+                    {/* Day label */}
+                    <div className="flex w-10 shrink-0 items-center gap-2 sm:pt-1">
+                      <span
+                        className={`w-2 h-2 rounded-full shrink-0 ${
+                          hasBlocks ? "bg-(--seva-accent)" : "bg-(--border-subtle)"
+                        }`}
+                      />
+                      <span
+                        className={hasBlocks ? dayBadgeActive : dayBadgeIdle}
+                      >
+                        {day.label}
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
 
-              {/* Summary */}
-              <div className="grid grid-cols-3 gap-3 pt-2">
-                {[
-                  { label: "Working days", value: `${new Set(blocks.map((b) => b.weekday)).size} / 7` },
-                  { label: "Max slots/day", value: selectedSchedule.max_slots_per_day ?? "Unlimited" },
-                  { label: "Max bookings/day", value: selectedSchedule.max_bookings_per_day ?? "Unlimited" },
-                ].map((stat) => (
+                    {/* Blocks */}
+                    <div className="flex flex-1 flex-wrap items-center gap-2">
+                      {hasBlocks ? (
+                        dayBlocks.map((block) => (
+                          <div
+                            key={block.id}
+                            className="flex items-center gap-1.5 rounded-[0.55rem] border border-(--border-subtle) bg-(--seva-elevated) px-3 py-2"
+                          >
+                            <input
+                              type="time"
+                              value={trim(block.start_time_local)}
+                              onChange={(e) =>
+                                updateBlock(block, "start_time_local", e.target.value)
+                              }
+                              className="w-20.5 bg-transparent text-[0.78rem] font-medium text-(--seva-text) outline-none"
+                            />
+                            <span className="text-[0.7rem] text-(--seva-text-muted)">
+                              →
+                            </span>
+                            <input
+                              type="time"
+                              value={trim(block.end_time_local)}
+                              onChange={(e) =>
+                                updateBlock(block, "end_time_local", e.target.value)
+                              }
+                              className="w-20.5 bg-transparent text-[0.78rem] font-medium text-(--seva-text) outline-none"
+                            />
+                            <button
+                              onClick={() => deleteBlock(block.id)}
+                              disabled={saving}
+                              className="ml-1 rounded-md p-0.5 text-(--seva-text-muted) transition-colors hover:text-red-400 disabled:opacity-40"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-[0.75rem] text-(--seva-text-muted)">
+                          Day off
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Add block */}
+                    <button
+                      onClick={() => addBlock(day.key)}
+                      disabled={saving}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-[0.45rem] border border-(--border-subtle) bg-(--seva-elevated) px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-(--seva-text-muted) transition-colors hover:border-(--border-interactive) hover:text-(--seva-accent) disabled:opacity-40"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Summary stats */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {[
+                {
+                  icon: Calendar,
+                  label: "Working Days",
+                  value: `${workingDays} / 7`,
+                },
+                {
+                  icon: Clock,
+                  label: "Max Slots / Day",
+                  value: selectedSchedule.max_slots_per_day ?? "Unlimited",
+                },
+                {
+                  icon: Users,
+                  label: "Max Bookings / Day",
+                  value: selectedSchedule.max_bookings_per_day ?? "Unlimited",
+                },
+              ].map((stat) => {
+                const Icon = stat.icon;
+                return (
                   <div
                     key={stat.label}
-                    className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/2 px-4 py-3"
+                    className="rounded-[0.85rem] border border-(--seva-border-subtle) bg-(--seva-surface) px-4 py-4"
                   >
-                    <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">{stat.label}</div>
-                    <div className="text-sm font-semibold">{stat.value}</div>
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-3.5 w-3.5 text-(--seva-accent)" />
+                      <p className={labelClass}>{stat.label}</p>
+                    </div>
+                    <p className="mt-2 text-[1.1rem] font-bold text-(--seva-text)">
+                      {stat.value}
+                    </p>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          )}
-
-          {/* No staff selected */}
-          {!selectedStaff && !loading && (
-            <div className="border border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-12 text-center">
-              <Users className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">Select a staff member to manage their schedule</p>
-            </div>
-          )}
-
-        </div>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }
