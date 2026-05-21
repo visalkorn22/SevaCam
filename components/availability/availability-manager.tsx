@@ -40,10 +40,8 @@ type Schedule = {
   max_bookings_per_day: number | null;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 async function authedFetch(path: string, opts: RequestInit = {}) {
-  return fetch(path, { ...opts, credentials: "include" });
+  return fetch(path, opts);
 }
 
 const labelClass =
@@ -86,7 +84,7 @@ export function AvailabilityManager() {
     setLoading(true);
     try {
       const res = await authedFetch(
-        `${apiUrl}/api/availability/weekly-schedules/${staffId}`
+        `/api/availability/weekly-schedules/${staffId}`
       );
       if (res.ok) {
         const data: Schedule[] = await res.json();
@@ -104,7 +102,7 @@ export function AvailabilityManager() {
 
   const loadBlocks = useCallback(async (scheduleId: string) => {
     const res = await authedFetch(
-      `${apiUrl}/api/availability/weekly-schedules/${scheduleId}/blocks`
+      `/api/availability/weekly-schedules/${scheduleId}/blocks`
     );
     if (res.ok) {
       const data = await res.json();
@@ -126,7 +124,7 @@ export function AvailabilityManager() {
     setSaving(true);
     try {
       const res = await authedFetch(
-        `${apiUrl}/api/availability/weekly-schedules`,
+        `/api/availability/weekly-schedules`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -157,7 +155,7 @@ export function AvailabilityManager() {
     setSaving(true);
     try {
       const res = await authedFetch(
-        `${apiUrl}/api/availability/weekly-schedules/work-blocks`,
+        `/api/availability/weekly-schedules/work-blocks`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -185,7 +183,7 @@ export function AvailabilityManager() {
     setSaving(true);
     try {
       const res = await authedFetch(
-        `${apiUrl}/api/availability/weekly-schedules/work-blocks/${blockId}`,
+        `/api/availability/weekly-schedules/work-blocks/${blockId}`,
         { method: "DELETE" }
       );
       if (res.ok || res.status === 204) {
@@ -208,7 +206,7 @@ export function AvailabilityManager() {
     setBlocks((prev) => prev.map((b) => (b.id === block.id ? updated : b)));
     try {
       await authedFetch(
-        `${apiUrl}/api/availability/weekly-schedules/work-blocks/${block.id}`,
+        `/api/availability/weekly-schedules/work-blocks/${block.id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
