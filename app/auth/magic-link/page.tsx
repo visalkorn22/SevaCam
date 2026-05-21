@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 
 type Status = "loading" | "success" | "error";
 
-export default function MagicLinkPage() {
+function MagicLinkContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -108,5 +108,17 @@ export default function MagicLinkPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function MagicLinkPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    }>
+      <MagicLinkContent />
+    </Suspense>
   );
 }
