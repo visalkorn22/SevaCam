@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
+import { KhqrSweepButton } from "@/components/admin/KhqrSweepButton";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -110,13 +111,16 @@ export default async function AdminPaymentsPage() {
                 across the platform.
               </p>
             </div>
-            <Link
-              href="/admin/dashboard"
-              className="sevacam-secondary-button inline-flex h-11 shrink-0 items-center rounded-[0.18rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
-            >
-              <ArrowLeft className="mr-2 size-3.5" />
-              Back to Dashboard
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <KhqrSweepButton />
+              <Link
+                href="/admin/dashboard"
+                className="sevacam-secondary-button inline-flex h-11 shrink-0 items-center rounded-[0.18rem] px-5 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
+              >
+                <ArrowLeft className="mr-2 size-3.5" />
+                Back to Dashboard
+              </Link>
+            </div>
           </div>
         </section>
 
