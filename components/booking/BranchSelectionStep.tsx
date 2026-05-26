@@ -30,8 +30,10 @@ export default function BranchSelectionStep({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-semibold text-(--text-primary)">Choose a Branch</h3>
-        <p className="text-sm text-(--text-disabled)">Select your preferred location for this appointment.</p>
+        <h3 className="text-base font-medium text-(--text-primary)">Choose a Branch</h3>
+        <p className="text-sm text-(--text-secondary)">
+          Select your preferred location for this appointment.
+        </p>
       </div>
       <div className="space-y-3">
         {locations.map((loc) => {
@@ -39,10 +41,10 @@ export default function BranchSelectionStep({
           return (
             <div
               key={loc.id}
-              className={`rounded-[0.85rem] border p-4 transition-colors cursor-pointer ${
+              className={`sevacam-booking-card cursor-pointer p-4 transition-colors ${
                 selected
-                  ? "border-(--accent-primary) bg-[rgba(122,213,221,0.06)]"
-                  : "border-(--border-subtle) bg-(--bg-inset) hover:bg-(--bg-elevated)"
+                  ? "sevacam-booking-card-selected"
+                  : "bg-(--bg-inset) hover:bg-(--bg-overlay)"
               }`}
               onClick={() => onSelect(loc.id)}
             >
@@ -51,15 +53,15 @@ export default function BranchSelectionStep({
                   className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
                     selected
                       ? "border-(--accent-primary) bg-(--accent-primary)"
-                      : "border-(--border-subtle)"
+                      : "border-(--booking-frame) bg-(--bg-inset)"
                   }`}
                 >
                   {selected && <Check className="h-3 w-3 text-black" />}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-(--text-primary)">{loc.name}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-(--text-primary)">{loc.name}</p>
                   {loc.address && (
-                    <p className="text-sm text-(--text-disabled) mt-0.5">{loc.address}</p>
+                    <p className="mt-1 text-sm text-(--text-secondary)">{loc.address}</p>
                   )}
                   {selected && loc.latitude !== null && loc.longitude !== null && (
                     <div className="mt-3">

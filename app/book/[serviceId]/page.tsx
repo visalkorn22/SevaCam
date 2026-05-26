@@ -149,6 +149,12 @@ function getBookingArtClass(seed: string) {
   return bookingArtClasses[total % bookingArtClasses.length];
 }
 
+const SECTION_LABEL_CLASS = "sevacam-booking-label text-(--text-secondary)";
+const PRIMARY_ACTION_CLASS =
+  "sevacam-booking-primary-action flex min-h-12 w-full items-center justify-center gap-2 px-6 py-3 text-[11px] font-medium uppercase tracking-[0.18em]";
+const SECONDARY_ACTION_CLASS =
+  "sevacam-booking-secondary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em]";
+
 export default async function BookServicePage({
   params,
   searchParams,
@@ -192,16 +198,16 @@ export default async function BookServicePage({
         {/* Back link */}
         <Link
           href="/services"
-          className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+          className={`mb-8 ${SECONDARY_ACTION_CLASS}`}
         >
           <ChevronLeft className="h-4 w-4" />
           Back to services
         </Link>
 
         {/* ── Service hero: 2-column ── */}
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
           {/* Left: image */}
-          <div className="overflow-hidden rounded-2xl">
+          <div className="sevacam-booking-card overflow-hidden">
             {images.length > 0 ? (
               <ImageCarousel
                 images={images}
@@ -215,45 +221,47 @@ export default async function BookServicePage({
           </div>
 
           {/* Right: info + CTA */}
-          <div className="space-y-5 lg:py-2">
+          <div className="lg:py-2">
             {service.category && (
-              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--seva-warm)">
+              <p className={SECTION_LABEL_CLASS}>
                 {service.category}
               </p>
             )}
-            <h1 className="text-3xl font-bold leading-tight text-(--text-primary) sm:text-4xl">
+            <h1
+              className={`${service.category ? "mt-1 " : ""}text-3xl font-medium leading-tight text-(--text-primary) sm:text-4xl`}
+            >
               {displayName}
             </h1>
             {service.description && (
-              <p className="text-sm leading-7 text-(--text-secondary)">
+              <p className="mt-6 text-sm leading-7 text-(--text-secondary)">
                 {service.description}
               </p>
             )}
 
             {/* Stats row */}
-            <div className="flex gap-8 border-y border-(--border-muted) py-5">
+            <div className="mt-6 flex gap-8 border-y border-(--booking-frame) py-4">
               <div>
-                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                <p className={SECTION_LABEL_CLASS}>
                   Price
                 </p>
-                <p className="mt-1 text-xl font-bold text-(--text-primary)">
+                <p className="mt-1 text-xl font-medium text-(--text-primary)">
                   {formatPrice(service.price)}
                 </p>
               </div>
               <div>
-                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                <p className={SECTION_LABEL_CLASS}>
                   Length
                 </p>
-                <p className="mt-1 text-xl font-bold text-(--text-primary)">
+                <p className="mt-1 text-xl font-medium text-(--text-primary)">
                   {formatDuration(service.duration_minutes)}
                 </p>
               </div>
               {reviewsData?.average_rating != null && (
                 <div>
-                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                  <p className={SECTION_LABEL_CLASS}>
                     Rating
                   </p>
-                  <p className="mt-1 text-xl font-bold text-(--text-primary)">
+                  <p className="mt-1 text-xl font-medium text-(--text-primary)">
                     {reviewsData.average_rating.toFixed(1)}
                   </p>
                 </div>
@@ -263,13 +271,13 @@ export default async function BookServicePage({
             {/* CTA — scrolls to the booking form */}
             <a
               href="#booking"
-              className="sevacam-primary-button flex min-h-12 w-full items-center justify-center gap-2 rounded-[0.18rem] px-6 py-3.5 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[#07292d]"
+              className={`mt-6 ${PRIMARY_ACTION_CLASS}`}
             >
               Reserve service · {formatPrice(service.price)}
               <ArrowRight className="h-4 w-4" />
             </a>
             {service.deposit_amount > 0 && (
-              <p className="text-center text-xs text-(--text-secondary)">
+              <p className="mt-3 text-center text-xs text-(--text-secondary)">
                 {formatPrice(service.deposit_amount)} deposit now ·{" "}
                 {formatPrice(service.price - service.deposit_amount)} after session
               </p>
@@ -279,10 +287,10 @@ export default async function BookServicePage({
 
         {/* ── What's included + Who guides it ── */}
         {(inclusionItems.length > 0 || staff.length > 0) && (
-          <div className="mt-14 grid gap-10 md:grid-cols-2">
+          <div className="mt-7 grid gap-7 md:grid-cols-2">
             {inclusionItems.length > 0 && (
               <div>
-                <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                <p className={`${SECTION_LABEL_CLASS} mb-4`}>
                   What&apos;s Included
                 </p>
                 <ul className="space-y-3">
@@ -297,13 +305,13 @@ export default async function BookServicePage({
             )}
             {staff.length > 0 && (
               <div>
-                <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+                <p className={`${SECTION_LABEL_CLASS} mb-4`}>
                   Who Guides It
                 </p>
                 <div className="space-y-3">
                   {staff.map((member) => (
                     <div key={member.id} className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-muted) bg-(--bg-elevated)">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-(--bg-inset)">
                         {member.avatar_url ? (
                           <img
                             src={member.avatar_url}
@@ -311,7 +319,7 @@ export default async function BookServicePage({
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span className="text-xs font-bold text-(--text-primary)/80">
+                          <span className="text-xs font-medium text-(--text-primary)">
                             {member.name
                               .split(" ")
                               .map((p: string) => p[0])
@@ -334,8 +342,8 @@ export default async function BookServicePage({
 
         {/* ── Prep notes ── */}
         {service.prep_notes && (
-          <div className="mt-10 rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-6">
-            <p className="mb-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+          <div className="sevacam-booking-rail mt-7 p-6">
+            <p className={`${SECTION_LABEL_CLASS} mb-3`}>
               Prep Notes
             </p>
             <p className="text-sm leading-7 text-(--text-secondary)">{service.prep_notes}</p>
@@ -345,7 +353,7 @@ export default async function BookServicePage({
         {/* ── Location maps ── */}
         {service.locations &&
           service.locations.filter((l: { latitude: number | null; longitude: number | null }) => l.latitude !== null && l.longitude !== null).length > 0 && (
-            <div className="mt-10 space-y-4">
+            <div className="mt-7 space-y-4">
               {service.locations
                 .filter((l: { latitude: number | null; longitude: number | null }) => l.latitude !== null && l.longitude !== null)
                 .map((loc: { id: string; name: string; address: string | null; latitude: number | null; longitude: number | null }) => (
@@ -367,15 +375,15 @@ export default async function BookServicePage({
           service.locations.filter(
             (l: { latitude: number | null; longitude: number | null; name: string; address: string | null }) => !(l.latitude != null && l.longitude != null) && (l.name || l.address),
           ).length > 0 && (
-            <div className="mt-6 space-y-3">
+            <div className="mt-7 space-y-3">
               {service.locations
                 .filter((l: { latitude: number | null; longitude: number | null; name: string; address: string | null }) => !(l.latitude != null && l.longitude != null) && (l.name || l.address))
                 .map((loc: { id: string; name: string; address: string | null }) => (
-                  <div key={loc.id} className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-4">
+                  <div key={loc.id} className="sevacam-booking-card p-4">
                     <div className="flex items-start gap-2">
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
                       <div>
-                        <p className="text-sm font-semibold text-(--text-primary)">
+                        <p className="text-sm font-medium text-(--text-primary)">
                           {loc.name || loc.address}
                         </p>
                         {loc.name && loc.address && (
@@ -389,12 +397,12 @@ export default async function BookServicePage({
           )}
 
         {/* ── Reviews ── */}
-        <div className="mt-12">
+        <div className="mt-7">
           <ServiceReviews data={reviewsData} />
         </div>
 
         {/* ── Booking form — full width ── */}
-        <section id="booking" className="mt-16 scroll-mt-6 border-t border-(--border-muted) pt-12">
+        <section id="booking" className="mt-7 scroll-mt-6 border-t border-(--booking-frame) pt-7">
           <BookingForm
             service={service}
             staff={staff}
@@ -404,7 +412,7 @@ export default async function BookServicePage({
           />
         </section>
 
-        <footer className="mt-16 border-t border-(--border-muted) pt-8">
+        <footer className="mt-7 border-t border-(--booking-frame) pt-7">
           <div className="flex flex-col gap-6 text-[0.58rem] uppercase tracking-[0.18em] text-(--text-secondary) sm:flex-row sm:items-center sm:justify-between">
             <p>Copyright 2026 SevaCam. All rights reserved.</p>
             <nav className="flex flex-wrap gap-x-6 gap-y-3">

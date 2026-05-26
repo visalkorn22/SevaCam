@@ -32,7 +32,7 @@ export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
   if (!data || data.review_count === 0) {
     return (
       <div>
-        <h2 className="text-sm font-semibold text-(--text-primary)">Reviews</h2>
+        <h2 className="text-sm font-medium text-(--text-primary)">Reviews</h2>
         <p className="mt-2 text-sm text-(--text-secondary)">No reviews yet.</p>
       </div>
     );
@@ -40,12 +40,12 @@ export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
 
   return (
     <div>
-      <div className="mb-5 flex items-center gap-3">
-        <h2 className="text-base font-semibold text-(--text-primary)">Reviews</h2>
+      <div className="mb-4 flex items-center gap-3">
+        <h2 className="text-base font-medium text-(--text-primary)">Reviews</h2>
         {data.average_rating != null && (
           <>
             <StarDisplay rating={data.average_rating} />
-            <span className="text-sm font-semibold text-(--text-primary)">
+            <span className="text-sm font-medium text-(--text-primary)">
               {data.average_rating.toFixed(1)}
             </span>
           </>
@@ -59,7 +59,7 @@ export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
         {data.reviews.map((review, index) => (
           <div
             key={index}
-            className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-4"
+            className="sevacam-booking-card p-4"
           >
             <StarDisplay rating={review.rating} />
             {review.comment && (
@@ -67,7 +67,7 @@ export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
                 {review.comment}
               </p>
             )}
-            <p className="mt-3 text-[0.65rem] text-(--text-secondary)/70">
+            <p className="mt-3 text-[0.65rem] text-(--text-secondary)">
               {review.customer_name} ·{" "}
               {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
             </p>

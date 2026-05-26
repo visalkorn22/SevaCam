@@ -31,6 +31,12 @@ const usd = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
+const SECTION_LABEL_CLASS = "sevacam-booking-label text-(--text-secondary)";
+const PRIMARY_ACTION_CLASS =
+  "sevacam-booking-primary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em] disabled:opacity-100";
+const SECONDARY_ACTION_CLASS =
+  "sevacam-booking-secondary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em] disabled:opacity-100";
+
 export function PaymentReturnStatus({
   paymentId,
   initialPayment,
@@ -59,9 +65,8 @@ export function PaymentReturnStatus({
         description:
           "Your payment has been confirmed. Your booking is now secured.",
         icon: CheckCircle2,
-        iconClass: "text-emerald-600 dark:text-emerald-400",
-        ringClass: "ring-emerald-500/20 bg-emerald-500/10",
-        barClass: "bg-emerald-500/8 border-b border-emerald-500/20",
+        iconClass: "text-(--accent-primary)",
+        tone: "available",
       };
     }
     if (status === "failed") {
@@ -70,9 +75,8 @@ export function PaymentReturnStatus({
         description:
           "The payment was not completed. You can try again from your booking.",
         icon: XCircle,
-        iconClass: "text-red-600 dark:text-red-400",
-        ringClass: "ring-red-500/20 bg-red-500/10",
-        barClass: "bg-red-500/8 border-b border-red-500/20",
+        iconClass: "text-(--state-warning)",
+        tone: "unavailable",
       };
     }
     if (status === "refunded") {
@@ -80,9 +84,8 @@ export function PaymentReturnStatus({
         title: "Payment refunded",
         description: "This payment has been refunded.",
         icon: AlertTriangle,
-        iconClass: "text-amber-600 dark:text-amber-400",
-        ringClass: "ring-amber-500/20 bg-amber-500/10",
-        barClass: "bg-amber-500/8 border-b border-amber-500/20",
+        iconClass: "text-(--state-warning)",
+        tone: "selected",
       };
     }
     return {
@@ -91,9 +94,8 @@ export function PaymentReturnStatus({
         ? "We are checking the latest payment status with the selected provider."
         : "QR created. Complete payment first, then refresh status manually.",
       icon: Clock3,
-      iconClass: "text-blue-600 dark:text-blue-400",
-      ringClass: "ring-blue-500/20 bg-blue-500/10",
-      barClass: "bg-blue-500/8 border-b border-blue-500/20",
+      iconClass: "text-(--accent-primary)",
+      tone: "today",
     };
   }, [autoRefresh, status]);
 
@@ -102,62 +104,71 @@ export function PaymentReturnStatus({
   return (
     <>
       {!showSuccessExperience && (
-        <div className="mx-auto max-w-lg space-y-5 motion-preset-slide-up-sm motion-duration-500">
-          <div className="pb-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Payment Status
+        <div className="mx-auto max-w-lg space-y-6 motion-preset-slide-up-sm motion-duration-500">
+          <div>
+            <p className={SECTION_LABEL_CLASS}>Payment Status</p>
+            <h1 className="mt-4 text-3xl font-medium tracking-tight text-(--text-primary)">
+              Checking your payment
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Checking your payment with{" "}
-              {payment?.provider?.replace("_", " ") || "the provider"}&hellip;
+            <p className="mt-3 text-sm text-(--text-secondary)">
+              Verifying the latest status with{" "}
+              {payment?.provider?.replace("_", " ") || "the provider"}.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
-            <div className={`px-6 py-6 ${statusMeta.barClass}`}>
+          <div className="sevacam-booking-rail overflow-hidden">
+            <div className="border-b border-(--booking-frame) px-6 py-6">
               <div className="flex items-center gap-4">
                 <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ring-1 ${statusMeta.ringClass} ${statusMeta.iconClass}`}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-(--booking-frame) bg-(--bg-elevated)"
                 >
-                  <StatusIcon className="h-6 w-6" />
+                  <StatusIcon className={`h-6 w-6 ${statusMeta.iconClass}`} />
                 </div>
-                <div>
-                  <p className="text-base font-semibold text-foreground">
-                    {statusMeta.title}
-                  </p>
-                  <p className="mt-0.5 max-w-75 text-sm text-muted-foreground">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-base font-medium text-(--text-primary)">
+                      {statusMeta.title}
+                    </p>
+                    <span
+                      data-tone={statusMeta.tone}
+                      className="sevacam-booking-pill"
+                    >
+                      {status.replace(/_/g, " ")}
+                    </span>
+                  </div>
+                  <p className="mt-2 max-w-75 text-sm text-(--text-secondary)">
                     {statusMeta.description}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-background px-6 py-5">
+            <div className="px-6 py-6">
               {isLoading && (
-                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                  Syncing latest status&hellip;
+                <div className="mb-4 flex items-center gap-2 text-sm text-(--text-secondary)">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-(--accent-primary)" />
+                  Syncing latest status...
                 </div>
               )}
 
               {error && (
-                <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <div className="mb-4 rounded-xl border border-(--booking-frame) bg-(--state-warning-subtle) px-4 py-3 text-sm text-(--text-secondary)">
                   {error}
                 </div>
               )}
 
               {payment && (
-                <div className="space-y-2.5 rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
+                <div className="sevacam-booking-card space-y-3 p-4 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Amount</span>
-                    <span className="font-semibold text-foreground">
+                    <span className="text-(--text-secondary)">Amount</span>
+                    <span className="font-medium text-(--text-primary)">
                       {usd.format(Number(payment.amount || 0))}{" "}
                       {payment.currency}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Provider</span>
-                    <span className="font-medium capitalize text-foreground">
+                    <span className="text-(--text-secondary)">Provider</span>
+                    <span className="font-medium capitalize text-(--text-primary)">
                       {payment.provider.replace("_", " ")}
                     </span>
                   </div>
@@ -168,9 +179,8 @@ export function PaymentReturnStatus({
                 {!isTerminal && (
                   <Button
                     type="button"
-                    variant="outline"
                     onClick={() => refetch()}
-                    className="h-11 flex-1 rounded-xl border-border/60 hover:bg-muted/50"
+                    className={`${SECONDARY_ACTION_CLASS} h-11 flex-1`}
                   >
                     <RefreshCw
                       className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
@@ -179,33 +189,30 @@ export function PaymentReturnStatus({
                   </Button>
                 )}
                 {payment?.booking_id && status === "completed" && (
-                  <Button asChild className="h-11 flex-1 rounded-xl shadow-sm">
-                    <Link href={`/payment/${payment.booking_id}`}>
+                  <Link
+                    href={`/payment/${payment.booking_id}`}
+                    className={`${PRIMARY_ACTION_CLASS} h-11 flex-1`}
+                  >
                       View Confirmation
-                    </Link>
-                  </Button>
+                  </Link>
                 )}
                 {payment?.booking_id && status !== "completed" && (
-                  <Button
-                    asChild
-                    variant="secondary"
-                    className="h-11 flex-1 rounded-xl"
+                  <Link
+                    href={`/payment/${payment.booking_id}`}
+                    className={`${SECONDARY_ACTION_CLASS} h-11 flex-1`}
                   >
-                    <Link href={`/payment/${payment.booking_id}`}>
-                      Try Payment Again
-                    </Link>
-                  </Button>
+                    Try Payment Again
+                  </Link>
                 )}
               </div>
 
               <div className="mt-3 text-center">
-                <Button
-                  asChild
-                  variant="link"
-                  className="text-xs text-muted-foreground hover:text-foreground"
+                <Link
+                  href="/bookings"
+                  className="text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
                 >
-                  <Link href="/bookings">Return to My Bookings</Link>
-                </Button>
+                  Return to My Bookings
+                </Link>
               </div>
             </div>
           </div>

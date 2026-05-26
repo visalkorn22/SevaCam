@@ -9,14 +9,14 @@ export function PaymentReceiptActions() {
   };
 
   return (
-    <div className="print:hidden rounded-[1.6rem] border border-(--receipt-card-border) bg-(--receipt-card-bg) p-5 text-(--receipt-card-text) shadow-[0_24px_60px_rgba(0,0,0,0.10)]">
-      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-(--receipt-card-accent)">
+    <div className="sevacam-booking-rail print:hidden p-6 text-(--text-primary)">
+      <p className="sevacam-booking-label text-(--text-secondary)">
         Receipt Actions
       </p>
-      <h2 className="mt-3 text-xl font-semibold tracking-tight text-(--receipt-card-text)">
+      <h2 className="mt-4 text-xl font-medium tracking-tight text-(--text-primary)">
         Keep a copy of this booking
       </h2>
-      <p className="mt-2 text-sm leading-6 text-(--receipt-card-soft)">
+      <p className="mt-3 text-sm leading-6 text-(--text-secondary)">
         Download this page as a PDF or return to the service collection when
         you are ready to book again.
       </p>
@@ -25,7 +25,7 @@ export function PaymentReceiptActions() {
         <button
           type="button"
           onClick={handlePrint}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[0.75rem] bg-(--receipt-card-accent) px-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-(--receipt-card-accent-hover)"
+          className="sevacam-booking-primary-action inline-flex h-12 w-full items-center justify-center gap-2 px-4 text-[11px] font-medium uppercase tracking-[0.18em]"
         >
           <Download className="h-4 w-4" />
           Download PDF
@@ -33,7 +33,7 @@ export function PaymentReceiptActions() {
 
         <Link
           href="/services"
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[0.75rem] border border-(--receipt-card-border) bg-(--receipt-card-alt) px-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--receipt-card-text) transition-colors hover:bg-(--receipt-card-alt-hover) hover:text-(--receipt-card-accent)"
+          className="sevacam-booking-secondary-action inline-flex h-12 w-full items-center justify-center gap-2 px-4 text-[11px] font-medium uppercase tracking-[0.18em]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Services
@@ -41,16 +41,16 @@ export function PaymentReceiptActions() {
 
         <Link
           href="/bookings"
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-[0.75rem] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--receipt-card-muted) transition-colors hover:text-(--receipt-card-text)"
+          className="inline-flex h-11 w-full items-center justify-center gap-2 px-4 text-[11px] font-normal uppercase tracking-[0.18em] text-(--text-secondary) transition-colors hover:text-(--text-primary)"
         >
           <CalendarDays className="h-4 w-4" />
           My Bookings
         </Link>
       </div>
 
-      <p className="mt-4 text-xs leading-5 text-(--receipt-card-soft)">
+      <p className="mt-4 text-xs leading-5 text-(--text-secondary)">
         The download button opens your browser print dialog. Choose{" "}
-        <span className="font-medium text-(--receipt-card-text)">Save as PDF</span>{" "}
+        <span className="font-medium text-(--text-primary)">Save as PDF</span>{" "}
         to store the receipt.
       </p>
     </div>

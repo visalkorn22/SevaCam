@@ -110,6 +110,19 @@ const ART_TONE_CLASSES = [
   "sevacam-art-botanical",
 ] as const;
 
+const SECTION_LABEL_CLASS = "sevacam-booking-label text-(--text-secondary)";
+const RAIL_CLASS = "sevacam-booking-rail";
+const INPUT_CLASS = "sevacam-booking-input";
+const PRIMARY_ACTION_CLASS =
+  "sevacam-booking-primary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em]";
+const SECONDARY_ACTION_CLASS =
+  "sevacam-booking-secondary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em]";
+const FILTER_OPTION_BASE_CLASS =
+  "flex w-full items-center justify-between rounded-xl px-3 py-3 text-sm transition-colors";
+const FILTER_OPTION_ACTIVE_CLASS = "bg-(--accent-subtle) text-(--text-primary)";
+const FILTER_OPTION_IDLE_CLASS =
+  "text-(--text-secondary) hover:bg-(--bg-overlay) hover:text-(--text-primary)";
+
 function durationPresetMatches(minutes: number, preset: DurationPreset) {
   if (preset === "any") return true;
   if (preset === "under30") return minutes < 30;
@@ -164,7 +177,7 @@ function FilterSection({
 }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="border-b border-(--seva-border-subtle) pb-4 last:border-0 last:pb-0">
+    <div className="border-b border-(--booking-frame) pb-4 last:border-0 last:pb-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -172,21 +185,21 @@ function FilterSection({
       >
         <span
           className={cn(
-            "flex items-center gap-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em]",
-            active ? "text-(--seva-accent)" : "text-(--seva-text-muted)",
+            "sevacam-booking-label flex items-center gap-2",
+            active ? "text-(--accent-primary)" : "text-(--text-secondary)",
           )}
         >
           <Icon className="h-3.5 w-3.5" />
           {title}
           {active && (
-            <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-1.5 py-0.5 text-[9px] font-bold text-(--seva-accent)">
+            <span className="rounded-full border border-(--booking-frame) bg-(--accent-subtle) px-2 py-0.5 text-[10px] font-medium text-(--text-primary)">
               ON
             </span>
           )}
         </span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-(--seva-text-muted) transition-transform duration-200",
+            "h-3.5 w-3.5 text-(--text-secondary) transition-transform duration-200",
             open && "rotate-180",
           )}
         />
@@ -202,12 +215,12 @@ function FilterSection({
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="flex items-center gap-1 rounded-full border border-(--seva-border-subtle) bg-(--seva-elevated) px-3 py-1.5 text-[11px] font-medium text-(--seva-text-soft)">
+    <span className="flex items-center gap-1 rounded-full border border-(--booking-frame) bg-(--bg-elevated) px-3 py-2 text-[11px] font-medium text-(--text-secondary)">
       {label}
       <button
         type="button"
         onClick={onRemove}
-        className="ml-0.5 text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
+        className="ml-0.5 text-(--text-secondary) transition-colors hover:text-(--text-primary)"
         aria-label={`Remove ${label} filter`}
       >
         <X className="h-2.5 w-2.5" />
@@ -399,13 +412,13 @@ export function ServicesClient({
           showFilters ? "block" : "hidden lg:block",
         )}
       >
-        <div className="sevacam-rail px-5 py-5 sm:px-6">
-          <div className="flex items-center justify-between border-b border-(--seva-border-subtle) pb-5">
-            <span className="flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-soft)">
+        <div className={`${RAIL_CLASS} px-6 py-6`}>
+          <div className="flex items-center justify-between border-b border-(--booking-frame) pb-6">
+            <span className="sevacam-booking-label flex items-center gap-2 text-(--text-primary)">
               <SlidersHorizontal className="h-4 w-4" />
               Refine selection
               {activeFilterCount > 0 && (
-                <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-1.5 py-0.5 text-[10px] font-bold text-(--seva-accent)">
+                <span className="rounded-full border border-(--booking-frame) bg-(--accent-subtle) px-2 py-0.5 text-[10px] font-medium text-(--text-primary)">
                   {activeFilterCount}
                 </span>
               )}
@@ -414,14 +427,14 @@ export function ServicesClient({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-[0.62rem] uppercase tracking-[0.16em] text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
+                className="text-[11px] uppercase tracking-[0.18em] text-(--text-secondary) transition-colors hover:text-(--text-primary)"
               >
                 Clear all
               </button>
             )}
           </div>
 
-          <div className="space-y-4 pt-5">
+          <div className="space-y-4 pt-6">
 
             {/* Sort */}
             <FilterSection title="Sort by" icon={ArrowUpDown} active={sortKey !== "name_asc"}>
@@ -432,10 +445,10 @@ export function ServicesClient({
                     type="button"
                     onClick={() => setSortKey(opt.value)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-[0.45rem] px-3 py-2.5 text-sm transition-colors",
+                      FILTER_OPTION_BASE_CLASS,
                       sortKey === opt.value
-                        ? "bg-[rgba(122,213,221,0.12)] font-semibold text-(--seva-accent)"
-                        : "text-(--seva-text-soft) hover:bg-(--seva-elevated) hover:text-(--seva-text)",
+                        ? FILTER_OPTION_ACTIVE_CLASS
+                        : FILTER_OPTION_IDLE_CLASS,
                     )}
                   >
                     {opt.label}
@@ -455,10 +468,10 @@ export function ServicesClient({
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-[0.45rem] px-3 py-2.5 text-sm capitalize transition-colors",
+                        `${FILTER_OPTION_BASE_CLASS} capitalize`,
                         selectedCategory === cat
-                          ? "bg-[rgba(122,213,221,0.12)] font-semibold text-(--seva-accent)"
-                          : "text-(--seva-text-soft) hover:bg-(--seva-elevated) hover:text-(--seva-text)",
+                          ? FILTER_OPTION_ACTIVE_CLASS
+                          : FILTER_OPTION_IDLE_CLASS,
                       )}
                     >
                       {cat === "all" ? "All categories" : cat}
@@ -473,30 +486,30 @@ export function ServicesClient({
             <FilterSection title="Price range" icon={BadgeDollarSign} active={!!minPrice || !!maxPrice}>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="mb-1 block text-[11px] text-muted-foreground">Min ($)</label>
+                  <label className={`mb-2 block ${SECTION_LABEL_CLASS}`}>Min ($)</label>
                   <input
                     type="number"
                     min={0}
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
                     placeholder="0"
-                    className="sevacam-service-input"
+                    className={INPUT_CLASS}
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-[11px] text-muted-foreground">Max ($)</label>
+                  <label className={`mb-2 block ${SECTION_LABEL_CLASS}`}>Max ($)</label>
                   <input
                     type="number"
                     min={0}
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
                     placeholder="Any"
-                    className="sevacam-service-input"
+                    className={INPUT_CLASS}
                   />
                 </div>
               </div>
               {(minPrice || maxPrice) && (
-                <p className="mt-2 text-[11px] text-muted-foreground">
+                <p className="mt-2 text-[11px] text-(--text-secondary)">
                   {minPrice && maxPrice
                     ? `$${minPrice} \u2013 $${maxPrice}`
                     : minPrice
@@ -515,10 +528,10 @@ export function ServicesClient({
                     type="button"
                     onClick={() => setDurationPreset(p.value)}
                     className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                      "rounded-full border border-(--booking-frame) px-3 py-2 text-xs font-medium transition-colors",
                       durationPreset === p.value
-                        ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
-                        : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
+                        ? "bg-(--accent-subtle) text-(--text-primary)"
+                        : "bg-(--bg-elevated) text-(--text-secondary) hover:bg-(--bg-overlay) hover:text-(--text-primary)",
                     )}
                   >
                     {p.label}
@@ -536,10 +549,10 @@ export function ServicesClient({
                     type="button"
                     onClick={() => setDepositFilter(opt.value)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-[0.45rem] px-3 py-2.5 text-sm transition-colors",
+                      FILTER_OPTION_BASE_CLASS,
                       depositFilter === opt.value
-                        ? "bg-[rgba(122,213,221,0.12)] font-semibold text-(--seva-accent)"
-                        : "text-(--seva-text-soft) hover:bg-(--seva-elevated) hover:text-(--seva-text)",
+                        ? FILTER_OPTION_ACTIVE_CLASS
+                        : FILTER_OPTION_IDLE_CLASS,
                     )}
                   >
                     {opt.label}
@@ -561,10 +574,10 @@ export function ServicesClient({
                         type="button"
                         onClick={() => toggleTag(tag)}
                         className={cn(
-                          "flex items-center gap-1 rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors",
+                          "flex items-center gap-1 rounded-full border border-(--booking-frame) px-3 py-2 text-xs font-medium transition-colors",
                           active
-                            ? "border-[rgba(122,213,221,0.25)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
-                            : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
+                            ? "bg-(--accent-subtle) text-(--text-primary)"
+                            : "bg-(--bg-elevated) text-(--text-secondary) hover:bg-(--bg-overlay) hover:text-(--text-primary)",
                         )}
                       >
                         {active && <Check className="h-2.5 w-2.5" />}
@@ -577,7 +590,7 @@ export function ServicesClient({
                   <button
                     type="button"
                     onClick={() => setSelectedTags([])}
-                    className="mt-2 text-[11px] uppercase tracking-[0.14em] text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
+                    className="mt-2 text-[11px] uppercase tracking-[0.18em] text-(--text-secondary) transition-colors hover:text-(--text-primary)"
                   >
                     Clear tags
                   </button>
@@ -593,18 +606,18 @@ export function ServicesClient({
                   value={availableDate}
                   min={todayStr}
                   onChange={(e) => setAvailableDate(e.target.value)}
-                  className="sevacam-service-input"
+                  className={INPUT_CLASS}
                 />
                 {availableDate && (
                   <div className="flex items-center justify-between">
                     <p className="text-[11px]">
                       {availabilityChecking ? (
-                        <span className="flex items-center gap-1.5 text-(--seva-accent)">
+                        <span className="flex items-center gap-1.5 text-(--accent-primary)">
                           <Loader2 className="h-3 w-3 animate-spin" />
                           Checking availability&hellip;
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1.5 text-(--seva-text-soft)">
+                        <span className="flex items-center gap-1.5 text-(--text-secondary)">
                           <CalendarCheck className="h-3 w-3" />
                           Availability checked
                         </span>
@@ -613,13 +626,13 @@ export function ServicesClient({
                     <button
                       type="button"
                       onClick={() => setAvailableDate("")}
-                      className="text-[11px] uppercase tracking-[0.14em] text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
+                      className="text-[11px] uppercase tracking-[0.18em] text-(--text-secondary) transition-colors hover:text-(--text-primary)"
                     >
                       Clear
                     </button>
                   </div>
                 )}
-                <p className="text-[11px] leading-5 text-(--seva-text-muted)">
+                <p className="text-[11px] leading-5 text-(--text-secondary)">
                   Only shows services with open slots on this date.
                 </p>
               </div>
@@ -631,20 +644,20 @@ export function ServicesClient({
 
       <div className="min-w-0 flex-1 space-y-8">
 
-        <div className="sticky top-4 z-20 flex gap-3 bg-(--seva-base)/95 pb-3 backdrop-blur">
+        <div className="sticky top-4 z-20 flex gap-3 bg-(--bg-base)/95 pb-3 backdrop-blur">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-(--seva-text-muted)" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-(--text-secondary)" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search services, categories, tags…"
-              className="sevacam-service-input sevacam-service-search-input w-full"
+              className={`${INPUT_CLASS} sevacam-service-search-input w-full`}
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-(--seva-text-muted) transition-colors hover:text-(--seva-text)"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-secondary) transition-colors hover:text-(--text-primary)"
                 aria-label="Clear search"
               >
                 <X className="h-3.5 w-3.5" />
@@ -656,16 +669,16 @@ export function ServicesClient({
             type="button"
             onClick={() => setShowFilters((v) => !v)}
             className={cn(
-              "flex items-center gap-2 rounded-[0.35rem] border px-4 py-2.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] transition-colors lg:hidden",
+              `${SECONDARY_ACTION_CLASS} lg:hidden`,
               showFilters || activeFilterCount > 0
-                ? "border-[rgba(122,213,221,0.24)] bg-[rgba(122,213,221,0.12)] text-(--seva-accent)"
-                : "border-(--seva-border-subtle) bg-(--seva-elevated) text-(--seva-text-soft) hover:text-(--seva-text)",
+                ? "bg-(--accent-subtle)"
+                : "",
             )}
           >
             <SlidersHorizontal className="h-4 w-4" />
             <span>Filters</span>
             {activeFilterCount > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-(--seva-accent) px-1 text-[9px] font-bold text-[#07292d]">
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-full border border-(--booking-frame) bg-(--accent-primary-hover) px-1 text-[9px] font-medium text-(--text-on-accent)">
                 {activeFilterCount}
               </span>
             )}
@@ -675,7 +688,7 @@ export function ServicesClient({
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="sevacam-service-input min-w-[14rem] appearance-none pl-4 pr-10"
+              className={`${INPUT_CLASS} min-w-[14rem] appearance-none pl-4 pr-10`}
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -683,7 +696,7 @@ export function ServicesClient({
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--seva-text-muted)" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--text-secondary)" />
           </div>
         </div>
 
@@ -721,20 +734,20 @@ export function ServicesClient({
         )}
 
         {/* Results count */}
-        <div className="flex items-center justify-between border-b border-(--seva-border-subtle) pb-5">
-          <p className="text-sm text-(--seva-text-soft)">
-            <span className="font-semibold text-(--seva-text)">{filtered.length}</span>{" "}
+          <div className="flex items-center justify-between border-b border-(--booking-frame) pb-6">
+          <p className="text-sm text-(--text-secondary)">
+            <span className="font-medium text-(--text-primary)">{filtered.length}</span>{" "}
             service{filtered.length !== 1 ? "s" : ""}
             {hasActiveFilters ? " found" : " available"}
             {availabilityChecking && (
-              <span className="ml-2 inline-flex items-center gap-1 text-(--seva-accent)">
+              <span className="ml-2 inline-flex items-center gap-1 text-(--accent-primary)">
                 <Loader2 className="h-3 w-3 animate-spin" />
                 checking dates&hellip;
               </span>
             )}
           </p>
           {categories.length > 0 && !hasActiveFilters && (
-            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
+            <p className={SECTION_LABEL_CLASS}>
               {categories.length} categories
             </p>
           )}
@@ -745,10 +758,10 @@ export function ServicesClient({
             {serviceGroups.map((group, groupIndex) => (
               <section key={group.id} className="space-y-8">
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="sevacam-display text-[clamp(1.9rem,3vw,2.9rem)] italic text-(--seva-text)">
+                  <h2 className="sevacam-display text-[clamp(1.9rem,3vw,2.9rem)] italic text-(--text-primary)">
                     {group.title}
                   </h2>
-                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
+                  <p className={SECTION_LABEL_CLASS}>
                     {group.services.length.toString().padStart(2, "0")} options
                   </p>
                 </div>
@@ -770,7 +783,7 @@ export function ServicesClient({
                     return (
                       <article
                         key={service.id}
-                        className="flex flex-col overflow-hidden rounded-xl border border-(--seva-border-subtle) bg-(--seva-elevated)"
+                        className="sevacam-booking-card sevacam-interactive-card flex flex-col overflow-hidden"
                       >
                         {/* Image / gradient placeholder */}
                         <div className="relative overflow-hidden">
@@ -785,52 +798,56 @@ export function ServicesClient({
                             <div className={`h-48 w-full ${toneClass}`} />
                           )}
                           {service.category && (
-                            <span aria-hidden="true" className="absolute bottom-3 left-3 rounded-full bg-black/50 px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+                            <span
+                              aria-hidden="true"
+                              data-tone="selected"
+                              className="sevacam-booking-pill absolute bottom-3 left-3 backdrop-blur-sm"
+                            >
                               {service.category}
                             </span>
                           )}
                         </div>
 
                         {/* Card body */}
-                        <div className="flex flex-1 flex-col gap-2.5 p-4 sm:p-5">
-                          <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-muted)">
+                        <div className="flex flex-1 flex-col gap-3 p-4">
+                          <p className={SECTION_LABEL_CLASS}>
                             {service.category || "Curated"}
                           </p>
 
-                          <h3 className="text-[1.05rem] font-bold leading-snug text-(--seva-text) sm:text-[1.12rem]">
+                          <h3 className="text-[1.05rem] font-medium leading-snug text-(--text-primary) sm:text-[1.12rem]">
                             {displayName}
                           </h3>
 
-                          <div className="flex items-center gap-3 text-[0.72rem] text-(--seva-text-soft)">
+                          <div className="flex items-center gap-3 text-[0.72rem] text-(--text-secondary)">
                             <span className="flex items-center gap-1.5">
                               <Clock className="h-3.5 w-3.5" />
                               {formatDuration(service.duration_minutes)}
                             </span>
                             {availableDate && avail === "available" && (
-                              <span className="text-(--seva-accent)">Available</span>
+                              <span className="text-(--accent-primary)">Available</span>
                             )}
                             {availableDate && avail === "loading" && (
-                              <span className="inline-flex items-center gap-1 text-(--seva-accent)">
+                              <span className="inline-flex items-center gap-1 text-(--accent-primary)">
                                 <Loader2 className="h-3 w-3 animate-spin" />
                               </span>
                             )}
                           </div>
 
                           {/* Price + CTA */}
-                          <div className="mt-auto flex items-end justify-between gap-3 pt-3">
+                          <div className="mt-auto flex items-end justify-between gap-3 pt-4">
                             <div>
-                              <p className="text-[1.2rem] font-bold text-(--seva-text)">
+                              <p className="text-[1.2rem] font-medium text-(--text-primary)">
                                 {formatPrice(service.price)}
                               </p>
                               {service.deposit_amount > 0 && (
-                                <p className="mt-0.5 text-[0.62rem] text-(--seva-text-muted)">
+                                <p className="mt-1 text-[0.62rem] text-(--text-secondary)">
                                   {formatPrice(service.deposit_amount)} deposit
                                 </p>
                               )}
                             </div>
                             <Link
                               href={`/book/${service.id}`}
-                              className="inline-flex items-center gap-1.5 rounded-[0.45rem] border border-(--seva-border-interactive) px-3.5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-soft) transition-colors hover:border-(--seva-accent) hover:text-(--seva-accent)"
+                              className={`${PRIMARY_ACTION_CLASS} px-4`}
                             >
                               Reserve service
                               <ArrowRight className="h-3.5 w-3.5" />
@@ -845,12 +862,12 @@ export function ServicesClient({
             ))}
           </div>
         ) : (
-          <div className="sevacam-rail flex flex-col items-center justify-center px-8 py-24 text-center">
-            <Search className="mb-3 h-8 w-8 text-(--seva-text-muted)" />
-            <p className="sevacam-display text-[2rem] text-(--seva-text)">
+          <div className={`${RAIL_CLASS} flex min-h-64 flex-col items-center justify-center p-8 text-center`}>
+            <Search className="mb-3 h-8 w-8 text-(--text-secondary)" />
+            <p className="sevacam-display text-[2rem] text-(--text-primary)">
               No services match this view.
             </p>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-(--seva-text-soft)">
+            <p className="mt-3 max-w-xl text-sm leading-7 text-(--text-secondary)">
               Try adjusting the current filters or clear them to reopen the full
               selection.
             </p>
@@ -858,7 +875,7 @@ export function ServicesClient({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="sevacam-primary-button mt-6 inline-flex min-h-11 items-center rounded-[0.18rem] px-6 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em]"
+                className={`mt-6 ${PRIMARY_ACTION_CLASS}`}
               >
                 Clear filters
               </button>

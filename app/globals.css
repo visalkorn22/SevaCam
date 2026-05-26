@@ -1379,6 +1379,38 @@
     --border-focus: var(--seva-border-focus);
     --ghost-hover-bg: var(--seva-hover-bg);
     --ghost-hover-text: var(--seva-text);
+    --booking-frame: #2a2535;
+    --booking-muted-surface: #2a2535;
+    --booking-muted-text: var(--seva-text-muted);
+    --booking-selection-surface: color-mix(
+      in srgb,
+      var(--accent-primary) 10%,
+      var(--bg-elevated)
+    );
+    --booking-pill-available-surface: color-mix(
+      in srgb,
+      var(--accent-primary) 16%,
+      var(--bg-base)
+    );
+    --booking-pill-available-text: var(--accent-primary);
+    --booking-pill-unavailable-surface: color-mix(
+      in srgb,
+      var(--booking-frame) 78%,
+      var(--bg-base)
+    );
+    --booking-pill-unavailable-text: var(--text-disabled);
+    --booking-pill-selected-surface: color-mix(
+      in srgb,
+      var(--accent-primary) 22%,
+      var(--bg-base)
+    );
+    --booking-pill-selected-text: var(--text-primary);
+    --booking-pill-today-surface: color-mix(
+      in srgb,
+      var(--accent-primary) 8%,
+      var(--bg-base)
+    );
+    --booking-pill-today-text: var(--accent-primary);
     background: var(--seva-base);
     color: var(--seva-text);
   }
@@ -1398,6 +1430,172 @@
     font-family: var(--font-display), "Be Vietnam Pro", sans-serif;
     font-weight: 500;
     letter-spacing: -0.03em;
+  }
+
+  .sevacam-booking-label {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .sevacam-booking-card {
+    border: 1px solid var(--booking-frame);
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
+    transition:
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sevacam-booking-card-selected {
+    background: var(--booking-selection-surface);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+  }
+
+  .sevacam-booking-action-bar {
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--bg-elevated) 94%, var(--bg-base));
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.1);
+    transition:
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sevacam-booking-map-frame {
+    overflow: hidden;
+    border: 1px solid var(--booking-frame);
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
+    transition:
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sevacam-booking-rail {
+    border: 1px solid var(--booking-frame);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--bg-elevated) 94%, var(--bg-base));
+    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.14);
+    transition:
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sevacam-booking-primary-action {
+    border-radius: 0.18rem;
+    border: 1px solid color-mix(
+      in srgb,
+      var(--accent-primary-hover) 68%,
+      var(--booking-frame)
+    );
+    background: var(--accent-primary-hover);
+    color: var(--text-on-accent);
+    box-shadow: 0 16px 32px rgba(122, 213, 221, 0.18);
+    transition:
+      transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sevacam-booking-primary-action:hover {
+    background: color-mix(in srgb, var(--accent-primary-hover) 88%, white);
+    border-color: color-mix(
+      in srgb,
+      var(--accent-primary-hover) 82%,
+      var(--booking-frame)
+    );
+    box-shadow: 0 20px 40px rgba(122, 213, 221, 0.22);
+    transform: translateY(-1px);
+  }
+
+  .sevacam-booking-secondary-action {
+    border-radius: 0.18rem;
+    border: 1px solid var(--booking-frame);
+    background: color-mix(in srgb, var(--bg-elevated) 90%, var(--bg-base));
+    color: var(--text-primary);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sevacam-booking-secondary-action:hover {
+    background: var(--bg-overlay);
+    border-color: color-mix(in srgb, var(--accent-primary) 28%, var(--booking-frame));
+    color: var(--text-primary);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .sevacam-booking-input {
+    min-height: 2.8rem;
+    width: 100%;
+    border: 1px solid var(--booking-frame);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-base));
+    color: var(--text-primary);
+    padding: 0.75rem 0.9rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    outline: none;
+    transition:
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sevacam-booking-input::placeholder {
+    color: var(--text-disabled);
+  }
+
+  .sevacam-booking-input:focus {
+    border-color: color-mix(in srgb, var(--accent-primary) 36%, var(--booking-frame));
+    background: var(--bg-elevated);
+    box-shadow: 0 0 0 3px rgba(122, 213, 221, 0.08);
+  }
+
+  .sevacam-booking-pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--booking-frame);
+    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .sevacam-booking-pill[data-tone="available"] {
+    background: var(--booking-pill-available-surface);
+    color: var(--booking-pill-available-text);
+  }
+
+  .sevacam-booking-pill[data-tone="unavailable"] {
+    background: var(--booking-pill-unavailable-surface);
+    color: var(--booking-pill-unavailable-text);
+  }
+
+  .sevacam-booking-pill[data-tone="selected"] {
+    background: var(--booking-pill-selected-surface);
+    color: var(--booking-pill-selected-text);
+  }
+
+  .sevacam-booking-pill[data-tone="today"] {
+    background: var(--booking-pill-today-surface);
+    color: var(--booking-pill-today-text);
   }
 
   .sevacam-eyebrow {
@@ -1477,6 +1675,29 @@
     color: var(--seva-accent-ink);
     box-shadow: 0 16px 28px rgba(122, 213, 221, 0.16);
     transform: translateY(-1px);
+  }
+
+  .sevacam-home .sevacam-primary-button:disabled,
+  .sevacam-home .sevacam-secondary-button:disabled,
+  .sevacam-home .sevacam-booking-primary-action:disabled,
+  .sevacam-home .sevacam-booking-secondary-action:disabled {
+    border-color: var(--booking-frame);
+    background: var(--booking-muted-surface);
+    color: var(--booking-muted-text);
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  .sevacam-home .sevacam-primary-button:disabled:hover,
+  .sevacam-home .sevacam-secondary-button:disabled:hover,
+  .sevacam-home .sevacam-booking-primary-action:disabled:hover,
+  .sevacam-home .sevacam-booking-secondary-action:disabled:hover {
+    border-color: var(--booking-frame);
+    background: var(--booking-muted-surface);
+    color: var(--booking-muted-text);
+    box-shadow: none;
+    transform: none;
   }
 
   .sevacam-secondary-button {

@@ -99,6 +99,12 @@ const usd = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
+const SECTION_LABEL_CLASS = "sevacam-booking-label text-(--text-secondary)";
+const PRIMARY_ACTION_CLASS =
+  "sevacam-booking-primary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-100";
+const SECONDARY_ACTION_CLASS =
+  "sevacam-booking-secondary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-100";
+
 function pickString(record: ApiRecord, keys: string[]): string | null {
   for (const key of keys) {
     const value = record[key];
@@ -533,17 +539,23 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
         : abaIntent && committedProvider === provider
           ? `Refresh ${selectedProviderMeta.actionLabel} session`
           : `Pay ${usd.format(amount)} via ${selectedProviderMeta.actionLabel}`;
+  const qrStatusTone =
+    activeQrStatus === "completed"
+      ? "available"
+      : activeQrStatus === "failed"
+        ? "unavailable"
+        : "today";
 
   return (
     <>
       <div className="mx-auto max-w-2xl space-y-6 text-(--text-primary) motion-preset-slide-up-sm motion-duration-500">
-            <div className="sevacam-rail overflow-hidden shadow-[0_24px_54px_rgba(0,0,0,0.22)]">
+            <div className="sevacam-booking-rail overflow-hidden shadow-[0_24px_54px_rgba(0,0,0,0.22)]">
               {/* Booking summary */}
               <div className="px-6 py-5 sm:px-8">
-                <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">Your Booking</p>
+                <p className={SECTION_LABEL_CLASS}>Your Booking</p>
                 <div className="mt-3 flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-base font-semibold text-(--text-primary)">{booking.services.name}</p>
+                    <p className="text-base font-medium text-(--text-primary)">{booking.services.name}</p>
                     <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-(--text-secondary)">
                       <span>{staffName}</span>
                       <span className="text-(--border-subtle)">·</span>
@@ -568,7 +580,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                     )}
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="text-xl font-semibold tracking-[-0.03em] text-(--text-primary)">{usd.format(amount)}</p>
+                    <p className="text-xl font-medium tracking-[-0.03em] text-(--text-primary)">{usd.format(amount)}</p>
                     <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">
                       {deposit > 0 ? "deposit" : "due now"}
                     </p>
@@ -576,18 +588,18 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                 </div>
               </div>
 
-              <div className="border-t border-(--border-subtle)" />
+              <div className="border-t border-(--booking-frame)" />
 
               {/* Payment method */}
               <div className="space-y-4 px-6 py-6 sm:px-8">
                 {isAlreadyPaid && (
-                  <div className="flex items-center gap-3 rounded-[0.7rem] bg-[rgba(122,213,221,0.14)] px-4 py-3 text-(--text-primary)">
+                  <div className="flex items-center gap-3 rounded-xl border border-(--booking-frame) bg-(--booking-pill-available-surface) px-4 py-3 text-(--accent-primary)">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-(--accent-primary)" />
-                    <p className="text-sm font-semibold">Payment already received</p>
+                    <p className="text-sm font-medium">Payment already received</p>
                   </div>
                 )}
 
-                <p className="sevacam-eyebrow">Payment Method</p>
+                <p className={SECTION_LABEL_CLASS}>Payment Method</p>
 
                 <div className="space-y-2">
                   {providerOptions.map((option) => {
@@ -601,13 +613,13 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                           setErrorMessage(null);
                         }}
                         className={cn(
-                          "sevacam-interactive-card flex w-full items-center gap-4 rounded-[0.75rem] px-4 py-3.5 text-left transition-colors focus-visible:outline-none",
+                          "sevacam-booking-card sevacam-interactive-card flex w-full items-center gap-4 p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20",
                           isSelected
-                            ? "bg-(--bg-elevated) ring-2 ring-(--accent-primary)"
-                            : "bg-(--bg-elevated) ring-1 ring-(--border-subtle)",
+                            ? "sevacam-booking-card-selected border-(--accent-primary)"
+                            : "hover:border-(--accent-primary)/40",
                         )}
                       >
-                        <div className="rounded-[0.55rem] bg-white/95 px-2.5 py-1.5 shadow-[0_4px_10px_rgba(0,0,0,0.08)]">
+                        <div className="rounded-lg bg-white/95 px-2.5 py-1.5 shadow-[0_4px_10px_rgba(0,0,0,0.08)]">
                           <Image
                             src={option.logo}
                             alt={option.logoAlt}
@@ -617,14 +629,14 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-(--text-primary)">{option.title}</p>
+                          <p className="text-sm font-medium text-(--text-primary)">{option.title}</p>
                           <p className="text-xs text-(--text-secondary)">{option.description}</p>
                         </div>
                         <div className={cn(
                           "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
                           isSelected
-                            ? "border-(--accent-primary) bg-(--accent-primary)/20"
-                            : "border-(--border-subtle)",
+                            ? "border-(--accent-primary) bg-(--booking-pill-available-surface)"
+                            : "border-(--booking-frame)",
                         )}>
                           {isSelected && <span className="h-2 w-2 rounded-full bg-(--accent-primary)" />}
                         </div>
@@ -634,7 +646,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                 </div>
 
                 {errorMessage && (
-                  <div className="flex items-start gap-3 rounded-[0.75rem] bg-[rgba(255,183,133,0.12)] px-4 py-3">
+                  <div className="flex items-start gap-3 rounded-xl border border-(--booking-frame) bg-(--state-warning-subtle) px-4 py-3">
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-(--state-warning)" />
                     <p className="text-sm text-(--text-secondary)">{errorMessage}</p>
                   </div>
@@ -644,7 +656,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                   type="button"
                   onClick={handleStartPayment}
                   disabled={isProcessing || isAlreadyPaid}
-                  className="sevacam-primary-button w-full min-h-12 rounded-[0.22rem] px-6 text-[0.62rem] font-semibold uppercase tracking-[0.18em] disabled:cursor-not-allowed"
+                  className={`${PRIMARY_ACTION_CLASS} w-full min-h-12 px-6`}
                 >
                   {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
                   {paymentActionLabel}
@@ -653,44 +665,35 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
             </div>
 
             {abaIntent && (
-              <div ref={qrSectionRef} className="sevacam-rail overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.16)] scroll-mt-8">
+              <div ref={qrSectionRef} className="sevacam-booking-rail overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.16)] scroll-mt-8">
                 <div className="px-6 py-6 sm:px-8 sm:py-7">
 
                   {/* Header: provider + status */}
                   <div className="flex items-center justify-between gap-3">
-                    <p className="sevacam-eyebrow">{qrProviderMeta.title}</p>
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded-full px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.16em]",
-                        activeQrStatus === "completed"
-                          ? "bg-[rgba(122,213,221,0.14)] text-(--accent-primary)"
-                          : activeQrStatus === "failed"
-                            ? "bg-[rgba(255,183,133,0.12)] text-(--state-warning)"
-                            : "bg-(--bg-elevated) text-(--text-secondary)",
-                      )}
-                    >
+                    <p className={SECTION_LABEL_CLASS}>{qrProviderMeta.title}</p>
+                    <span data-tone={qrStatusTone} className="sevacam-booking-pill">
                       {qrStatusLabel}
                     </span>
                   </div>
 
                   {/* Booking summary strip */}
-                  <div className="mt-4 flex items-start justify-between gap-3 rounded-[0.7rem] bg-(--bg-elevated) px-4 py-3">
+                  <div className="mt-4 flex items-start justify-between gap-3 rounded-xl bg-(--bg-elevated) px-4 py-4">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-(--text-primary)">{booking.services.name}</p>
+                      <p className="truncate text-sm font-medium text-(--text-primary)">{booking.services.name}</p>
                       <p className="mt-0.5 text-xs text-(--text-secondary)">
                         {staffName} · {formatDateInTimeZone(startDate, timeZone)} · {formatTimeInTimeZone(startDate, timeZone)} · {booking.services.duration_minutes} min
                       </p>
                     </div>
-                    <p className="shrink-0 text-base font-semibold text-(--text-primary)">{usd.format(amount)}</p>
+                    <p className="shrink-0 text-base font-medium text-(--text-primary)">{usd.format(amount)}</p>
                   </div>
 
                   {/* QR + info side by side */}
                   <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-start">
 
                     {/* QR code */}
-                    <div className="mx-auto w-full max-w-55 shrink-0 rounded-[0.85rem] bg-white p-4 shadow-[0_12px_28px_rgba(0,0,0,0.14)] sm:mx-0">
+                    <div className="mx-auto w-full max-w-55 shrink-0 rounded-xl bg-white p-4 shadow-[0_12px_28px_rgba(0,0,0,0.14)] sm:mx-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-slate-500">Scan to pay</p>
+                        <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-slate-500">Scan to pay</p>
                         <QrCode className="h-3.5 w-3.5 text-slate-400" />
                       </div>
                       <div className="mt-3 flex aspect-square items-center justify-center rounded-xl bg-slate-50 p-2">
@@ -717,15 +720,15 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                     <div className="flex flex-1 flex-col gap-4">
 
                       {/* Status rows */}
-                      <div className="rounded-[0.7rem] bg-(--bg-elevated) px-4 py-3 space-y-2.5">
+                      <div className="rounded-xl bg-(--bg-elevated) px-4 py-4 space-y-3">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-(--text-secondary)">Status</span>
                           <span className="font-medium text-(--text-primary)">{qrStatusLabel}</span>
                         </div>
-                        <div className="border-t border-(--border-subtle)" />
+                        <div className="border-t border-(--booking-frame)" />
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-(--text-secondary)">Provider</span>
-                          <div className="rounded-[0.4rem] bg-white/95 px-2 py-1 shadow-[0_2px_6px_rgba(0,0,0,0.08)]">
+                          <div className="rounded-md bg-white/95 px-2 py-1 shadow-[0_2px_6px_rgba(0,0,0,0.08)]">
                             <Image
                               src={qrProviderMeta.logo}
                               alt={qrProviderMeta.logoAlt}
@@ -737,7 +740,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                         </div>
                         {abaExpiresAt && (
                           <>
-                            <div className="border-t border-(--border-subtle)" />
+                            <div className="border-t border-(--booking-frame)" />
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-(--text-secondary)">Expires</span>
                               <span className="font-medium text-(--text-primary)">{abaExpiresAt}</span>
@@ -747,7 +750,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                       </div>
 
                       {qrRenderError && (
-                        <div className="rounded-[0.7rem] bg-[rgba(255,183,133,0.12)] px-4 py-3">
+                        <div className="rounded-xl border border-(--booking-frame) bg-(--state-warning-subtle) px-4 py-3">
                           <p className="text-xs leading-5 text-(--text-secondary)">{qrRenderError}</p>
                         </div>
                       )}
@@ -759,7 +762,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                             type="button"
                             variant="ghost"
                             onClick={() => { window.location.href = abaIntent.deeplink!; }}
-                            className="sevacam-primary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                            className={`${PRIMARY_ACTION_CLASS} min-h-10 px-4`}
                           >
                             Open in app
                             <ArrowUpRight className="h-3.5 w-3.5" />
@@ -770,7 +773,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                             type="button"
                             variant="ghost"
                             onClick={() => { window.location.href = abaIntent.paymentUrl!; }}
-                            className="sevacam-secondary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                            className={`${SECONDARY_ACTION_CLASS} min-h-10 px-4`}
                           >
                             Open payment page
                             <ArrowUpRight className="h-3.5 w-3.5" />
@@ -781,7 +784,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                             type="button"
                             variant="ghost"
                             onClick={() => router.push(`/payment/${booking.id}?payment_id=${abaIntent.paymentId}`)}
-                            className="sevacam-secondary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                            className={`${SECONDARY_ACTION_CLASS} min-h-10 px-4`}
                           >
                             Check status
                           </Button>
@@ -792,7 +795,7 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                             variant="ghost"
                             onClick={handleMarkSandboxPaid}
                             disabled={isProcessing}
-                            className="sevacam-secondary-button min-h-10 rounded-[0.22rem] px-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                            className={`${SECONDARY_ACTION_CLASS} min-h-10 px-4`}
                           >
                             {isProcessing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                             Mark sandbox paid
@@ -807,9 +810,9 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
             )}
             {booking.location && (booking.location.name || booking.location.address) && (
               <div className="print:hidden">
-                <div className="sevacam-rail overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.16)]">
+                <div className="sevacam-booking-rail overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.16)]">
                   <div className="px-6 py-5 sm:px-7 sm:py-6">
-                    <p className="sevacam-eyebrow">Appointment Location</p>
+                    <p className={SECTION_LABEL_CLASS}>Appointment Location</p>
                     <div className="mt-4">
                       {booking.location.latitude != null && booking.location.longitude != null ? (
                         <LocationMapView
@@ -821,11 +824,11 @@ export function PaymentForm({ booking, timeZone }: PaymentFormProps) {
                           }}
                         />
                       ) : (
-                        <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-elevated) p-4">
+                        <div className="sevacam-booking-card p-4">
                           <div className="flex items-start gap-2">
                             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
                             <div>
-                              <p className="text-sm font-semibold text-(--text-primary)">
+                              <p className="text-sm font-medium text-(--text-primary)">
                                 {booking.location.name || booking.location.address}
                               </p>
                               {booking.location.name && booking.location.address && (

@@ -47,27 +47,27 @@ export default async function ServicesPage() {
   ).length;
 
   return (
-    <div className="sevacam-home min-h-screen bg-(--seva-base) text-(--seva-text)">
+    <div className="sevacam-home min-h-screen bg-(--bg-base) text-(--text-primary)">
       <div className="mx-auto max-w-[86rem] px-6 py-10 sm:px-8 lg:px-10 lg:py-12">
         <div className="mb-6 flex items-center justify-start">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-[0.38rem] border border-(--seva-border-subtle) bg-(--seva-elevated) px-4 py-2.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-(--seva-text-soft) transition-colors hover:border-(--seva-border-interactive) hover:bg-(--seva-accent-subtle) hover:text-(--seva-text)"
+            className="sevacam-booking-secondary-action inline-flex items-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
           </Link>
         </div>
 
-        <section className="grid gap-8 border-b border-(--seva-border-subtle) pb-12 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+        <section className="grid gap-8 border-b border-(--booking-frame) pb-12 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
           <div>
-            <p className="sevacam-eyebrow text-(--seva-warm)">
+            <p className="sevacam-booking-label text-(--text-secondary)">
               Curated services
             </p>
-            <h1 className="sevacam-display mt-4 max-w-4xl text-[clamp(3rem,7vw,5.4rem)] leading-[0.92] tracking-[-0.05em] text-(--seva-text)">
+            <h1 className="sevacam-display mt-4 max-w-4xl text-[clamp(3rem,7vw,5.4rem)] leading-[0.92] tracking-[-0.05em] text-(--text-primary)">
               Choose a service with less friction.
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-(--seva-text-soft) sm:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-8 text-(--text-secondary) sm:text-lg">
               Browse {services.length} active service
               {services.length !== 1 ? "s" : ""} across {categories.length}{" "}
               categor{categories.length !== 1 ? "ies" : "y"}, compare duration
@@ -75,8 +75,8 @@ export default async function ServicesPage() {
             </p>
           </div>
 
-          <div className="sevacam-rail px-6 py-6">
-            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
+          <div className="sevacam-booking-rail px-6 py-6">
+            <p className="sevacam-booking-label text-(--text-secondary)">
               Service notes
             </p>
             <div className="mt-5 space-y-3">

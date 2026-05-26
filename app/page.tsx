@@ -42,6 +42,12 @@ type ServiceSection = {
   services: EditorialService[];
 };
 
+type HeroBackgroundMedia = {
+  id: string;
+  label: string;
+  src: string;
+};
+
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -211,6 +217,34 @@ const fallbackServices: EditorialService[] = [
   ),
 ];
 
+const heroBackgroundMedia: HeroBackgroundMedia[] = [
+  {
+    id: "atelier-motion",
+    label: "Atelier Motion",
+    src: "/play_720p.mp4",
+  },
+  {
+    id: "editorial-motion",
+    label: "Editorial Motion",
+    src: "/5659263-hd_1080_1920_30fps.mp4",
+  },
+  {
+    id: "studio-motion",
+    label: "Studio Motion",
+    src: "/make-up.mp4",
+  },
+  {
+    id: "lounge-motion",
+    label: "Lounge Motion",
+    src: "/download.mp4",
+  },
+  {
+    id: "signature-motion",
+    label: "Signature Motion",
+    src: "/13434259_3840_2160_24fps.mp4",
+  },
+];
+
 function formatCurrency(value: number) {
   return currencyFormatter.format(Number.isFinite(value) ? value : 0);
 }
@@ -275,6 +309,7 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [curationMode, setCurationMode] = useState<CurationMode>("soonest");
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [activeHeroMediaIndex, setActiveHeroMediaIndex] = useState(0);
   const lastScrollY = useRef(0);
 
   const role = user?.role;
@@ -409,6 +444,16 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveHeroMediaIndex((currentIndex) =>
+        (currentIndex + 1) % heroBackgroundMedia.length,
+      );
+    }, 6500);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   const visibleServices = useMemo(() => {
     const filtered = sourceServices.filter((service) => {
       if (selectedCategory === "all") {
@@ -488,6 +533,7 @@ export default function HomePage() {
       (section) =>
         `${section.title} / ${section.services.length.toString().padStart(2, "0")}`,
     );
+  const activeHeroMedia = heroBackgroundMedia[activeHeroMediaIndex]!;
 
   return (
     <div className="sevacam-home min-h-screen bg-(--seva-base) text-(--seva-text)">
@@ -558,29 +604,39 @@ export default function HomePage() {
         className="mx-auto max-w-[86rem] px-6 pb-16 pt-6 sm:px-8 lg:px-10 lg:pb-24 lg:pt-8"
       >
         <section className="relative overflow-hidden rounded-[1.25rem] border border-white/8 pb-14 pt-8 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-12 lg:px-8 lg:pt-10">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="/Office.webp"
-            className="absolute inset-0 h-full w-full object-cover"
-            aria-hidden="true"
-          >
-            <source src="/Background_video.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,12,12,0.9),rgba(10,12,12,0.76)_44%,rgba(10,12,12,0.84))]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,183,133,0.06),transparent_24%)]" />
+          <div className="absolute inset-0" aria-hidden="true">
+            {heroBackgroundMedia.map((media, index) => {
+              const isActive = index === activeHeroMediaIndex;
+              const mediaClassName = `absolute inset-0 h-full w-full object-cover saturate-[1.08] contrast-[1.04] transition-[opacity,transform] duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                isActive ? "scale-100 opacity-100" : "scale-[1.02] opacity-0"
+              }`;
+
+              return (
+                <video
+                  key={media.id}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className={mediaClassName}
+                >
+                  <source src={media.src} type="video/mp4" />
+                </video>
+              );
+            })}
+          </div>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,12,12,0.5),rgba(10,12,12,0.2)_44%,rgba(10,12,12,0.34))]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,213,221,0.24),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(255,183,133,0.16),transparent_30%)]" />
 
           <div className="relative z-10 px-6 lg:px-0">
             <p className="sevacam-eyebrow text-(--seva-warm)">
               Nocturnal Collection
             </p>
-            <h1 className="sevacam-display mt-6 max-w-[8ch] text-[clamp(3.6rem,10vw,6.6rem)] leading-[0.84] tracking-[-0.06em] text-(--seva-text)">
+            <h1 className="sevacam-display mt-6 max-w-[8ch] text-[clamp(3.6rem,10vw,6.6rem)] leading-[0.84] tracking-[-0.06em] text-white">
               The Collection
             </h1>
-            <p className="mt-7 max-w-xl text-base leading-8 text-(--seva-text-soft)">
+            <p className="mt-7 max-w-xl text-base leading-8 text-white/84">
               A curated selection of service experiences shaped for quieter,
               more intentional booking. Browse {collectionServices.length} live
               options across {serviceSections.length} collections and move
@@ -588,7 +644,7 @@ export default function HomePage() {
             </p>
 
             <div className="mt-9">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/68">
                 Filter by category
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -598,9 +654,9 @@ export default function HomePage() {
                     type="button"
                     aria-pressed={category.id === selectedCategory}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`sevacam-side-chip ${
+                    className={`sevacam-side-chip !border-white/10 !bg-black/22 !text-white/80 hover:!text-white ${
                       category.id === selectedCategory
-                        ? "sevacam-side-chip-active"
+                        ? "sevacam-side-chip-active !border-white/22 !bg-white/14 !text-white"
                         : ""
                     }`}
                   >
@@ -611,7 +667,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-5">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/68">
                 Selection mode
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -619,8 +675,10 @@ export default function HomePage() {
                   type="button"
                   aria-pressed={curationMode === "soonest"}
                   onClick={() => setCurationMode("soonest")}
-                  className={`sevacam-side-chip ${
-                    curationMode === "soonest" ? "sevacam-side-chip-active" : ""
+                  className={`sevacam-side-chip !border-white/10 !bg-black/22 !text-white/80 hover:!text-white ${
+                    curationMode === "soonest"
+                      ? "sevacam-side-chip-active !border-white/22 !bg-white/14 !text-white"
+                      : ""
                   }`}
                 >
                   Soonest
@@ -629,9 +687,9 @@ export default function HomePage() {
                   type="button"
                   aria-pressed={curationMode === "peak-hours"}
                   onClick={() => setCurationMode("peak-hours")}
-                  className={`sevacam-side-chip ${
+                  className={`sevacam-side-chip !border-white/10 !bg-black/22 !text-white/80 hover:!text-white ${
                     curationMode === "peak-hours"
-                      ? "sevacam-side-chip-active"
+                      ? "sevacam-side-chip-active !border-white/22 !bg-white/14 !text-white"
                       : ""
                   }`}
                 >
@@ -646,33 +704,35 @@ export default function HomePage() {
               <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-warm)">
                 Aesthetic protocol / 2026
               </p>
-              <div className="sevacam-side-stat">
-                <span>In view</span>
-                <span>{collectionServices.length.toString().padStart(2, "0")} services</span>
+              <div className="sevacam-side-stat !border-white/10 !bg-black/22 !text-white/72">
+                <span className="text-white/72">In view</span>
+                <span className="text-white">
+                  {collectionServices.length.toString().padStart(2, "0")} services
+                </span>
               </div>
-              <div className="sevacam-side-stat">
-                <span>Investment</span>
-                <span>
+              <div className="sevacam-side-stat !border-white/10 !bg-black/22 !text-white/72">
+                <span className="text-white/72">Investment</span>
+                <span className="text-white">
                   {formatCurrency(sidebarSummary.minPrice)} -{" "}
                   {formatCurrency(sidebarSummary.maxPrice)}
                 </span>
               </div>
-              <div className="sevacam-side-stat">
-                <span>Shortest</span>
-                <span>{formatDuration(sidebarSummary.shortest)}</span>
+              <div className="sevacam-side-stat !border-white/10 !bg-black/22 !text-white/72">
+                <span className="text-white/72">Shortest</span>
+                <span className="text-white">{formatDuration(sidebarSummary.shortest)}</span>
               </div>
             </div>
 
             {collectionSummary.length > 0 ? (
               <div className="border-t border-white/5 pt-6">
-                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-(--seva-text-muted)">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/68">
                   Collections in focus
                 </p>
                 <div className="mt-3 space-y-2">
                   {collectionSummary.map((item) => (
                     <p
                       key={item}
-                      className="text-[0.72rem] uppercase tracking-[0.18em] text-(--seva-text-soft)"
+                      className="text-[0.72rem] uppercase tracking-[0.18em] text-white/84"
                     >
                       {item}
                     </p>
@@ -680,6 +740,37 @@ export default function HomePage() {
                 </div>
               </div>
             ) : null}
+
+            <div className="border-t border-white/5 pt-6">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/68">
+                    Atmosphere Reel
+                  </p>
+                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-white/80">
+                    {String(activeHeroMediaIndex + 1).padStart(2, "0")} /{" "}
+                    {String(heroBackgroundMedia.length).padStart(2, "0")}
+                  </p>
+                </div>
+                <p className="mt-3 text-[0.72rem] uppercase tracking-[0.18em] text-white">
+                  {activeHeroMedia.label}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {heroBackgroundMedia.map((media, index) => (
+                    <button
+                      key={media.id}
+                      type="button"
+                      aria-pressed={index === activeHeroMediaIndex}
+                      aria-label={`Show ${media.label}`}
+                      onClick={() => setActiveHeroMediaIndex(index)}
+                      className={`h-2.5 rounded-[0.18rem] transition-all duration-300 ${
+                        index === activeHeroMediaIndex
+                          ? "w-10 bg-(--seva-accent)"
+                          : "w-5 bg-white/20 hover:bg-white/35"
+                      }`}
+                    />
+                  ))}
+                </div>
+            </div>
           </div>
         </section>
 

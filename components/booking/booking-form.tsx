@@ -170,6 +170,16 @@ const getInitials = (name: string) => {
     .toUpperCase();
 };
 
+const SECTION_HEADING_CLASS = "text-2xl font-medium text-(--text-primary)";
+const SECTION_LABEL_CLASS = "sevacam-booking-label text-(--text-secondary)";
+const PANEL_CLASS = "sevacam-booking-card";
+const ACTION_BAR_CLASS =
+  "sevacam-booking-action-bar mt-6 flex flex-col gap-4 px-4 py-3 sm:flex-row sm:items-center sm:justify-between";
+const PRIMARY_ACTION_CLASS =
+  "sevacam-booking-primary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em] disabled:cursor-not-allowed";
+const SECONDARY_ACTION_CLASS =
+  "sevacam-booking-secondary-action inline-flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em] disabled:cursor-not-allowed";
+
 // --- BookingStepIndicator -----------------------------------------------------
 
 function BookingStepIndicator({
@@ -208,23 +218,24 @@ function BookingStepIndicator({
                   onClick={() => isReachable && onStepChange(step)}
                   disabled={!isReachable}
                   className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                     isDone || isActive
-                      ? "bg-(--accent-primary) text-[#07292d]"
-                      : "border border-(--border-muted) bg-(--bg-elevated) text-(--text-secondary)",
-                    !isReachable && "cursor-not-allowed opacity-40",
+                      ? "bg-(--accent-primary) text-(--text-on-accent)"
+                      : "border border-(--booking-frame) bg-(--bg-elevated) text-(--text-secondary)",
+                    !isReachable &&
+                      "cursor-not-allowed border-(--booking-frame) bg-(--booking-muted-surface) text-(--booking-muted-text)",
                   )}
                 >
                   {isDone ? <Check className="h-3 w-3" /> : step}
                 </button>
                 <span
                   className={cn(
-                    "mt-1.5 whitespace-nowrap text-[0.6rem] font-medium uppercase tracking-[0.12em]",
+                    "sevacam-booking-label mt-1 whitespace-nowrap",
                     isActive
                       ? "text-(--text-primary)"
                       : isDone
-                        ? "text-(--accent-primary)/80"
-                        : "text-(--text-secondary)/60",
+                        ? "text-(--accent-primary)"
+                        : "text-(--booking-muted-text)",
                   )}
                 >
                   {label}
@@ -233,8 +244,8 @@ function BookingStepIndicator({
               {i < steps.length - 1 && (
                 <div
                   className={cn(
-                    "mx-2 mt-3.5 h-px w-16 flex-1 transition-colors duration-300 sm:w-24",
-                    isDone ? "bg-(--accent-primary)" : "bg-(--border-muted)",
+                    "mx-2 mt-3 h-px w-16 flex-1 transition-colors duration-300 sm:w-24",
+                    isDone ? "bg-(--accent-primary)" : "bg-(--booking-frame)",
                   )}
                 />
               )}
@@ -259,13 +270,13 @@ function ServiceHeaderBar({
 }) {
   const artClass = getFormArtClass(service.id);
   return (
-    <div className="mb-6 flex items-center justify-between gap-4 border-b border-(--border-muted) pb-5">
+    <div className="mb-6 flex items-center justify-between gap-4 border-b border-(--booking-frame) pb-4">
       <div className="flex items-center gap-3">
-        <div className={`h-9 w-9 shrink-0 rounded-[0.45rem] ${artClass}`} />
-        <p className="text-sm font-semibold text-(--text-primary)">{service.name}</p>
+        <div className={`h-9 w-9 shrink-0 rounded-xl ${artClass}`} />
+        <p className="text-sm font-medium text-(--text-primary)">{service.name}</p>
       </div>
       <div className="text-right">
-        <p className="text-sm font-bold text-(--text-primary)">
+        <p className="text-sm font-medium text-(--text-primary)">
           {formatCurrency(effectivePrice)}
         </p>
         <p className="text-[0.65rem] text-(--text-secondary)">
@@ -282,14 +293,12 @@ function SlotPeriodSection({
   period,
   slots,
   selectedSlot,
-  durationMinutes,
   timeZone,
   onSelect,
 }: {
   period: (typeof TIME_PERIODS)[number];
   slots: AvailableSlot[];
   selectedSlot: string;
-  durationMinutes: number;
   timeZone: string;
   onSelect: (startTime: string) => void;
 }) {
@@ -297,7 +306,7 @@ function SlotPeriodSection({
 
   return (
     <div className="space-y-2">
-      <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+      <p className={SECTION_LABEL_CLASS}>
         {period.label}
       </p>
       <div className="grid grid-cols-4 gap-2">
@@ -310,10 +319,10 @@ function SlotPeriodSection({
               type="button"
               onClick={() => onSelect(slot.start_time)}
               className={cn(
-                "rounded-[0.45rem] border px-2 py-2.5 text-center text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+                "rounded-xl border border-(--booking-frame) px-3 py-3 text-center text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                 isSelected
-                  ? "border-transparent bg-(--accent-primary) text-[#07292d]"
-                  : "border-(--border-muted) bg-(--bg-elevated) text-(--text-primary) hover:border-(--accent-primary)/50 hover:bg-(--accent-primary)/10",
+                  ? "bg-(--accent-subtle) text-(--text-primary)"
+                  : "bg-(--bg-elevated) text-(--text-primary) hover:bg-(--bg-overlay)",
               )}
               aria-pressed={isSelected}
             >
@@ -352,22 +361,22 @@ function BookingCalendar({
   onDateSelect: (d: Date) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-(--border-muted) bg-(--bg-elevated) p-4">
+    <div className={`${PANEL_CLASS} p-4`}>
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onPrevMonth}
           disabled={isLoadingCalendar}
-          className="sevacam-interactive-card flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:bg-(--bg-overlay) hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20 disabled:opacity-40"
+          className="sevacam-interactive-card flex h-8 w-8 items-center justify-center rounded-full border border-(--booking-frame) text-(--text-primary) transition-colors hover:bg-(--bg-overlay) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20 disabled:cursor-not-allowed disabled:border-(--booking-frame) disabled:bg-(--booking-muted-surface) disabled:text-(--booking-muted-text)"
           aria-label="Previous month"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex items-center gap-2">
           {isLoadingCalendar && (
-            <Loader2 className="h-3 w-3 animate-spin text-(--text-secondary)/80" />
+            <Loader2 className="h-3 w-3 animate-spin text-(--text-secondary)" />
           )}
-          <p className="text-sm font-semibold text-(--text-primary)">
+          <p className="text-sm font-medium text-(--text-primary)">
             {format(calendarMonth, "MMMM yyyy")}
           </p>
         </div>
@@ -375,7 +384,7 @@ function BookingCalendar({
           type="button"
           onClick={onNextMonth}
           disabled={isLoadingCalendar}
-          className="sevacam-interactive-card flex h-8 w-8 items-center justify-center rounded-full border border-(--border-muted) text-(--text-primary)/80 transition hover:border-(--border-interactive) hover:bg-(--bg-overlay) hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20 disabled:opacity-40"
+          className="sevacam-interactive-card flex h-8 w-8 items-center justify-center rounded-full border border-(--booking-frame) text-(--text-primary) transition-colors hover:bg-(--bg-overlay) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20 disabled:cursor-not-allowed disabled:border-(--booking-frame) disabled:bg-(--booking-muted-surface) disabled:text-(--booking-muted-text)"
           aria-label="Next month"
         >
           <ChevronRight className="h-4 w-4" />
@@ -386,7 +395,7 @@ function BookingCalendar({
         {WEEKDAY_LABELS.map((label) => (
           <span
             key={label}
-            className="text-[10px] font-semibold uppercase tracking-wider text-(--text-secondary)/80"
+            className="sevacam-booking-label text-(--text-secondary)"
           >
             {label.charAt(0)}
           </span>
@@ -413,21 +422,22 @@ function BookingCalendar({
                 onClick={() => onDateSelect(day)}
                 disabled={isDisabled}
                 className={cn(
-                  "sevacam-interactive-card relative flex h-9 w-9 flex-col items-center justify-center rounded-full text-[13px] font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20",
+                  "sevacam-interactive-card relative flex h-9 w-9 flex-col items-center justify-center rounded-full text-[13px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20",
                   isSelected
-                    ? "bg-(--accent-primary) font-bold text-[#07292d] shadow-[0_12px_24px_rgba(122,213,221,0.18)]"
+                    ? "bg-(--booking-pill-selected-surface) font-medium text-(--text-primary)"
                     : isToday && !isDisabled
-                      ? "text-(--accent-primary) ring-1 ring-(--accent-primary)/50"
-                      : "text-(--text-primary)/90",
-                  isDisabled && "cursor-not-allowed opacity-20",
+                      ? "bg-(--booking-pill-today-surface) text-(--accent-primary)"
+                      : "text-(--text-primary)",
+                  isDisabled &&
+                    "cursor-not-allowed bg-(--booking-muted-surface) text-(--booking-muted-text)",
                   !isDisabled &&
                     isUnavailable &&
                     !isSelected &&
-                    "text-(--text-secondary)/80 hover:-translate-y-0.5 hover:bg-(--bg-elevated) hover:text-(--text-primary)/80",
+                    "text-(--text-secondary) hover:bg-(--bg-overlay) hover:text-(--text-primary)",
                   !isDisabled &&
                     !isUnavailable &&
                     !isSelected &&
-                    "hover:-translate-y-0.5 hover:bg-(--accent-primary) hover:text-[#07292d]",
+                    "hover:bg-(--accent-subtle) hover:text-(--text-primary)",
                   !isInMonth && "pointer-events-none opacity-0",
                 )}
                 aria-pressed={isSelected}
@@ -435,10 +445,10 @@ function BookingCalendar({
               >
                 {format(day, "d")}
                 {isInMonth && !isPast && hasSlots && !isSelected && (
-                  <span className="absolute bottom-0.5 h-1 w-1 rounded-full bg-emerald-400/70" />
+                  <span className="absolute bottom-0.5 h-1 w-1 rounded-full bg-(--accent-primary)" />
                 )}
                 {isInMonth && !isPast && !hasSlots && !isSelected && (
-                  <span className="absolute bottom-1 h-px w-3 rounded-full bg-(--bg-inset)" />
+                  <span className="absolute bottom-1 h-px w-3 rounded-full bg-(--booking-frame)" />
                 )}
               </button>
             </div>
@@ -446,21 +456,17 @@ function BookingCalendar({
         })}
       </div>
 
-      <div className="mt-4 flex items-center gap-4 border-t border-(--border-muted) pt-3 text-[10px] text-(--text-secondary)/80">
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/70" />
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="sevacam-booking-pill" data-tone="available">
           Available
         </span>
-        <span className="flex items-center gap-1">
-          <span className="h-px w-3 rounded-full bg-(--bg-elevated)" />
+        <span className="sevacam-booking-pill" data-tone="unavailable">
           No open times
         </span>
-        <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-(--accent-primary)" />
+        <span className="sevacam-booking-pill" data-tone="selected">
           Selected
         </span>
-        <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full ring-1 ring-(--accent-primary)/50" />
+        <span className="sevacam-booking-pill" data-tone="today">
           Today
         </span>
       </div>
@@ -882,21 +888,21 @@ export function BookingForm({
 
   const renderStep1 = () => (
     <div ref={providerSectionRef} className="sevacam-section-anchor">
-      <h2 className="text-2xl font-bold text-(--text-primary)">Who would you like?</h2>
+      <h2 className={SECTION_HEADING_CLASS}>Who would you like?</h2>
       <p className="mt-1 mb-6 text-sm text-(--text-secondary)">
         Availability updates based on your choice.
       </p>
 
       {staff.length === 0 ? (
-        <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-8 text-center">
-          <User className="mx-auto mb-3 h-8 w-8 text-(--text-secondary)/80" />
-          <p className="text-sm font-medium text-(--text-primary)/80">No staff available</p>
-          <p className="mt-1 text-xs text-(--text-secondary)/80">
+        <div className={`${PANEL_CLASS} px-4 py-8 text-center`}>
+          <User className="mx-auto mb-3 h-8 w-8 text-(--text-secondary)" />
+          <p className="text-sm font-medium text-(--text-primary)">No staff available</p>
+          <p className="mt-1 text-xs text-(--text-secondary)">
             No team members are available for this service right now.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {staff.map((member) => {
             const isSelected = !isAnyAvailable && member.id === selectedStaffId;
             return (
@@ -908,14 +914,19 @@ export function BookingForm({
                   handleStaffSelect(member.id);
                 }}
                 className={cn(
-                  "sevacam-interactive-card flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+                  "sevacam-booking-card sevacam-interactive-card flex flex-col items-center gap-3 p-4 text-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
                   isSelected
-                    ? "border-(--accent-primary) bg-(--bg-elevated) shadow-[0_0_0_2px_var(--accent-primary)]"
-                    : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--accent-primary)/50",
+                    ? "sevacam-booking-card-selected"
+                    : "hover:bg-(--bg-overlay)",
                 )}
                 aria-pressed={isSelected}
               >
-                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-(--border-muted)">
+                <div
+                  className={cn(
+                    "flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-(--bg-inset)",
+                    isSelected && "bg-(--accent-subtle)",
+                  )}
+                >
                   {member.avatar_url ? (
                     <img
                       src={member.avatar_url}
@@ -925,8 +936,8 @@ export function BookingForm({
                   ) : (
                     <span
                       className={cn(
-                        "text-lg font-bold",
-                        isSelected ? "text-(--accent-primary)" : "text-(--text-primary)/90",
+                        "text-lg font-medium",
+                        isSelected ? "text-(--accent-primary)" : "text-(--text-primary)",
                       )}
                     >
                       {getInitials(member.name || "?")}
@@ -934,7 +945,7 @@ export function BookingForm({
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-(--text-primary)">{member.name}</p>
+                  <p className="text-sm font-medium text-(--text-primary)">{member.name}</p>
                   <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">Available this week</p>
                 </div>
               </button>
@@ -949,17 +960,22 @@ export function BookingForm({
               if (staff[0]) handleStaffSelect(staff[0].id);
             }}
             className={cn(
-              "sevacam-interactive-card flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
+              "sevacam-booking-card sevacam-interactive-card flex flex-col items-center gap-3 p-4 text-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/25",
               isAnyAvailable
-                ? "border-(--accent-primary) bg-(--bg-elevated) shadow-[0_0_0_2px_var(--accent-primary)]"
-                : "border-(--border-muted) bg-(--bg-elevated) hover:border-(--accent-primary)/50",
+                ? "sevacam-booking-card-selected"
+                : "hover:bg-(--bg-overlay)",
             )}
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-(--border-muted) bg-(--bg-inset)">
-              <Loader2 className="h-7 w-7 text-(--text-secondary)/60" />
+            <div
+              className={cn(
+                "flex h-16 w-16 items-center justify-center rounded-full bg-(--bg-inset)",
+                isAnyAvailable && "bg-(--accent-subtle)",
+              )}
+            >
+              <Loader2 className="h-7 w-7 text-(--text-secondary)" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-(--text-primary)">Any available</p>
+              <p className="text-sm font-medium text-(--text-primary)">Any available</p>
               <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">Pick first open slot</p>
             </div>
           </button>
@@ -968,29 +984,24 @@ export function BookingForm({
 
       {/* Bottom action bar */}
       {staff.length > 0 && (
-        <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-3">
+        <div className={ACTION_BAR_CLASS}>
           <p className="text-sm text-(--text-secondary)">
             {canGoStep2 ? (
               <>
                 Chosen:{" "}
-                <span className="font-semibold text-(--text-primary)">
+                <span className="font-medium text-(--text-primary)">
                   {isAnyAvailable ? "Any available" : (selectedStaff?.name ?? "")}
                 </span>
               </>
             ) : (
-              <span className="text-(--text-secondary)/60">No curator selected</span>
+              <span className="text-(--booking-muted-text)">No curator selected</span>
             )}
           </p>
           <button
             type="button"
             onClick={() => setStep(2)}
             disabled={!canGoStep2}
-            className={cn(
-              "sevacam-primary-button inline-flex items-center gap-2 rounded-[0.18rem] px-5 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
-              canGoStep2
-                ? "text-[#07292d]"
-                : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
-            )}
+            className={PRIMARY_ACTION_CLASS}
           >
             Continue <ArrowRight className="h-4 w-4" />
           </button>
@@ -1003,10 +1014,9 @@ export function BookingForm({
 
   const renderStep2 = () => (
     <div ref={calendarSectionRef} className="sevacam-section-anchor">
-      <h2 className="text-2xl font-bold text-(--text-primary)">When works for you?</h2>
+      <h2 className={SECTION_HEADING_CLASS}>When works for you?</h2>
       <p className="mt-1 mb-6 text-sm text-(--text-secondary)">
-        <span className="text-(--accent-primary)">Green dots</span> mean there&apos;s open
-        availability.
+        Availability markers update as you choose a date.
       </p>
 
       {calendarError && (
@@ -1034,7 +1044,7 @@ export function BookingForm({
         {/* Time slots */}
         <div ref={timesSectionRef} className="sevacam-section-anchor space-y-4">
           {!selectedDate ? (
-            <div className="flex h-full min-h-[12rem] items-center justify-center rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 text-center">
+            <div className={`${PANEL_CLASS} flex h-full min-h-[12rem] items-center justify-center px-4 text-center`}>
               <p className="text-sm text-(--text-secondary)">Select a date to see available times</p>
             </div>
           ) : isLoadingSlots ? (
@@ -1042,13 +1052,13 @@ export function BookingForm({
               <div className="h-5 w-32 animate-pulse rounded bg-(--bg-elevated)" />
               <div className="grid grid-cols-4 gap-2">
                 {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="h-10 animate-pulse rounded-[0.45rem] bg-(--bg-elevated)" />
+                  <div key={i} className="h-10 animate-pulse rounded-xl bg-(--bg-elevated)" />
                 ))}
               </div>
             </div>
           ) : availableSlots.length > 0 ? (
             <>
-              <p className="text-sm font-semibold text-(--text-primary)">
+              <p className="text-sm font-medium text-(--text-primary)">
                 {availableSlots.length} times on {format(selectedDate, "MMMM d")}
               </p>
               <div className="space-y-4">
@@ -1058,7 +1068,6 @@ export function BookingForm({
                     period={period}
                     slots={slotsByPeriod[period.key] ?? []}
                     selectedSlot={selectedSlot}
-                    durationMinutes={effectiveDuration}
                     timeZone={timezone}
                     onSelect={setSelectedSlot}
                   />
@@ -1066,9 +1075,9 @@ export function BookingForm({
               </div>
             </>
           ) : (
-            <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-5 text-center">
-              <p className="text-sm font-medium text-(--text-primary)/80">No slots on this date</p>
-              <p className="mt-1 text-xs text-(--text-secondary)/80">Try another day or join the waitlist.</p>
+            <div className={`${PANEL_CLASS} p-4 text-center`}>
+              <p className="text-sm font-medium text-(--text-primary)">No slots on this date</p>
+              <p className="mt-1 text-xs text-(--text-secondary)">Try another day or join the waitlist.</p>
               <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
                 {nextAvailableDate && (
                   <button
@@ -1077,7 +1086,7 @@ export function BookingForm({
                       setSelectedDate(nextAvailableDate);
                       setCalendarMonth(startOfMonth(nextAvailableDate));
                     }}
-                    className="sevacam-primary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.18rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em]"
+                    className={PRIMARY_ACTION_CLASS}
                   >
                     <CalendarDays className="h-3.5 w-3.5" />
                     Next available: {format(nextAvailableDate, "MMM d")}
@@ -1087,7 +1096,7 @@ export function BookingForm({
                   type="button"
                   onClick={handleJoinWaitlist}
                   disabled={isJoiningWaitlist}
-                  className="sevacam-secondary-button inline-flex min-h-10 items-center gap-1.5 rounded-[0.18rem] px-4 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.18em] disabled:opacity-60"
+                  className={SECONDARY_ACTION_CLASS}
                 >
                   {isJoiningWaitlist ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1096,7 +1105,7 @@ export function BookingForm({
                 </button>
               </div>
               {waitlistMessage && (
-                <p className="mt-3 text-xs text-emerald-300">{waitlistMessage}</p>
+                <p className="mt-3 text-xs text-(--accent-primary)">{waitlistMessage}</p>
               )}
             </div>
           )}
@@ -1104,7 +1113,7 @@ export function BookingForm({
       </div>
 
       {/* Bottom action bar */}
-      <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-3">
+      <div className={ACTION_BAR_CLASS}>
         <p className="text-sm text-(--text-secondary)">
           {selectedDate && selectedSlot ? (
             <span className="font-medium text-(--text-primary)">
@@ -1112,19 +1121,14 @@ export function BookingForm({
               {formatTimeInTimeZone(selectedSlot, timezone)}
             </span>
           ) : (
-            <span className="text-(--text-secondary)/60">Pick a day and time</span>
+            <span className="text-(--booking-muted-text)">Pick a day and time</span>
           )}
         </p>
         <button
           type="button"
           onClick={() => setStep(3)}
           disabled={!canGoStep3}
-          className={cn(
-            "sevacam-primary-button inline-flex items-center gap-2 rounded-[0.18rem] px-5 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-all duration-200",
-            canGoStep3
-              ? "text-[#07292d]"
-              : "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)/80",
-          )}
+          className={PRIMARY_ACTION_CLASS}
         >
           Continue <ArrowRight className="h-4 w-4" />
         </button>
@@ -1141,21 +1145,21 @@ export function BookingForm({
 
     return (
       <div ref={confirmSectionRef} className="sevacam-section-anchor">
-        <h2 className="text-2xl font-bold text-(--text-primary)">Confirm &amp; pay</h2>
+        <h2 className={SECTION_HEADING_CLASS}>Confirm &amp; pay</h2>
         <p className="mt-1 mb-6 text-sm text-(--text-secondary)">
           Review the details below before confirming your booking.
         </p>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
           {/* Left column */}
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* YOUR BOOKING */}
-            <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-5">
-              <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+            <div className={`${PANEL_CLASS} p-4`}>
+              <p className={`${SECTION_LABEL_CLASS} mb-4`}>
                 Your Booking
               </p>
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-muted) bg-(--bg-inset)">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-(--bg-inset)">
                   {selectedStaff?.avatar_url ? (
                     <img
                       src={selectedStaff.avatar_url}
@@ -1163,13 +1167,13 @@ export function BookingForm({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-sm font-bold text-(--text-primary)/90">
+                    <span className="text-sm font-medium text-(--text-primary)">
                       {getInitials(selectedStaff?.name ?? "?")}
                     </span>
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-(--text-primary)">
+                  <p className="text-sm font-medium text-(--text-primary)">
                     {selectedStaff?.name}
                   </p>
                   <p className="mt-0.5 text-xs text-(--text-secondary)">
@@ -1179,9 +1183,9 @@ export function BookingForm({
                   </p>
                 </div>
               </div>
-              <div className="mt-4 flex items-center justify-between border-t border-(--border-muted) pt-4">
+              <div className="mt-4 flex items-center justify-between border-t border-(--booking-frame) pt-4">
                 <p className="text-sm text-(--text-secondary)">{service.name}</p>
-                <p className="text-sm font-semibold text-(--text-primary)">
+                <p className="text-sm font-medium text-(--text-primary)">
                   {formatCurrency(effectivePrice)}
                 </p>
               </div>
@@ -1189,8 +1193,8 @@ export function BookingForm({
           </div>
 
           {/* Right column: price breakdown */}
-          <div className="rounded-xl border border-(--border-muted) bg-(--bg-elevated) p-5 lg:self-start">
-            <p className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-(--text-secondary)">
+          <div className={`${PANEL_CLASS} p-4 lg:self-start`}>
+            <p className={`${SECTION_LABEL_CLASS} mb-4`}>
               Price
             </p>
             <div className="space-y-3">
@@ -1210,13 +1214,13 @@ export function BookingForm({
               )}
               <div className="flex items-center justify-between text-sm">
                 <span className="text-(--text-secondary)">Service fee</span>
-                <span className="font-medium text-emerald-400">$0</span>
+                <span className="text-(--text-secondary)">$0</span>
               </div>
             </div>
-            <div className="mt-4 border-t border-(--border-muted) pt-4">
+            <div className="mt-4 border-t border-(--booking-frame) pt-4">
               <div className="flex items-end justify-between">
-                <span className="text-sm font-semibold text-(--text-primary)">Due now</span>
-                <span className="text-2xl font-bold text-(--text-primary)">
+                <span className="text-sm font-medium text-(--text-primary)">Due now</span>
+                <span className="text-2xl font-medium text-(--text-primary)">
                   {formatCurrency(amountDueNow)}
                 </span>
               </div>
@@ -1236,16 +1240,16 @@ export function BookingForm({
           </div>
         )}
         {waitlistMessage && (
-          <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+          <div className="mt-5 rounded-xl border border-(--booking-frame) bg-(--booking-pill-available-surface) px-4 py-3 text-sm text-(--accent-primary)">
             {waitlistMessage}
           </div>
         )}
 
         {/* Bottom action bar */}
-        <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-(--border-muted) bg-(--bg-elevated) px-4 py-3">
+        <div className={ACTION_BAR_CLASS}>
           <p className="text-sm text-(--text-secondary)">
             Total due now:{" "}
-            <span className="font-semibold text-(--text-primary)">
+            <span className="font-medium text-(--text-primary)">
               {formatCurrency(amountDueNow)}
             </span>
           </p>
@@ -1253,12 +1257,7 @@ export function BookingForm({
             type="button"
             onClick={handleBooking}
             disabled={isBooking}
-            className={cn(
-              "sevacam-primary-button inline-flex items-center gap-2 rounded-[0.18rem] px-5 py-2.5 text-[0.62rem] font-bold uppercase tracking-[0.18em] transition-all duration-200",
-              isBooking
-                ? "cursor-not-allowed bg-(--bg-inset) text-(--text-secondary)"
-                : "text-[#07292d]",
-            )}
+            className={PRIMARY_ACTION_CLASS}
           >
             {isBooking ? (
               <>
@@ -1310,10 +1309,10 @@ export function BookingForm({
           />
 
           {selectedLocation && (
-            <div className="mb-6 overflow-hidden rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset)">
-              <div className="flex items-start justify-between gap-3 px-4 py-4">
+            <div className="mb-6 rounded-xl bg-(--bg-elevated) p-4">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--text-secondary)">
+                  <p className={SECTION_LABEL_CLASS}>
                     Appointment Location
                   </p>
                   <p className="mt-1 text-sm text-(--text-secondary)">
@@ -1327,14 +1326,14 @@ export function BookingForm({
                       setSelectedLocationId(null);
                       setStep(1);
                     }}
-                    className="rounded-full border border-(--border-subtle) bg-(--bg-elevated) px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-primary) transition-colors hover:bg-(--accent-primary) hover:text-[#07292d]"
+                    className="inline-flex items-center rounded-full border border-(--booking-frame) bg-(--bg-inset) px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-(--text-primary) transition-colors hover:bg-(--bg-overlay)"
                   >
                     Change Location
                   </button>
                 )}
               </div>
 
-              <div className="px-4 pb-4">
+              <div className="mt-4">
                 {selectedLocation.latitude !== null &&
                 selectedLocation.longitude !== null ? (
                   <LocationMapView
@@ -1348,11 +1347,11 @@ export function BookingForm({
                     compact
                   />
                 ) : (
-                  <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-elevated) p-4">
+                  <div className={`${PANEL_CLASS} p-4`}>
                     <div className="flex items-start gap-2">
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
                       <div>
-                        <p className="text-sm font-semibold text-(--text-primary)">
+                        <p className="text-sm font-medium text-(--text-primary)">
                           {selectedLocation.name}
                         </p>
                         <p className="mt-1 text-xs text-(--text-secondary)">
@@ -1370,7 +1369,7 @@ export function BookingForm({
             <button
               type="button"
               onClick={() => setStep((prev) => (prev - 1) as 1 | 2 | 3)}
-              className="mb-4 flex items-center gap-1.5 text-xs text-(--text-secondary) transition hover:text-(--text-primary)/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20"
+              className="mb-4 flex items-center gap-1.5 text-xs text-(--text-secondary) transition hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)/20"
             >
               <ChevronLeft className="h-3.5 w-3.5" /> Back
             </button>

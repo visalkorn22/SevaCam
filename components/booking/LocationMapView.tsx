@@ -78,7 +78,7 @@ export default function LocationMapView({
       <div className="flex items-start gap-2">
         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-(--accent-primary)" />
         <div>
-          <p className="text-sm font-semibold text-(--text-primary)">{location.name}</p>
+          <p className="text-sm font-medium text-(--text-primary)">{location.name}</p>
           {location.address && (
             <p className="text-xs text-(--text-disabled)">{location.address}</p>
           )}
@@ -88,14 +88,14 @@ export default function LocationMapView({
       <div
         ref={mapRef}
         style={{ height: mapHeight }}
-        className="w-full overflow-hidden rounded-[0.7rem] border border-(--border-subtle)"
+        className="sevacam-booking-map-frame w-full"
       />
 
       <a
         href={directionsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 rounded-[0.55rem] border border-(--border-subtle) bg-(--bg-inset) px-3 py-1.5 text-xs font-medium text-(--text-secondary) transition-colors hover:bg-(--bg-elevated) hover:text-(--text-primary)"
+        className="sevacam-booking-secondary-action inline-flex items-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em]"
       >
         <Navigation className="h-3.5 w-3.5" />
         Get Directions
