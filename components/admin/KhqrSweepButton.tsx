@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { CheckCircle2, RefreshCw } from "lucide-react";
 
 export function KhqrSweepButton() {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
@@ -46,5 +46,38 @@ export function KhqrSweepButton() {
         </p>
       )}
     </div>
+  );
+}
+
+export function KhqrConfirmButton({ paymentId }: { paymentId: string }) {
+  const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
+
+  const confirm = async () => {
+    if (!window.confirm("Confirm this KHQR payment as received? Only do this after verifying the transfer in your ACLEDA/Bakong app.")) return;
+    setState("loading");
+    try {
+      const res = await fetch(`/api/payments/admin/${paymentId}/confirm-khqr`, { method: "POST" });
+      const data = (await res.json().catch(() => ({}))) as { detail?: string };
+      if (!res.ok) throw new Error(data.detail || "Confirm failed");
+      setState("done");
+      window.location.reload();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to confirm");
+      setState("error");
+    }
+  };
+
+  if (state === "done") return null;
+
+  return (
+    <button
+      type="button"
+      onClick={confirm}
+      disabled={state === "loading"}
+      className="inline-flex items-center gap-1 rounded-full border border-[rgba(122,213,221,0.3)] bg-[rgba(122,213,221,0.1)] px-2.5 py-1 text-[0.54rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent) hover:bg-[rgba(122,213,221,0.2)] disabled:opacity-60"
+    >
+      <CheckCircle2 className="size-3" />
+      {state === "loading" ? "Confirming…" : "Mark paid"}
+    </button>
   );
 }

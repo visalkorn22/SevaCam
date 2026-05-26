@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
-import { KhqrSweepButton } from "@/components/admin/KhqrSweepButton";
+import { KhqrConfirmButton, KhqrSweepButton } from "@/components/admin/KhqrSweepButton";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -235,13 +235,17 @@ export default async function AdminPaymentsPage() {
                     {currencyFormatter.format(Number(payment.amount || 0))}
                   </span>
 
-                  {/* Status chip */}
-                  <span>
+                  {/* Status chip + KHQR confirm */}
+                  <span className="flex flex-col gap-1.5">
                     <span
-                      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] ${statusChip(payment.status)}`}
+                      className={`inline-flex w-fit items-center rounded-full border px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] ${statusChip(payment.status)}`}
                     >
                       {payment.status}
                     </span>
+                    {payment.status === "pending" &&
+                      payment.payment_method === "bakong_khqr" && (
+                        <KhqrConfirmButton paymentId={payment.id} />
+                      )}
                   </span>
 
                   {/* Method */}
