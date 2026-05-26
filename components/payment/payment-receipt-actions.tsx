@@ -25,7 +25,13 @@ export function PaymentReceiptActions() {
         <button
           type="button"
           onClick={handlePrint}
-          className="sevacam-booking-primary-action inline-flex h-12 w-full items-center justify-center gap-2 px-4 text-[11px] font-medium uppercase tracking-[0.18em]"
+          style={{
+            background: "var(--sa-check-color)",
+            borderColor:
+              "color-mix(in srgb, var(--sa-check-color) 72%, rgba(255,255,255,0.08))",
+            color: "#062b2f",
+          }}
+          className="sevacam-booking-primary-action inline-flex h-12 w-full items-center justify-center gap-2 px-4 text-[11px] font-medium uppercase tracking-[0.18em] shadow-[0_18px_36px_rgba(122,213,221,0.18)] hover:shadow-[0_22px_44px_rgba(122,213,221,0.24)]"
         >
           <Download className="h-4 w-4" />
           Download PDF
@@ -33,7 +39,7 @@ export function PaymentReceiptActions() {
 
         <Link
           href="/services"
-          className="sevacam-booking-secondary-action inline-flex h-12 w-full items-center justify-center gap-2 px-4 text-[11px] font-medium uppercase tracking-[0.18em]"
+          className="sevacam-booking-secondary-action inline-flex h-12 w-full items-center justify-center gap-2 px-4 text-[11px] font-medium uppercase tracking-[0.18em] border-white/10 bg-black/20 text-white/84 hover:bg-white/8 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Services

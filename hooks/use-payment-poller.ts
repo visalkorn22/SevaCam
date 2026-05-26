@@ -115,5 +115,53 @@ export function usePaymentPoller(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, paymentId, autoRefresh, payment?.status]);
 
+  // Mobile KHQR flows often bounce the user into a banking app and back.
+  // Refresh immediately when the page becomes active again so the success
+  // modal does not wait for the next interval tick.
+  useEffect(() => {
+    if (!enabled || !paymentId) return;
+
+    const refreshIfPending = () => {
+      if (!stateRef.current.enabled || !stateRef.current.paymentId) return;
+      if (
+        stateRef.current.payment &&
+        TERMINAL.has(stateRef.current.payment.status)
+      ) {
+        return;
+      }
+      void doFetch();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refreshIfPending();
+      }
+    };
+
+    const handleFocus = () => {
+      refreshIfPending();
+    };
+
+    const handlePageShow = () => {
+      refreshIfPending();
+    };
+
+    const handleOnline = () => {
+      refreshIfPending();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [enabled, paymentId, doFetch]);
+
   return { payment, isLoading, error, refetch };
 }

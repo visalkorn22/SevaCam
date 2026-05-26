@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { MapPin, Navigation } from "lucide-react";
 
 export interface LocationData {
@@ -16,6 +16,29 @@ interface LocationMapViewProps {
   compact?: boolean;
 }
 
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
+function buildDirectionsUrl(
+  location: LocationData,
+  origin?: Coordinates,
+): string {
+  const params = new URLSearchParams({
+    api: "1",
+    destination: `${location.latitude},${location.longitude}`,
+    travelmode: "driving",
+    dir_action: "navigate",
+  });
+
+  if (origin) {
+    params.set("origin", `${origin.latitude},${origin.longitude}`);
+  }
+
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}
+
 export default function LocationMapView({
   location,
   height,
@@ -23,6 +46,7 @@ export default function LocationMapView({
 }: LocationMapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const [isResolvingDirections, setIsResolvingDirections] = useState(false);
   const mapHeight = height ?? (compact ? 200 : 280);
 
   useEffect(() => {
@@ -71,7 +95,58 @@ export default function LocationMapView({
     };
   }, [location.latitude, location.longitude, location.name, location.address]);
 
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}`;
+  const directionsUrl = buildDirectionsUrl(location);
+
+  const handleDirectionsClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window === "undefined") return;
+
+    event.preventDefault();
+
+    if (isResolvingDirections) return;
+
+    const popup = window.open(directionsUrl, "_blank");
+    if (popup) {
+      popup.opener = null;
+    }
+
+    if (!("geolocation" in navigator)) {
+      if (!popup) {
+        window.location.assign(directionsUrl);
+      }
+      return;
+    }
+
+    setIsResolvingDirections(true);
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const preciseDirectionsUrl = buildDirectionsUrl(location, {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+
+        if (popup && !popup.closed) {
+          popup.location.replace(preciseDirectionsUrl);
+          popup.focus();
+        } else {
+          window.location.assign(preciseDirectionsUrl);
+        }
+
+        setIsResolvingDirections(false);
+      },
+      () => {
+        if (!popup) {
+          window.location.assign(directionsUrl);
+        }
+        setIsResolvingDirections(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      },
+    );
+  };
 
   return (
     <div className="space-y-3">
@@ -93,12 +168,14 @@ export default function LocationMapView({
 
       <a
         href={directionsUrl}
+        onClick={handleDirectionsClick}
         target="_blank"
         rel="noopener noreferrer"
+        aria-busy={isResolvingDirections}
         className="sevacam-booking-secondary-action inline-flex items-center gap-2 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.18em]"
       >
         <Navigation className="h-3.5 w-3.5" />
-        Get Directions
+        {isResolvingDirections ? "Locating you..." : "Get Directions"}
       </a>
     </div>
   );
