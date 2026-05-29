@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+
 import { AnalyticsCharts } from "@/components/admin/analytics-charts";
 
 type MeUser = {
@@ -107,28 +108,8 @@ export default async function AdminDashboard() {
   const stats = await getAdminDashboardStats();
   const greetingName =
     me.full_name || me.email?.split("@")[0] || "Administrator";
-  const averageTicket =
-    stats.totalBookings > 0 ? stats.totalRevenue / stats.totalBookings : 0;
   const settingsHref =
     me.role === "superadmin" ? "/admin/system-settings" : "/admin/settings";
-
-  const pulseItems = [
-    {
-      label: "Cancellation rate",
-      value: `${stats.cancellationRate.toFixed(1)}%`,
-      note: "Track scheduling friction and prevent avoidable drop-off.",
-    },
-    {
-      label: "Guest reviews",
-      value: stats.totalReviews.toString(),
-      note: "Measure service perception and response volume.",
-    },
-    {
-      label: "Active users",
-      value: stats.activeUsers.toString(),
-      note: "Watch customer and team activity in real time.",
-    },
-  ];
 
   const quickActions = [
     {
@@ -286,155 +267,77 @@ export default async function AdminDashboard() {
           })}
         </section>
 
-        {/* ── Main two-column layout ── */}
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_16.25rem]">
+        {/* ── Analytics + Quick Actions ── */}
+        <section className="space-y-6">
 
-          {/* Left column */}
-          <div className="space-y-6">
-
-            {/* Analytics header */}
-            <div>
-              <p className="sevacam-eyebrow">Live analytics</p>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="sevacam-display text-[clamp(1.4rem,2.2vw,1.85rem)] leading-[1] text-(--seva-text)">
-                  Revenue and booking movement
-                </h2>
-                <span className="inline-flex items-center rounded-full bg-[rgba(122,213,221,0.1)] px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent)">
-                  Live view
-                </span>
-              </div>
-            </div>
-
-            <AnalyticsCharts />
-
-            {/* Quick actions */}
-            <div className="sevacam-rail overflow-hidden">
-              <div className="flex items-center justify-between gap-4 border-b border-(--seva-border-subtle) px-5 py-4">
-                <div>
-                  <p className="sevacam-eyebrow">Quick Tasks</p>
-                  <p className="mt-1 text-[0.76rem] text-(--seva-text-muted)">
-                    Common administrative actions, kept within fast reach.
-                  </p>
-                </div>
-                <Link
-                  href="/admin/bookings"
-                  className="shrink-0 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent) transition-colors hover:text-(--seva-text)"
-                >
-                  View bookings
-                </Link>
-              </div>
-              <div className="hidden grid-cols-[1.05fr_1.5fr_auto] gap-4 border-b border-(--seva-border-subtle) px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.14em] text-(--seva-text-muted) md:grid">
-                <span>Action</span>
-                <span>Focus</span>
-                <span>Open</span>
-              </div>
-              <div className="divide-y divide-(--seva-border-subtle)">
-                {quickActions.map((action) => {
-                  const Icon = action.icon;
-                  return (
-                    <Link
-                      key={action.href}
-                      href={action.href}
-                      className="grid gap-3 px-5 py-3.5 transition-colors hover:bg-(--seva-elevated) md:grid-cols-[1.05fr_1.5fr_auto] md:items-center"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.65rem] bg-[rgba(122,213,221,0.1)] text-(--seva-accent)">
-                          <Icon className="h-3.5 w-3.5" />
-                        </span>
-                        <div>
-                          <p className="text-[0.84rem] font-semibold text-(--seva-text)">
-                            {action.title}
-                          </p>
-                          <p className="text-[0.74rem] text-(--seva-text-muted) md:hidden">
-                            {action.description}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="hidden text-[0.78rem] leading-5 text-(--seva-text-soft) md:block">
-                        {action.description}
-                      </p>
-                      <div className="inline-flex items-center gap-1.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent)">
-                        Open
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+          {/* Analytics header */}
+          <div>
+            <p className="sevacam-eyebrow">Live analytics</p>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="sevacam-display text-[clamp(1.4rem,2.2vw,1.85rem)] leading-[1] text-(--seva-text)">
+                Revenue and booking movement
+              </h2>
+              <span className="inline-flex items-center rounded-full bg-[rgba(122,213,221,0.1)] px-2.5 py-1 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent)">
+                Live view
+              </span>
             </div>
           </div>
 
-          {/* Right column */}
-          <div className="space-y-4">
+          <AnalyticsCharts />
 
-            {/* Quick stats */}
-            <div className="sevacam-rail p-5">
-              <p className="sevacam-eyebrow">Quick Stats</p>
-              <p className="mt-1 mb-4 text-[0.76rem] text-(--seva-text-muted)">
-                Metrics that matter most while operations are live.
-              </p>
-              <div className="space-y-2">
-                {pulseItems.map((item) => (
-                  <div key={item.label} className="sevacam-side-stat flex-col !items-start gap-1">
-                    <div className="flex w-full items-center justify-between gap-3">
-                      <p className="text-[0.8rem] font-medium text-(--seva-text-soft)">
-                        {item.label}
-                      </p>
-                      <span className="text-[0.86rem] font-semibold text-(--seva-accent)">
-                        {item.value}
-                      </span>
-                    </div>
-                    <p className="text-[0.7rem] leading-5 text-(--seva-text-muted)">
-                      {item.note}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* System integrity */}
-            <div className="sevacam-rail p-5">
-              <p className="sevacam-eyebrow">System Integrity</p>
-              <p className="mt-1 mb-4 text-[0.76rem] text-(--seva-text-muted)">
-                Booking flow and response health at a glance.
-              </p>
-              <div className="rounded-[0.7rem] border border-(--seva-border-subtle) bg-(--seva-elevated) px-4 py-3.5">
-                <p className="text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-(--seva-accent)">
-                  Stable
-                </p>
-                <p className="mt-2 text-[0.76rem] leading-5 text-(--seva-text-soft)">
-                  All booking nodes remain synchronized. Revenue, reviews, and
-                  upcoming reservations are updating without issue.
+          {/* Quick actions */}
+          <div className="sevacam-rail overflow-hidden">
+            <div className="flex items-center justify-between gap-4 border-b border-(--seva-border-subtle) px-5 py-4">
+              <div>
+                <p className="sevacam-eyebrow">Quick Tasks</p>
+                <p className="mt-1 text-[0.76rem] text-(--seva-text-muted)">
+                  Common administrative actions, kept within fast reach.
                 </p>
               </div>
               <Link
-                href="/admin/monitoring"
-                className="sevacam-secondary-button mt-2.5 inline-flex w-full items-center justify-center rounded-[0.18rem] px-4 py-2.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em]"
+                href="/admin/bookings"
+                className="shrink-0 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent) transition-colors hover:text-(--seva-text)"
               >
-                Run Diagnostics
+                View bookings
               </Link>
             </div>
-
-            {/* Overview summary */}
-            <div className="sevacam-rail p-5">
-              <p className="sevacam-eyebrow">Overview Summary</p>
-              <p className="mt-1 mb-4 text-[0.76rem] text-(--seva-text-muted)">
-                A compact read on operational output.
-              </p>
-              <div className="space-y-2">
-                <div className="sevacam-side-stat">
-                  <span>Average ticket</span>
-                  <span>{currencyFormatter.format(averageTicket)}</span>
-                </div>
-                <div className="sevacam-side-stat">
-                  <span>Total reviews</span>
-                  <span>{stats.totalReviews}</span>
-                </div>
-                <div className="sevacam-side-stat">
-                  <span>Active users</span>
-                  <span>{stats.activeUsers}</span>
-                </div>
-              </div>
+            <div className="hidden grid-cols-[1.05fr_1.5fr_auto] gap-4 border-b border-(--seva-border-subtle) px-5 py-2.5 text-[0.54rem] font-semibold uppercase tracking-[0.14em] text-(--seva-text-muted) md:grid">
+              <span>Action</span>
+              <span>Focus</span>
+              <span>Open</span>
+            </div>
+            <div className="divide-y divide-(--seva-border-subtle)">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link
+                    key={action.href}
+                    href={action.href}
+                    className="grid gap-3 px-5 py-3.5 transition-colors hover:bg-(--seva-elevated) md:grid-cols-[1.05fr_1.5fr_auto] md:items-center"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.65rem] bg-[rgba(122,213,221,0.1)] text-(--seva-accent)">
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <div>
+                        <p className="text-[0.84rem] font-semibold text-(--seva-text)">
+                          {action.title}
+                        </p>
+                        <p className="text-[0.74rem] text-(--seva-text-muted) md:hidden">
+                          {action.description}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="hidden text-[0.78rem] leading-5 text-(--seva-text-soft) md:block">
+                      {action.description}
+                    </p>
+                    <div className="inline-flex items-center gap-1.5 text-[0.56rem] font-semibold uppercase tracking-[0.14em] text-(--seva-accent)">
+                      Open
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
