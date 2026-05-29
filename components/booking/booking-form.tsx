@@ -31,12 +31,16 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { resolveAvatarUrl } from "@/lib/utils/avatar";
+import { StarRating } from "@/components/ui/star-rating";
 import { formatTimeInTimeZone, getHourInTimeZone } from "@/lib/timezone";
-import BranchSelectionStep, { type BranchLocation } from "./BranchSelectionStep";
+import BranchSelectionStep, {
+  type BranchLocation,
+} from "./BranchSelectionStep";
 import dynamic from "next/dynamic";
 const LocationMapView = dynamic(
   () => import("@/components/booking/LocationMapView"),
-  { ssr: false }
+  { ssr: false },
 );
 
 // --- Types --------------------------------------------------------------------
@@ -59,6 +63,12 @@ interface BookingStaff {
   duration_override?: number | string | null;
   buffer_override?: number | string | null;
   capacity_override?: number | string | null;
+  skills?: string[];
+  bio?: string | null;
+  average_rating?: number | null;
+  review_count?: number;
+  completed_bookings?: number;
+  experience_level?: string | null;
 }
 
 interface BookingService {
@@ -273,7 +283,9 @@ function ServiceHeaderBar({
     <div className="mb-6 flex items-center justify-between gap-4 border-b border-(--booking-frame) pb-4">
       <div className="flex items-center gap-3">
         <div className={`h-9 w-9 shrink-0 rounded-xl ${artClass}`} />
-        <p className="text-sm font-medium text-(--text-primary)">{service.name}</p>
+        <p className="text-sm font-medium text-(--text-primary)">
+          {service.name}
+        </p>
       </div>
       <div className="text-right">
         <p className="text-sm font-medium text-(--text-primary)">
@@ -306,9 +318,7 @@ function SlotPeriodSection({
 
   return (
     <div className="space-y-2">
-      <p className={SECTION_LABEL_CLASS}>
-        {period.label}
-      </p>
+      <p className={SECTION_LABEL_CLASS}>{period.label}</p>
       <div className="grid grid-cols-4 gap-2">
         {slots.map((slot) => {
           const isSelected = selectedSlot === slot.start_time;
@@ -486,7 +496,7 @@ export function BookingForm({
   const DEFAULT_BOOKING_TIMEZONE = "Asia/Phnom_Penh";
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
-    () => (locations?.length === 1 ? locations[0].id : null)
+    () => (locations?.length === 1 ? locations[0].id : null),
   );
   const [selectedStaffId, setSelectedStaffId] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -888,7 +898,9 @@ export function BookingForm({
 
   const renderStep1 = () => (
     <div ref={providerSectionRef} className="sevacam-section-anchor">
-      <h2 className={SECTION_HEADING_CLASS}>Who would you like?</h2>
+      <h2 className={SECTION_HEADING_CLASS}>
+        Please select your preferred staff member.
+      </h2>
       <p className="mt-1 mb-6 text-sm text-(--text-secondary)">
         Availability updates based on your choice.
       </p>
@@ -896,7 +908,9 @@ export function BookingForm({
       {staff.length === 0 ? (
         <div className={`${PANEL_CLASS} px-4 py-8 text-center`}>
           <User className="mx-auto mb-3 h-8 w-8 text-(--text-secondary)" />
-          <p className="text-sm font-medium text-(--text-primary)">No staff available</p>
+          <p className="text-sm font-medium text-(--text-primary)">
+            No staff available
+          </p>
           <p className="mt-1 text-xs text-(--text-secondary)">
             No team members are available for this service right now.
           </p>
@@ -905,6 +919,7 @@ export function BookingForm({
         <div className="grid grid-cols-2 gap-4">
           {staff.map((member) => {
             const isSelected = !isAnyAvailable && member.id === selectedStaffId;
+            const avatarSrc = resolveAvatarUrl(member.avatar_url);
             return (
               <button
                 key={member.id}
@@ -929,7 +944,7 @@ export function BookingForm({
                 >
                   {member.avatar_url ? (
                     <img
-                      src={member.avatar_url}
+                      src={avatarSrc ?? member.avatar_url ?? undefined}
                       alt={member.name}
                       className="h-full w-full object-cover"
                     />
@@ -937,7 +952,9 @@ export function BookingForm({
                     <span
                       className={cn(
                         "text-lg font-medium",
-                        isSelected ? "text-(--accent-primary)" : "text-(--text-primary)",
+                        isSelected
+                          ? "text-(--accent-primary)"
+                          : "text-(--text-primary)",
                       )}
                     >
                       {getInitials(member.name || "?")}
@@ -945,8 +962,40 @@ export function BookingForm({
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-(--text-primary)">{member.name}</p>
-                  <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">Available this week</p>
+                  <p className="text-sm font-medium text-(--text-primary)">
+                    {member.name}
+                  </p>
+                  <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">
+                    {member.experience_level || "Beginner"}
+                  </p>
+                  <div className="mt-1 flex items-center justify-center gap-1 text-[0.65rem] text-(--text-secondary)">
+                    {member.average_rating != null ? (
+                      <StarRating
+                        rating={member.average_rating}
+                        showValue
+                        className="text-[0.65rem]"
+                        valueClassName="text-[0.65rem] text-(--text-secondary)"
+                      />
+                    ) : (
+                      <span>New profile</span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-[0.65rem] text-(--text-disabled)">
+                    {member.completed_bookings ?? 0} completed booking
+                    {(member.completed_bookings ?? 0) === 1 ? "" : "s"}
+                  </p>
+                  {member.skills && member.skills.length > 0 && (
+                    <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+                      {member.skills.slice(0, 2).map((skill) => (
+                        <span
+                          key={`${member.id}-${skill}`}
+                          className="rounded-full border border-(--booking-frame) px-2 py-0.5 text-[0.58rem] text-(--text-secondary)"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </button>
             );
@@ -975,8 +1024,12 @@ export function BookingForm({
               <Loader2 className="h-7 w-7 text-(--text-secondary)" />
             </div>
             <div>
-              <p className="text-sm font-medium text-(--text-primary)">Any available</p>
-              <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">Pick first open slot</p>
+              <p className="text-sm font-medium text-(--text-primary)">
+                Any available
+              </p>
+              <p className="mt-0.5 text-[0.65rem] text-(--text-secondary)">
+                Pick first open slot
+              </p>
             </div>
           </button>
         </div>
@@ -990,11 +1043,15 @@ export function BookingForm({
               <>
                 Chosen:{" "}
                 <span className="font-medium text-(--text-primary)">
-                  {isAnyAvailable ? "Any available" : (selectedStaff?.name ?? "")}
+                  {isAnyAvailable
+                    ? "Any available"
+                    : (selectedStaff?.name ?? "")}
                 </span>
               </>
             ) : (
-              <span className="text-(--booking-muted-text)">No curator selected</span>
+              <span className="text-(--booking-muted-text)">
+                No curator selected
+              </span>
             )}
           </p>
           <button
@@ -1044,22 +1101,30 @@ export function BookingForm({
         {/* Time slots */}
         <div ref={timesSectionRef} className="sevacam-section-anchor space-y-4">
           {!selectedDate ? (
-            <div className={`${PANEL_CLASS} flex h-full min-h-[12rem] items-center justify-center px-4 text-center`}>
-              <p className="text-sm text-(--text-secondary)">Select a date to see available times</p>
+            <div
+              className={`${PANEL_CLASS} flex h-full min-h-[12rem] items-center justify-center px-4 text-center`}
+            >
+              <p className="text-sm text-(--text-secondary)">
+                Select a date to see available times
+              </p>
             </div>
           ) : isLoadingSlots ? (
             <div className="space-y-3">
               <div className="h-5 w-32 animate-pulse rounded bg-(--bg-elevated)" />
               <div className="grid grid-cols-4 gap-2">
                 {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="h-10 animate-pulse rounded-xl bg-(--bg-elevated)" />
+                  <div
+                    key={i}
+                    className="h-10 animate-pulse rounded-xl bg-(--bg-elevated)"
+                  />
                 ))}
               </div>
             </div>
           ) : availableSlots.length > 0 ? (
             <>
               <p className="text-sm font-medium text-(--text-primary)">
-                {availableSlots.length} times on {format(selectedDate, "MMMM d")}
+                {availableSlots.length} times on{" "}
+                {format(selectedDate, "MMMM d")}
               </p>
               <div className="space-y-4">
                 {TIME_PERIODS.map((period) => (
@@ -1076,8 +1141,12 @@ export function BookingForm({
             </>
           ) : (
             <div className={`${PANEL_CLASS} p-4 text-center`}>
-              <p className="text-sm font-medium text-(--text-primary)">No slots on this date</p>
-              <p className="mt-1 text-xs text-(--text-secondary)">Try another day or join the waitlist.</p>
+              <p className="text-sm font-medium text-(--text-primary)">
+                No slots on this date
+              </p>
+              <p className="mt-1 text-xs text-(--text-secondary)">
+                Try another day or join the waitlist.
+              </p>
               <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
                 {nextAvailableDate && (
                   <button
@@ -1105,7 +1174,9 @@ export function BookingForm({
                 </button>
               </div>
               {waitlistMessage && (
-                <p className="mt-3 text-xs text-(--accent-primary)">{waitlistMessage}</p>
+                <p className="mt-3 text-xs text-(--accent-primary)">
+                  {waitlistMessage}
+                </p>
               )}
             </div>
           )}
@@ -1121,7 +1192,9 @@ export function BookingForm({
               {formatTimeInTimeZone(selectedSlot, timezone)}
             </span>
           ) : (
-            <span className="text-(--booking-muted-text)">Pick a day and time</span>
+            <span className="text-(--booking-muted-text)">
+              Pick a day and time
+            </span>
           )}
         </p>
         <button
@@ -1155,14 +1228,15 @@ export function BookingForm({
           <div className="space-y-6">
             {/* YOUR BOOKING */}
             <div className={`${PANEL_CLASS} p-4`}>
-              <p className={`${SECTION_LABEL_CLASS} mb-4`}>
-                Your Booking
-              </p>
+              <p className={`${SECTION_LABEL_CLASS} mb-4`}>Your Booking</p>
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-(--bg-inset)">
                   {selectedStaff?.avatar_url ? (
                     <img
-                      src={selectedStaff.avatar_url}
+                      src={
+                        resolveAvatarUrl(selectedStaff.avatar_url) ??
+                        selectedStaff.avatar_url
+                      }
                       alt={selectedStaff.name}
                       className="h-full w-full object-cover"
                     />
@@ -1178,13 +1252,41 @@ export function BookingForm({
                   </p>
                   <p className="mt-0.5 text-xs text-(--text-secondary)">
                     {selectedDate && format(selectedDate, "MMM d, yyyy")}
-                    {slotStart && ` · ${formatTimeInTimeZone(slotStart, timezone)}`}
+                    {slotStart &&
+                      ` · ${formatTimeInTimeZone(slotStart, timezone)}`}
                     {` · ${effectiveDuration} min`}
                   </p>
                 </div>
               </div>
+              <div className="mt-3 flex flex-wrap gap-2 pl-[3.25rem] text-[0.65rem] text-(--text-secondary)">
+                <span className="rounded-full bg-(--bg-inset) px-2.5 py-1">
+                  {selectedStaff?.experience_level || "Beginner"}
+                </span>
+                <span className="rounded-full bg-(--bg-inset) px-2.5 py-1">
+                  {selectedStaff?.average_rating != null ? (
+                    <StarRating
+                      rating={selectedStaff.average_rating}
+                      showValue
+                      className="text-[0.65rem]"
+                      valueClassName="text-[0.65rem] text-(--text-secondary)"
+                    />
+                  ) : (
+                    "New"
+                  )}
+                </span>
+                <span className="rounded-full bg-(--bg-inset) px-2.5 py-1">
+                  {selectedStaff?.completed_bookings ?? 0} completed
+                </span>
+              </div>
+              {selectedStaff?.bio && (
+                <p className="mt-2 pl-[3.25rem] text-xs leading-6 text-(--text-secondary)">
+                  {selectedStaff.bio}
+                </p>
+              )}
               <div className="mt-4 flex items-center justify-between border-t border-(--booking-frame) pt-4">
-                <p className="text-sm text-(--text-secondary)">{service.name}</p>
+                <p className="text-sm text-(--text-secondary)">
+                  {service.name}
+                </p>
                 <p className="text-sm font-medium text-(--text-primary)">
                   {formatCurrency(effectivePrice)}
                 </p>
@@ -1194,9 +1296,7 @@ export function BookingForm({
 
           {/* Right column: price breakdown */}
           <div className={`${PANEL_CLASS} p-4 lg:self-start`}>
-            <p className={`${SECTION_LABEL_CLASS} mb-4`}>
-              Price
-            </p>
+            <p className={`${SECTION_LABEL_CLASS} mb-4`}>Price</p>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-(--text-secondary)">{service.name}</span>
@@ -1219,7 +1319,9 @@ export function BookingForm({
             </div>
             <div className="mt-4 border-t border-(--booking-frame) pt-4">
               <div className="flex items-end justify-between">
-                <span className="text-sm font-medium text-(--text-primary)">Due now</span>
+                <span className="text-sm font-medium text-(--text-primary)">
+                  Due now
+                </span>
                 <span className="text-2xl font-medium text-(--text-primary)">
                   {formatCurrency(amountDueNow)}
                 </span>
@@ -1312,9 +1414,7 @@ export function BookingForm({
             <div className="mb-6 rounded-xl bg-(--bg-elevated) p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className={SECTION_LABEL_CLASS}>
-                    Appointment Location
-                  </p>
+                  <p className={SECTION_LABEL_CLASS}>Appointment Location</p>
                   <p className="mt-1 text-sm text-(--text-secondary)">
                     Review the branch on the map while you are still booking.
                   </p>
@@ -1383,4 +1483,3 @@ export function BookingForm({
     </div>
   );
 }
-

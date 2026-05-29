@@ -3,7 +3,9 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { BookingForm } from "@/components/booking/booking-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import { StarRating } from "@/components/ui/star-rating";
 import LocationMapView from "@/components/booking/LocationMapView";
+import { resolveAvatarUrl } from "@/lib/utils/avatar";
 import {
   ServiceReviews,
   type ServiceReviewsData,
@@ -54,6 +56,12 @@ type StaffOption = {
   duration_override?: number | string | null;
   buffer_override?: number | string | null;
   capacity_override?: number | string | null;
+  skills?: string[];
+  bio?: string | null;
+  average_rating?: number | null;
+  review_count?: number;
+  completed_bookings?: number;
+  experience_level?: string | null;
 };
 
 const bookingArtClasses = [
@@ -309,31 +317,81 @@ export default async function BookServicePage({
                   Who Guides It
                 </p>
                 <div className="space-y-3">
-                  {staff.map((member) => (
-                    <div key={member.id} className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-(--bg-inset)">
-                        {member.avatar_url ? (
-                          <img
-                            src={member.avatar_url}
-                            alt={member.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-xs font-medium text-(--text-primary)">
-                            {member.name
-                              .split(" ")
-                              .map((p: string) => p[0])
-                              .join("")
-                              .toUpperCase()
-                              .slice(0, 2)}
-                          </span>
+                  {staff.map((member) => {
+                    const avatarSrc = resolveAvatarUrl(member.avatar_url);
+                    return (
+                      <div
+                        key={member.id}
+                        className="sevacam-booking-card space-y-3 p-4"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-(--bg-inset)">
+                            {avatarSrc ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={avatarSrc}
+                                alt={member.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-xs font-medium text-(--text-primary)">
+                                {member.name
+                                  .split(" ")
+                                  .map((part: string) => part[0])
+                                  .join("")
+                                  .toUpperCase()
+                                  .slice(0, 2)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-(--text-primary)">
+                              {member.name}
+                            </p>
+                            <div className="mt-1 flex flex-wrap gap-2 text-[0.68rem] text-(--text-secondary)">
+                              <span className="rounded-full bg-(--bg-inset) px-2.5 py-1">
+                                {member.experience_level || "Beginner"}
+                              </span>
+                              <span className="rounded-full bg-(--bg-inset) px-2.5 py-1">
+                                {member.average_rating != null ? (
+                                  <StarRating
+                                    rating={member.average_rating}
+                                    showValue
+                                    className="text-[0.68rem]"
+                                    valueClassName="text-[0.68rem] text-(--text-secondary)"
+                                  />
+                                ) : (
+                                  "New"
+                                )}
+                              </span>
+                              <span className="rounded-full bg-(--bg-inset) px-2.5 py-1">
+                                {member.completed_bookings ?? 0} completed
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {member.skills && member.skills.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {member.skills.map((skill) => (
+                              <span
+                                key={`${member.id}-${skill}`}
+                                className="rounded-full border border-(--booking-frame) px-2.5 py-1 text-[0.66rem] text-(--text-secondary)"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {member.bio && (
+                          <p className="text-xs leading-6 text-(--text-secondary)">
+                            {member.bio}
+                          </p>
                         )}
                       </div>
-                      <p className="text-sm font-medium text-(--text-primary)">
-                        {member.name}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type ChangeEvent, useMemo, useRef, useState } from "react";
+import { resolveAvatarUrl } from "@/lib/utils/avatar";
+import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, ShieldCheck, UserPlus, Users } from "lucide-react";
+import { Camera, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { format } from "date-fns";
 
 type Role = "customer" | "staff" | "admin" | "superadmin";
@@ -32,6 +34,10 @@ type UserRow = {
   role: Role;
   is_active: boolean;
   created_at?: string;
+  average_rating?: number | null;
+  review_count?: number;
+  completed_bookings?: number;
+  experience_level?: string | null;
 };
 
 type StaffManagerProps = {
@@ -129,8 +135,28 @@ export default function StaffManager({
     role: "staff" as Role,
     is_active: true,
   });
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarCacheBust, setAvatarCacheBust] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isInvalidId = (id?: string) => !id || id === "undefined";
+  const isPerformanceRole = (role: Role) =>
+    role === "staff" || role === "admin" || role === "superadmin";
+
+  const syncUserState = (updated: UserRow) => {
+    setUserList((prev) =>
+      prev.map((user) => (user.id === updated.id ? updated : user)),
+    );
+    if (selectedUser?.id === updated.id) {
+      setSelectedUser(updated);
+      setEditForm({
+        full_name: updated.full_name || "",
+        phone: updated.phone || "",
+        role: updated.role,
+        is_active: updated.is_active,
+      });
+    }
+  };
 
   const sortedUsers = useMemo(() => {
     let filtered = [...userList];
@@ -182,6 +208,10 @@ export default function StaffManager({
   const totalPrivileged = userList.filter(
     (user) => user.role === "admin" || user.role === "superadmin",
   ).length;
+  const selectedAvatarSrc = resolveAvatarUrl(
+    selectedUser?.avatar_url,
+    avatarCacheBust || undefined,
+  );
 
   const handleCreateUser = async () => {
     setActionError(null);
@@ -236,6 +266,7 @@ export default function StaffManager({
 
   const startEdit = (user: UserRow) => {
     setSelectedUser(user);
+    setAvatarCacheBust(0);
     setEditForm({
       full_name: user.full_name || "",
       phone: user.phone || "",
@@ -276,10 +307,7 @@ export default function StaffManager({
       }
 
       const updated = normalizeUser((await res.json()) as UserRow);
-      setUserList((prev) =>
-        prev.map((user) => (user.id === updated.id ? updated : user)),
-      );
-      setSelectedUser(updated);
+      syncUserState(updated);
     } catch (error) {
       setActionError(
         error instanceof Error ? error.message : "Unable to update staff",
@@ -314,18 +342,7 @@ export default function StaffManager({
       }
 
       const updated = normalizeUser((await res.json()) as UserRow);
-      setUserList((prev) =>
-        prev.map((item) => (item.id === updated.id ? updated : item)),
-      );
-      if (selectedUser?.id === updated.id) {
-        setSelectedUser(updated);
-        setEditForm({
-          full_name: updated.full_name || "",
-          phone: updated.phone || "",
-          role: updated.role,
-          is_active: updated.is_active,
-        });
-      }
+      syncUserState(updated);
     } catch (error) {
       setActionError(
         error instanceof Error ? error.message : "Unable to update status",
@@ -360,15 +377,86 @@ export default function StaffManager({
       }
 
       const updated = normalizeUser((await res.json()) as UserRow);
-      setUserList((prev) =>
-        prev.map((user) => (user.id === userId ? updated : user)),
-      );
+      syncUserState(updated);
     } catch (error) {
       setActionError(
         error instanceof Error ? error.message : "Unable to update role",
       );
     } finally {
       setActionId(null);
+    }
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    if (!selectedUser) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      setActionError("Please upload a JPG, PNG, or WebP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setActionError("File too large, max 5 MB.");
+      return;
+    }
+
+    setActionError(null);
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(`/api/users/${selectedUser.id}/avatar`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.detail || data?.message || "Upload failed");
+      }
+
+      const updated = normalizeUser((await res.json()) as UserRow);
+      syncUserState(updated);
+      setAvatarCacheBust(Date.now());
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Unable to upload photo",
+      );
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleAvatarFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (!file) return;
+    await handleAvatarUpload(file);
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!selectedUser) return;
+    setActionError(null);
+    setAvatarUploading(true);
+    try {
+      const res = await fetch(`/api/users/${selectedUser.id}/avatar`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.detail || data?.message || "Remove failed");
+      }
+      const updated = normalizeUser((await res.json()) as UserRow);
+      syncUserState(updated);
+      setAvatarCacheBust(0);
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Unable to remove photo",
+      );
+    } finally {
+      setAvatarUploading(false);
     }
   };
 
@@ -564,8 +652,17 @@ export default function StaffManager({
                       >
                         {/* User */}
                         <div className="flex min-w-0 items-center gap-3">
-                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-elevated) text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
-                            {getInitials(row.full_name, row.email)}
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-subtle) bg-(--bg-elevated) text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
+                            {resolveAvatarUrl(row.avatar_url) ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={resolveAvatarUrl(row.avatar_url) ?? undefined}
+                                alt={row.full_name || row.email}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              getInitials(row.full_name, row.email)
+                            )}
                           </span>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium text-(--text-primary)">
@@ -577,6 +674,22 @@ export default function StaffManager({
                             <p className="truncate text-xs text-(--text-disabled)">
                               {row.phone || "No phone"}
                             </p>
+                            {isPerformanceRole(row.role) && (
+                              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] text-(--text-disabled)">
+                                <span>{row.experience_level || "Beginner"}</span>
+                                {row.average_rating != null ? (
+                                  <StarRating
+                                    rating={row.average_rating}
+                                    showValue
+                                    className="text-[0.68rem]"
+                                    valueClassName="text-[0.68rem] text-(--text-disabled)"
+                                  />
+                                ) : (
+                                  <span>No rating</span>
+                                )}
+                                <span>{row.completed_bookings ?? 0} completed</span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -849,8 +962,17 @@ export default function StaffManager({
           {selectedUser ? (
             <div className="sevacam-rail overflow-hidden">
               <div className="flex items-start gap-3 border-b border-(--seva-border-subtle) px-5 py-4">
-                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-inset) text-sm font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
-                  {getInitials(selectedUser.full_name, selectedUser.email)}
+                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-(--border-subtle) bg-(--bg-inset) text-sm font-semibold uppercase tracking-[0.12em] text-(--text-primary)">
+                  {selectedAvatarSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={selectedAvatarSrc}
+                      alt={selectedUser.full_name || selectedUser.email}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    getInitials(selectedUser.full_name, selectedUser.email)
+                  )}
                 </span>
                 <div className="min-w-0">
                   <p className="sevacam-eyebrow">Selected account</p>
@@ -882,6 +1004,82 @@ export default function StaffManager({
                     </span>
                   </div>
                 </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleAvatarFileChange}
+                />
+                <div className="space-y-3 rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) p-3">
+                  <div>
+                    <p className="text-sm font-medium text-(--text-primary)">
+                      Profile photo
+                    </p>
+                    <p className="text-xs text-(--text-secondary)">
+                      Upload a staff photo customers will see during booking.
+                    </p>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className={secondaryButtonClass}
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={avatarUploading}
+                    >
+                      <Camera className="mr-2 h-3.5 w-3.5" />
+                      {avatarUploading ? "Uploading..." : "Upload photo"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className={secondaryButtonClass}
+                      onClick={handleRemoveAvatar}
+                      disabled={avatarUploading || !selectedUser.avatar_url}
+                    >
+                      Remove photo
+                    </Button>
+                  </div>
+                </div>
+
+                {isPerformanceRole(selectedUser.role) && (
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) p-3">
+                      <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
+                        Experience
+                      </p>
+                      <p className="mt-2 text-sm font-medium text-(--text-primary)">
+                        {selectedUser.experience_level || "Beginner"}
+                      </p>
+                    </div>
+                    <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) p-3">
+                      <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
+                        Average rating
+                      </p>
+                      <div className="mt-2 text-sm font-medium text-(--text-primary)">
+                        {selectedUser.average_rating != null ? (
+                          <StarRating
+                            rating={selectedUser.average_rating}
+                            showValue
+                            valueClassName="text-sm font-medium text-(--text-primary)"
+                          />
+                        ) : (
+                          "No rating"
+                        )}
+                      </div>
+                    </div>
+                    <div className="rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) p-3">
+                      <p className="text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-(--text-disabled)">
+                        Completed
+                      </p>
+                      <p className="mt-2 text-sm font-medium text-(--text-primary)">
+                        {selectedUser.completed_bookings ?? 0}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="edit-full-name" className={labelClass}>
@@ -969,7 +1167,10 @@ export default function StaffManager({
                   <Button
                     variant="ghost"
                     className={secondaryButtonClass}
-                    onClick={() => setSelectedUser(null)}
+                    onClick={() => {
+                      setSelectedUser(null);
+                      setAvatarCacheBust(0);
+                    }}
                   >
                     Cancel
                   </Button>

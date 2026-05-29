@@ -19,6 +19,10 @@ type UserRow = {
   phone?: string | null;
   role: "customer" | "staff" | "admin" | "superadmin";
   is_active: boolean;
+  average_rating?: number | null;
+  review_count?: number;
+  completed_bookings?: number;
+  experience_level?: string | null;
 };
 
 async function getMe(): Promise<MeUser | null> {

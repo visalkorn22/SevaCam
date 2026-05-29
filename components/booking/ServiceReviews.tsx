@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
-import { Star } from "lucide-react";
+import { StarRating } from "@/components/ui/star-rating";
 
 type ServiceReview = {
   rating: number;
@@ -13,20 +13,6 @@ export type ServiceReviewsData = {
   review_count: number;
   reviews: ServiceReview[];
 };
-
-function StarDisplay({ rating, max = 5 }: { rating: number; max?: number }) {
-  const filled = Math.round(rating);
-  return (
-    <span aria-label={`${rating} out of ${max} stars`} className="flex items-center gap-0.5">
-      {Array.from({ length: max }).map((_, index) => (
-        <Star
-          key={index}
-          className={`h-3 w-3 ${index < filled ? "fill-amber-400 text-amber-400" : "text-(--border-muted)"}`}
-        />
-      ))}
-    </span>
-  );
-}
 
 export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
   if (!data || data.review_count === 0) {
@@ -44,10 +30,11 @@ export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
         <h2 className="text-base font-medium text-(--text-primary)">Reviews</h2>
         {data.average_rating != null && (
           <>
-            <StarDisplay rating={data.average_rating} />
-            <span className="text-sm font-medium text-(--text-primary)">
-              {data.average_rating.toFixed(1)}
-            </span>
+            <StarRating
+              rating={data.average_rating}
+              showValue
+              valueClassName="text-sm font-medium text-(--text-primary)"
+            />
           </>
         )}
         <span className="text-xs text-(--text-secondary)">
@@ -61,7 +48,7 @@ export function ServiceReviews({ data }: { data: ServiceReviewsData | null }) {
             key={index}
             className="sevacam-booking-card p-4"
           >
-            <StarDisplay rating={review.rating} />
+            <StarRating rating={review.rating} />
             {review.comment && (
               <p className="mt-2 text-sm leading-relaxed text-(--text-secondary)">
                 {review.comment}

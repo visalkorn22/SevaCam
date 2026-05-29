@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -11,13 +12,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { resolveAvatarUrl } from "@/lib/utils/avatar";
+import { StarRating } from "@/components/ui/star-rating";
 import { Check, Plus, Trash2, UserRound } from "lucide-react";
 
 type StaffOption = {
   id: string;
   full_name: string | null;
+  email?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
   role: "staff" | "admin" | "superadmin" | "customer";
   is_active: boolean;
+  average_rating?: number | null;
+  completed_bookings?: number;
+  experience_level?: string | null;
+};
+
+type AssignedStaff = {
+  id: string;
+  full_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
+  role: string;
+  assignment_id: string;
+  skills?: string[];
+  bio?: string | null;
+  average_rating?: number | null;
+  review_count?: number;
+  completed_bookings?: number;
+  experience_level?: string | null;
+};
+
+type StaffProfileDraft = {
+  skills: string;
+  bio: string;
+};
+
+type ResolvedSelectedStaff = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  average_rating: number | null;
+  completed_bookings: number;
+  experience_level: string | null;
+  review_count: number;
 };
 
 type StaffWorkBlockDraft = {
@@ -35,8 +77,17 @@ type StaffWorkBlockExisting = {
 
 type EnhancedStaffAssignmentsProps = {
   staffOptions: StaffOption[];
+  assignedStaff?: AssignedStaff[];
   selectedStaffIds: string[];
   setSelectedStaffIds: (ids: string[]) => void;
+  staffProfileDrafts: Record<string, StaffProfileDraft>;
+  setStaffProfileDrafts: (
+    updater:
+      | Record<string, StaffProfileDraft>
+      | ((
+          prev: Record<string, StaffProfileDraft>,
+        ) => Record<string, StaffProfileDraft>),
+  ) => void;
   enableScheduleAssignment?: boolean;
   scheduleMode?: "create" | "edit";
   scheduleTimezone?: string;
@@ -67,6 +118,8 @@ const DAYS_OF_WEEK = [
 
 const fieldInput =
   "!h-10 rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:bg-(--bg-elevated) focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)] transition-colors text-sm";
+const textareaClass =
+  "min-h-[7.5rem] rounded-[0.7rem] border border-(--border-subtle) bg-(--bg-inset) text-sm text-(--text-primary) placeholder:text-(--text-disabled) focus-visible:border-(--accent-primary) focus-visible:bg-(--bg-elevated) focus-visible:ring-1 focus-visible:ring-[rgba(122,213,221,0.35)]";
 
 const microLabel =
   "mb-1.5 block text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-(--text-disabled)";
@@ -79,8 +132,11 @@ const selectItem =
 
 export default function EnhancedStaffAssignments({
   staffOptions,
+  assignedStaff = [],
   selectedStaffIds,
   setSelectedStaffIds,
+  staffProfileDrafts,
+  setStaffProfileDrafts,
   enableScheduleAssignment = false,
   scheduleMode = "create",
   scheduleTimezone = "Asia/Phnom_Penh",
@@ -129,9 +185,40 @@ export default function EnhancedStaffAssignments({
     (s) => s.role === "staff" && s.is_active !== false,
   );
 
+  const assignedStaffById = useMemo(
+    () =>
+      new Map(
+        assignedStaff.map((staff) => [staff.id, staff] as const).filter(Boolean),
+      ),
+    [assignedStaff],
+  );
+
   const selectedStaff = useMemo(
-    () => availableStaff.filter((s) => selectedStaffIds.includes(s.id)),
-    [availableStaff, selectedStaffIds],
+    () =>
+      selectedStaffIds
+        .map<ResolvedSelectedStaff | null>((staffId) => {
+          const option =
+            availableStaff.find((staff) => staff.id === staffId) ||
+            resolvedStaff.find((staff) => staff.id === staffId);
+          const assigned = assignedStaffById.get(staffId);
+          if (!option && !assigned) return null;
+          return {
+            id: staffId,
+            full_name: assigned?.full_name ?? option?.full_name ?? null,
+            email: assigned?.email ?? option?.email ?? null,
+            phone: assigned?.phone ?? option?.phone ?? null,
+            avatar_url: assigned?.avatar_url ?? option?.avatar_url ?? null,
+            average_rating:
+              assigned?.average_rating ?? option?.average_rating ?? null,
+            completed_bookings:
+              assigned?.completed_bookings ?? option?.completed_bookings ?? 0,
+            experience_level:
+              assigned?.experience_level ?? option?.experience_level ?? null,
+            review_count: assigned?.review_count ?? 0,
+          };
+        })
+        .filter((staff): staff is ResolvedSelectedStaff => staff !== null),
+    [assignedStaffById, availableStaff, resolvedStaff, selectedStaffIds],
   );
 
   const toggleStaff = (id: string) =>
@@ -151,6 +238,19 @@ export default function EnhancedStaffAssignments({
     setDrafts((prev) => ({
       ...prev,
       [staffId]: { ...getDraft(staffId), ...patch },
+    }));
+
+  const updateStaffProfileDraft = (
+    staffId: string,
+    patch: Partial<StaffProfileDraft>,
+  ) =>
+    setStaffProfileDrafts((prev) => ({
+      ...prev,
+      [staffId]: {
+        skills: prev[staffId]?.skills ?? "",
+        bio: prev[staffId]?.bio ?? "",
+        ...patch,
+      },
     }));
 
   const addBlock = (staffId: string) => {
@@ -255,6 +355,130 @@ export default function EnhancedStaffAssignments({
                   )}
                 </div>
               </button>
+            );
+          })}
+        </div>
+      )}
+
+      {selectedStaff.length > 0 && (
+        <div className="space-y-3 border-t border-(--seva-border-subtle) pt-5">
+          <div>
+            <p className="sevacam-eyebrow mb-1">Staff Profiles</p>
+            <p className="text-sm text-(--text-secondary)">
+              Add service-specific skills and a short bio. Experience updates
+              automatically from completed bookings and customer ratings.
+            </p>
+          </div>
+
+          {selectedStaff.map((staff) => {
+            const profileDraft = staffProfileDrafts[staff.id] ?? {
+              skills: "",
+              bio: "",
+            };
+            const avatarSrc = resolveAvatarUrl(staff.avatar_url);
+            const hasPerformanceData =
+              staff.average_rating != null || staff.completed_bookings > 0;
+
+            return (
+              <div
+                key={`profile-${staff.id}`}
+                className="overflow-hidden rounded-[0.85rem] border border-(--border-subtle) bg-(--bg-elevated)"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3 border-b border-(--seva-border-subtle) px-4 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-(--bg-inset)">
+                      {avatarSrc ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={avatarSrc}
+                          alt={staff.full_name || "Staff Member"}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xs font-semibold uppercase text-(--text-primary)">
+                          {(staff.full_name || "S").slice(0, 1)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-(--text-primary)">
+                        {staff.full_name || "Staff Member"}
+                      </p>
+                      <p className="truncate text-[0.7rem] text-(--text-disabled)">
+                        {staff.email || "No email on file"}
+                      </p>
+                      {staff.phone && (
+                        <p className="truncate text-[0.7rem] text-(--text-disabled)">
+                          {staff.phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-[rgba(122,213,221,0.12)] px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-(--accent-primary)">
+                      {staff.experience_level || "Beginner"}
+                    </span>
+                    <span className="rounded-full bg-(--bg-inset) px-2.5 py-1 text-[0.65rem] text-(--text-secondary)">
+                      {staff.average_rating != null ? (
+                        <StarRating
+                          rating={staff.average_rating}
+                          showValue
+                          className="text-[0.65rem]"
+                          valueClassName="text-[0.65rem] text-(--text-primary)"
+                        />
+                      ) : (
+                        <span className="text-(--text-primary)">New</span>
+                      )}
+                    </span>
+                    <span className="rounded-full bg-(--bg-inset) px-2.5 py-1 text-[0.65rem] text-(--text-secondary)">
+                      Completed:{" "}
+                      <span className="text-(--text-primary)">
+                        {staff.completed_bookings}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 p-4 lg:grid-cols-[1fr_1.05fr]">
+                  <div className="space-y-2">
+                    <Label className={microLabel}>Skills</Label>
+                    <Input
+                      value={profileDraft.skills}
+                      onChange={(event) =>
+                        updateStaffProfileDraft(staff.id, {
+                          skills: event.target.value,
+                        })
+                      }
+                      placeholder="Portrait photography, photo editing, product styling"
+                      className={fieldInput}
+                    />
+                    <p className="text-[0.7rem] leading-5 text-(--text-disabled)">
+                      Separate each skill with a comma.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className={microLabel}>Bio</Label>
+                    <Textarea
+                      value={profileDraft.bio}
+                      onChange={(event) =>
+                        updateStaffProfileDraft(staff.id, {
+                          bio: event.target.value,
+                        })
+                      }
+                      placeholder="Short description customers see before they choose this staff member."
+                      className={textareaClass}
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-(--seva-border-subtle) px-4 py-3 text-[0.72rem] text-(--text-secondary)">
+                  {hasPerformanceData
+                    ? `Experience is calculated from ${staff.completed_bookings} completed booking${staff.completed_bookings === 1 ? "" : "s"} and ${staff.review_count} approved review${staff.review_count === 1 ? "" : "s"}.`
+                    : "Experience will update after this staff member completes bookings and receives reviews."}
+                </div>
+              </div>
             );
           })}
         </div>

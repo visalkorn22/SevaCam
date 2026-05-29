@@ -37,16 +37,29 @@ type EnhancedServiceFormProps = {
   staffOptions?: Array<{
     id: string;
     full_name: string | null;
+    email?: string | null;
+    phone?: string | null;
+    avatar_url?: string | null;
     role: "staff" | "admin" | "superadmin" | "customer";
     is_active: boolean;
+    average_rating?: number | null;
+    completed_bookings?: number;
+    experience_level?: string | null;
   }>;
   assignedStaff?: Array<{
     id: string;
     full_name?: string | null;
+    email?: string | null;
     phone?: string | null;
     avatar_url?: string | null;
     role: string;
     assignment_id: string;
+    skills?: string[];
+    bio?: string | null;
+    average_rating?: number | null;
+    review_count?: number;
+    completed_bookings?: number;
+    experience_level?: string | null;
   }>;
 };
 
@@ -62,6 +75,29 @@ type StaffWorkBlockExisting = {
   start_time_local: string;
   end_time_local: string;
 };
+
+type StaffProfileDraft = {
+  skills: string;
+  bio: string;
+};
+
+function toSkillsText(skills?: string[] | null) {
+  return Array.isArray(skills) ? skills.filter(Boolean).join(", ") : "";
+}
+
+function parseSkillsInput(value: string) {
+  const seen = new Set<string>();
+  return value
+    .split(",")
+    .map((skill) => skill.trim())
+    .filter((skill) => {
+      if (!skill) return false;
+      const key = skill.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
 
 export default function EnhancedServiceForm({
   mode,
@@ -138,6 +174,18 @@ export default function EnhancedServiceForm({
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>(
     () => assignedStaff.map((staff) => staff.id).filter(Boolean),
   );
+  const [staffProfileDrafts, setStaffProfileDrafts] = useState<
+    Record<string, StaffProfileDraft>
+  >(() =>
+    assignedStaff.reduce<Record<string, StaffProfileDraft>>((acc, staff) => {
+      if (!staff.id) return acc;
+      acc[staff.id] = {
+        skills: toSkillsText(staff.skills),
+        bio: staff.bio ?? "",
+      };
+      return acc;
+    }, {}),
+  );
   const uniqueStaffIds = useMemo(
     () => Array.from(new Set(selectedStaffIds)).filter(Boolean),
     [selectedStaffIds],
@@ -158,6 +206,23 @@ export default function EnhancedServiceForm({
   >({});
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleLoadError, setScheduleLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setStaffProfileDrafts((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const staffId of uniqueStaffIds) {
+        if (next[staffId]) continue;
+        const assigned = assignedStaff.find((staff) => staff.id === staffId);
+        next[staffId] = {
+          skills: toSkillsText(assigned?.skills),
+          bio: assigned?.bio ?? "",
+        };
+        changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [assignedStaff, uniqueStaffIds]);
 
   // Update preview whenever form data changes
   useEffect(() => {
@@ -340,6 +405,22 @@ export default function EnhancedServiceForm({
     setRemovedWorkBlockIds((prev) =>
       prev.includes(blockId) ? prev : [...prev, blockId],
     );
+  };
+
+  const getStaffProfileDraft = (staffId: string) =>
+    staffProfileDrafts[staffId] ?? { skills: "", bio: "" };
+
+  const buildAssignmentPayload = (staffId: string, targetServiceId: string) => {
+    const profile = getStaffProfileDraft(staffId);
+    return {
+      staff_id: staffId,
+      service_id: targetServiceId,
+      is_bookable: true,
+      is_temporarily_unavailable: false,
+      admin_only: false,
+      skills: parseSkillsInput(profile.skills),
+      bio: profile.bio.trim() || null,
+    };
   };
 
   const ensureStaffScheduleId = async (staffId: string) => {
@@ -603,13 +684,9 @@ export default function EnhancedServiceForm({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
-              body: JSON.stringify({
-                staff_id: staffId,
-                service_id: createdServiceId,
-                is_bookable: true,
-                is_temporarily_unavailable: false,
-                admin_only: false,
-              }),
+              body: JSON.stringify(
+                buildAssignmentPayload(staffId, createdServiceId),
+              ),
             });
             if (!res.ok) {
               const data = await res.json().catch(() => ({}));
@@ -674,9 +751,17 @@ export default function EnhancedServiceForm({
 
         if (mode === "edit") {
           const assignedMap = new Map(
-            assignedStaff.map((staff) => [staff.id, staff.assignment_id]),
+            assignedStaff.map((staff) => [staff.id, staff]),
           );
           const toAdd = uniqueStaffIds.filter((id) => !assignedMap.has(id));
+          const toUpdate = uniqueStaffIds
+            .map((id) => assignedMap.get(id))
+            .filter(
+              (
+                staff,
+              ): staff is NonNullable<(typeof assignedStaff)[number]> =>
+                Boolean(staff?.assignment_id),
+            );
           const toRemove = assignedStaff
             .filter((staff) => !uniqueStaffIds.includes(staff.id))
             .map((staff) => staff.assignment_id);
@@ -686,13 +771,9 @@ export default function EnhancedServiceForm({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
-              body: JSON.stringify({
-                staff_id: staffId,
-                service_id: createdServiceId,
-                is_bookable: true,
-                is_temporarily_unavailable: false,
-                admin_only: false,
-              }),
+              body: JSON.stringify(
+                buildAssignmentPayload(staffId, createdServiceId),
+              ),
             });
             if (!res.ok) {
               const data = await res.json().catch(() => ({}));
@@ -709,6 +790,26 @@ export default function EnhancedServiceForm({
             }
           });
 
+          const updateRequests = toUpdate.map(async (staff) => {
+            const res = await fetch(`/api/staff/services/${staff.assignment_id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                skills: parseSkillsInput(getStaffProfileDraft(staff.id).skills),
+                bio: getStaffProfileDraft(staff.id).bio.trim() || null,
+              }),
+            });
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              throw new Error(
+                data?.detail ||
+                  data?.message ||
+                  "Failed to update staff profile",
+              );
+            }
+          });
+
           const removeRequests = toRemove.map(async (assignmentId) => {
             const res = await fetch(`/api/staff/services/${assignmentId}`, {
               method: "DELETE",
@@ -722,7 +823,7 @@ export default function EnhancedServiceForm({
             }
           });
 
-          await Promise.all([...addRequests, ...removeRequests]);
+          await Promise.all([...addRequests, ...updateRequests, ...removeRequests]);
 
           if (removedWorkBlockIds.length > 0) {
             const uniqueRemoved = Array.from(new Set(removedWorkBlockIds));
@@ -892,8 +993,11 @@ export default function EnhancedServiceForm({
         {steps[currentStep]?.id === "staff" && (
           <EnhancedStaffAssignments
             staffOptions={staffOptions}
+            assignedStaff={assignedStaff}
             selectedStaffIds={selectedStaffIds}
             setSelectedStaffIds={setSelectedStaffIds}
+            staffProfileDrafts={staffProfileDrafts}
+            setStaffProfileDrafts={setStaffProfileDrafts}
             enableScheduleAssignment
             scheduleMode={mode}
             scheduleTimezone={staffScheduleTimezone}

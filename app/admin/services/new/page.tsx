@@ -12,8 +12,14 @@ type MeUser = {
 type StaffOption = {
   id: string;
   full_name: string | null;
+  email?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
   role: "staff" | "admin" | "superadmin" | "customer";
   is_active: boolean;
+  average_rating?: number | null;
+  completed_bookings?: number;
+  experience_level?: string | null;
 };
 
 async function getMe(): Promise<MeUser | null> {

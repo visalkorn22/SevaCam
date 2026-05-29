@@ -32,16 +32,29 @@ type ServiceCreationLayoutProps = {
   staffOptions?: Array<{
     id: string;
     full_name: string | null;
+    email?: string | null;
+    phone?: string | null;
+    avatar_url?: string | null;
     role: "staff" | "admin" | "superadmin" | "customer";
     is_active: boolean;
+    average_rating?: number | null;
+    completed_bookings?: number;
+    experience_level?: string | null;
   }>;
   assignedStaff?: Array<{
     id: string;
     full_name?: string | null;
+    email?: string | null;
     phone?: string | null;
     avatar_url?: string | null;
     role: string;
     assignment_id: string;
+    skills?: string[];
+    bio?: string | null;
+    average_rating?: number | null;
+    review_count?: number;
+    completed_bookings?: number;
+    experience_level?: string | null;
   }>;
 };
 

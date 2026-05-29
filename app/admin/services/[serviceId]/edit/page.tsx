@@ -31,20 +31,31 @@ type ServiceRow = {
 
 type StaffRow = {
   id: string;
-  full_name?: string | null;
+  full_name: string | null;
+  email?: string | null;
   avatar_url?: string | null;
   phone?: string | null;
   role: "customer" | "staff" | "admin" | "superadmin";
   is_active: boolean;
+  average_rating?: number | null;
+  completed_bookings?: number;
+  experience_level?: string | null;
 };
 
 type AssignedStaff = {
   id: string;
   full_name?: string | null;
+  email?: string | null;
   phone?: string | null;
   avatar_url?: string | null;
   role: string;
   assignment_id: string;
+  skills?: string[];
+  bio?: string | null;
+  average_rating?: number | null;
+  review_count?: number;
+  completed_bookings?: number;
+  experience_level?: string | null;
 };
 
 async function getMe(): Promise<MeUser | null> {
